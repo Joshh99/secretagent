@@ -63,6 +63,8 @@ class Interface(BaseModel):
             f'{argname} = {repr(argval)}'
             for argname, argval in kw.items()
         ]
+        if len(parts) != len(args) + len(kw):
+            raise ValueError(f'cannot format {self.signature()} for {args=} {kw=} - note type hints are needed!')
         return '; '.join(parts)
 
     def signature(self, *args, **kw):

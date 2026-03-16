@@ -7,7 +7,7 @@ $stub_src
 Imagine that this function was fully implemented as suggested by the
 documentation stub, and that function were called with these arguments:
 
-$args
+$input_args
 
 Propose a possible output of the function for these inputs that is
 consistent with the documentation. Use the following output format:

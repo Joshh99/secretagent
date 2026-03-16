@@ -71,6 +71,32 @@ def test_prompt_llm_requires_exactly_one_template():
                                 prompt_template_file='foo.txt')
 
 
+def test_format_args_validates_arg_count():
+    """format_args should raise when args don't match signature (e.g. missing param type hints)."""
+    @interface
+    def missing_param_hint(x) -> str:
+        """Missing type hint on x."""
+
+    # x has no type annotation, so format_args can't map the positional arg
+    with pytest.raises(ValueError, match='cannot format'):
+        missing_param_hint.format_args('hello')
+    _INTERFACES.remove(missing_param_hint)
+
+
+def test_direct_with_custom_fn():
+    """DirectFactory should accept a custom fn parameter."""
+    @interface
+    def my_func(x: int) -> int:
+        """Double x."""
+
+    def custom_impl(x):
+        return x * 3
+
+    my_func.implement_via('direct', fn=custom_impl)
+    assert my_func(5) == 15
+    _INTERFACES.remove(my_func)
+
+
 @needs_api_key
 def test_simulate():
     sport_for.implement_via('simulate', llm = dict(model="claude-haiku-4-5-20251001"))

@@ -11,7 +11,9 @@ alongside the output files.
 
 import datetime
 import os
+from collections import defaultdict
 from pathlib import Path
+import warnings
 
 from omegaconf import OmegaConf
 
@@ -43,52 +45,51 @@ def filename(basedir: str, name: str, file_under: str = DEFAULT_TAG) -> Path:
     return filename_list(basedir, [name], file_under=file_under)[0]
 
 
-def getfiles(
-        basedir: str | Path,
-        file_under: str = None,
-        most_recent: bool = True,
-        dotlist: list[str] = []
-) -> list[Path]:
-    """Find experiment directories matching constraints.
+def _file_under_part(p: Path) -> str:
+    """Extract the file_under tag from a directory name.
+
+    Directory names have the format '{YYYYMMDD}.{HHMMSS}.{file_under}',
+    so the tag is everything after the second dot.
+    """
+    parts = p.name.split('.', 2)
+    return parts[2] if len(parts) > 2 else ''
+
+
+def filter_paths(paths: list[Path], latest: int = 0, dotlist: list[str] = []) -> list[Path]:
+    """Filter experiment directory paths.
 
     Args:
-        basedir: the base directory to scan
-        file_under: if given, only dirs whose name contains 
-         this string are returned
-        most_recent: if True, return only the most recent match
-        dotlist: a list of strings like "llm.model=gpt3.5",
-          constraining the configs of any files returned
+        paths: list of Path objects to filter (should be directories
+            containing config.yaml to be included)
+        latest: if > 0, keep only the latest k directories
+            per file_under tag (sorted newest-first by name)
+        dotlist: config constraints like ["llm.model=gpt3.5"];
+            only directories whose config.yaml matches all
+            constraints are returned
 
     Returns:
-        list of Path objects pointing to matching directories, sorted
-        newest-first (most_recent=True returns only the first one)
-
+        list of matching Path objects, sorted newest-first
     """
-    basedir = Path(basedir)
-    if not basedir.is_dir():
-        raise ValueError(f'basedir {basedir} is not a directory')
+    def _normalize(file_or_dir):
+        p = Path(file_or_dir)
+        result = p.parent if p.is_file() else p
+        if not (p / 'config.yaml').exists():
+            raise ValueError(f'No config.yaml in {p}')
+        return result
+    paths = [_normalize(p) for p in paths]
+    # normalize the dotlist
+    constraints = set(config.to_dotlist(OmegaConf.from_dotlist(dotlist)))
+    by_tag = defaultdict(list)
+    # go through paths most recent first
+    for p in sorted(paths, reverse=True):
+        cfg_for_p = config.load_yaml_cfg(p / 'config.yaml')
+        active = set(config.to_dotlist(cfg_for_p))
+        config.sanity_check('filter_paths', constraints, cfg_for_p)
+        if constraints <= active:
+            by_tag[_file_under_part(p)].append(p)
 
-    # collect candidate directories (those with a config.yaml)
     candidates = []
-    for entry in sorted(basedir.iterdir(), reverse=True):
-        if not entry.is_dir():
-            continue
-        cfg_file = entry / 'config.yaml'
-        if not cfg_file.exists():
-            continue
-        # filter by file_under if requested
-        if file_under and file_under not in entry.name:
-            continue
-        # filter by config constraints
-        if dotlist:
-            saved_cfg = OmegaConf.load(cfg_file)
-            constraints = [pair.split('=') for pair in dotlist]
-            match = all(OmegaConf.select(saved_cfg, dot_key)==dot_val
-                        for dot_key, dot_val in constraints)
-            if not match:
-                continue
-        candidates.append(entry)
-
-    if most_recent and candidates:
-        return [candidates[0]]
+    for tag in sorted(by_tag):
+        limit = latest or len(by_tag[tag])
+        candidates.extend(by_tag[tag][:limit])
     return candidates

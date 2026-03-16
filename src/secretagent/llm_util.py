@@ -54,4 +54,3 @@ def llm(prompt: str, model: str) -> tuple[str, dict[str,...]]:
   See cache_util.py for why this weird process is necessary.
   """
   return cached(_llm_impl)(prompt, model)
-

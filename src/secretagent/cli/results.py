@@ -6,25 +6,27 @@ Commands:
     pair      Run paired t-tests on metrics across experiments.
     compare   Show configuration differences between experiments.
 
-Experiments are found via savefile.getfiles(), which scans the
-directory specified by the 'evaluate.result_dir' config key.
+Experiment directories (or CSV files within them) are passed as extra
+positional arguments after the subcommand.  Results are filtered through
+savefile.filter_paths(), which supports ``--latest`` (keep k most recent
+per tag) and ``--check`` (config-key constraints).
 
 Example usage:
 
-    # List all experiments
-    uv run -m secretagent.cli.results list
+    # List all experiments under a directory
+    uv run -m secretagent.cli.results list results/20260301.* --latest 0
 
-    # List only experiments tagged 'baseline'
-    uv run -m secretagent.cli.results list --expt baseline
+    # List only the most recent experiment per tag (default)
+    uv run -m secretagent.cli.results list results/*
 
-    # Show averages for the two most recent experiments
-    uv run -m secretagent.cli.results average --most-recent
+    # Show averages with a config constraint
+    uv run -m secretagent.cli.results average results/* --check llm.model=gpt-4o
 
-    # Paired t-test between experiments with different models
-    uv run -m secretagent.cli.results pair
+    # Paired t-test between experiments
+    uv run -m secretagent.cli.results pair results/* --latest 0
 
     # Compare configs across experiments
-    uv run -m secretagent.cli.results compare
+    uv run -m secretagent.cli.results compare results/* --latest 0
 """
 
 import typer
@@ -43,36 +45,20 @@ app = typer.Typer()
 _EXTRA_ARGS = {"allow_extra_args": True, "allow_interspersed_args": False}
 
 
-def _apply_dotlist(ctx: typer.Context):
-    """Apply any dotlist config overrides from extra CLI args."""
-    if ctx.args:
-        config.configure(dotlist=ctx.args)
+def _get_dirs(ctx: typer.Context, latest: int = 1, check: Optional[list[str]] = None) -> list[Path]:
+    """Resolve experiment directories from extra CLI args.
 
-
-def _get_dirs(
-    expt: Optional[str],
-    most_recent: bool,
-) -> list[Path]:
-    """Find experiment directories, optionally filtering by expt_name."""
-    basedir = config.require('evaluate.result_dir')
-    dirs = savefile.getfiles(basedir, file_under=expt, most_recent=most_recent)
-    if not dirs:
-        typer.echo('No matching experiment directories found.')
-        raise typer.Exit(1)
-    return dirs
-
-
-def _load_csv(dirs: list[Path]) -> pd.DataFrame:
-    """Load and concatenate results.csv from each experiment directory."""
-    frames = []
+    Extra args in ctx.args are files or directories.
+    files are mapped to their parent directory.
+    Results are filtered through savefile.filter_paths.
+    """
+    if not ctx.args:
+        raise ValueError('No paths provided.')
+    dirs = savefile.filter_paths(ctx.args, latest=latest, dotlist=check or [])
     for d in dirs:
-        csv_path = d / 'results.csv'
-        if csv_path.exists():
-            frames.append(pd.read_csv(csv_path))
-    if not frames:
-        typer.echo('No results.csv files found.')
-        raise typer.Exit(1)
-    return pd.concat(frames, ignore_index=True)
+        if not (Path(d) / 'results.csv').exists():
+            raise ValueError(f'No results.csv in {d}')
+    return dirs
 
 
 def _load_config(d: Path) -> dict:
@@ -83,109 +69,80 @@ def _load_config(d: Path) -> dict:
     return OmegaConf.to_container(OmegaConf.load(cfg_path), resolve=True)
 
 
-def _flatten(d, prefix=''):
-    """Flatten a nested dict into dot-separated keys."""
-    items = {}
-    for k, v in d.items():
-        key = f'{prefix}.{k}' if prefix else k
-        if isinstance(v, dict):
-            items.update(_flatten(v, key))
-        else:
-            items[key] = v
-    return items
-
-
 @app.command('list', context_settings=_EXTRA_ARGS)
 def list_experiments(
     ctx: typer.Context,
-    expt: Optional[str] = typer.Option(None, help='Filter by expt_name'),
-    most_recent: bool = typer.Option(True, help='Only show most recent; use --no-most-recent for all'),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
 ):
-    """Show available experiment directories and row counts."""
-    _apply_dotlist(ctx)
-    basedir = config.require('evaluate.result_dir')
-    dirs = savefile.getfiles(basedir, file_under=expt, most_recent=most_recent)
-    if not dirs:
-        typer.echo('No matching experiment directories found.')
-        raise typer.Exit(1)
+    """Show available experiment directories and row counts.
+
+    Extra args are CSV files or directories to inspect.
+    """
+    dirs = _get_dirs(ctx, latest=latest, check=check)
     for d in dirs:
         csv_path = d / 'results.csv'
-        if csv_path.exists():
-            n = len(pd.read_csv(csv_path))
-            typer.echo(f'{n:5d}  {d.name}')
-        else:
-            typer.echo(f'    ?  {d.name}  (no results.csv)')
+        n = len(pd.read_csv(csv_path))
+        print(f'{n:5d} examples in {d.name}')
 
 
 @app.command(context_settings=_EXTRA_ARGS)
 def average(
-    ctx: typer.Context,
-    expt: Optional[str] = typer.Option(None, help='Filter by expt_name'),
-    most_recent: bool = typer.Option(True, help='Only show most recent; use --no-most-recent for all'),
-    metric: str = typer.Option('correct', help='Metric column to summarize'),
+        ctx: typer.Context,
+        latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+        check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+        metric: Optional[list[str]] = typer.Option(None, help='Metrics to average'),
 ):
     """Report mean +/- stderr of a metric and latency, grouped by experiment."""
-    _apply_dotlist(ctx)
-    dirs = _get_dirs(expt, most_recent)
-    df = _load_csv(dirs)
-    stats = df.groupby('expt_name').agg(
-        n=(metric, 'count'),
-        metric_mean=(metric, 'mean'),
-        metric_sem=(metric, 'sem'),
-        latency_mean=('latency', 'mean'),
-        latency_sem=('latency', 'sem'),
-        cost_sum=('cost', 'sum'),
-    )
-    stats[metric] = stats.apply(
-        lambda r: f'{r.metric_mean:.3f} +/- {r.metric_sem:.3f}', axis=1)
-    stats['latency'] = stats.apply(
-        lambda r: f'{r.latency_mean:.3f} +/- {r.latency_sem:.3f}', axis=1)
-    stats['cost'] = stats['cost_sum'].apply(lambda c: f'${c:.4f}')
-    typer.echo(stats[['n', metric, 'latency', 'cost']].to_string())
+    if metric is None:
+        metric = ['cost']
+    dirs = _get_dirs(ctx, latest=latest, check=check)
+    dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
+    for path, df in zip(dirs, dfs):
+        df['path'] = [str(path)] * len(df)
+    result = pd.concat(dfs).groupby('path')[metric].agg(['mean', 'sem'])
+    print(result)
 
 
 @app.command(context_settings=_EXTRA_ARGS)
 def pair(
     ctx: typer.Context,
-    expt: Optional[str] = typer.Option(None, help='Filter by expt_name'),
-    most_recent: bool = typer.Option(True, help='Only show most recent; use --no-most-recent for all'),
-    metric: str = typer.Option('correct', help='Metric column to compare'),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+    metric: Optional[list[str]] = typer.Option(None, help='Metrics to pair'),
 ):
     """Run paired t-tests on a metric and latency across experiments."""
-    _apply_dotlist(ctx)
-    dirs = _get_dirs(expt, most_recent)
-    df = _load_csv(dirs)
-    experiments = sorted(df['expt_name'].unique())
-    if len(experiments) < 2:
-        typer.echo('Need at least 2 experiments for paired comparison.')
-        raise typer.Exit(1)
-    # group by experiment; use row index within each group for pairing
-    by_expt = {}
-    for name, group in df.groupby('expt_name'):
-        by_expt[name] = group.reset_index(drop=True)
-    for a, b in combinations(experiments, 2):
-        da, db = by_expt[a], by_expt[b]
-        n = min(len(da), len(db))
-        if n < 2:
-            typer.echo(f'\n{a} vs {b}: not enough rows (n={n}), skipping')
+    dirs = _get_dirs(ctx, latest=latest, check=check)
+    dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
+    if len(dfs) < 2:
+        raise ValueError('Need at least 2 experiments for paired comparison')
+    rows = []
+    for (pa, da), (pb, db) in combinations(zip(dirs, dfs), 2):
+        joined = da.join(db, lsuffix='_a', rsuffix='_b', how='inner')
+        n = len(joined)
+        if n == 0:
+            print(f"\n{pa} vs {pb}: <2 shared example_ids, skipping")
             continue
-        da, db = da.iloc[:n], db.iloc[:n]
-        met_t, met_p = scipy_stats.ttest_rel(da[metric], db[metric])
-        lat_t, lat_p = scipy_stats.ttest_rel(da['latency'], db['latency'])
-        typer.echo(f'\n{a} vs {b}  (n={n} paired examples)')
-        typer.echo(f'  {metric}:  t={met_t:+.3f}  p={met_p:.4f}{"  *" if met_p < 0.05 else ""}')
-        typer.echo(f'  latency:  t={lat_t:+.3f}  p={lat_p:.4f}{"  *" if lat_p < 0.05 else ""}')
-
+        for m in metric:
+            print('****', joined[f'{m}_a'])
+            print('****', joined[f'{m}_b'])
+            t, p = scipy_stats.ttest_rel(joined[f'{m}_a'], joined[f'{m}_b'])
+            rows.append({
+                'comparison': f'{pa} vs {pb}',
+                'n': n,
+                f'{m}_t': t,
+                f'{m}_p': p})
+    print(pd.DataFrame(rows))
+            
 
 @app.command(context_settings=_EXTRA_ARGS)
 def compare(
     ctx: typer.Context,
-    expt: Optional[str] = typer.Option(None, help='Filter by expt_name'),
-    most_recent: bool = typer.Option(True, help='Only show most recent; use --no-most-recent for all'),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
 ):
     """Show configuration differences between experiments."""
-    _apply_dotlist(ctx)
-    dirs = _get_dirs(expt, most_recent)
+    dirs = _get_dirs(ctx, latest=latest, check=check)
     if len(dirs) < 2:
         typer.echo('Need at least 2 experiment directories to compare.')
         raise typer.Exit(1)
@@ -193,7 +150,7 @@ def compare(
     for d in dirs:
         cfg = _load_config(d)
         if cfg:
-            configs[d.name] = _flatten(cfg)
+            configs[d.name] = dict(pair.split('=', 1) for pair in config.to_dotlist(OmegaConf.create(cfg)))
     if len(configs) < 2:
         typer.echo('Not enough configs found to compare.')
         raise typer.Exit(1)
@@ -222,10 +179,6 @@ def main(
     config_file: Optional[str] = typer.Option(None, help='YAML config file to load'),
 ):
     """Analyze experiment results saved by savefile.
-
-    Extra args after the subcommand are parsed as config overrides in
-    dot notation, e.g.:
-        uv run -m secretagent.cli.results list evaluate.result_dir=/tmp/results
     """
     if config_file:
         config.configure(yaml_file=config_file)

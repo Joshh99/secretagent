@@ -23,12 +23,17 @@ def _load_template(name: str) -> Template:
     return Template((PROMPT_TEMPLATE_DIR / name).read_text())
 
 class DirectFactory(Implementation.Factory):
-    """Use the function body as the implementation.
+    """Use a Python function as the implementation.
+
+    Defaults to the body of the interface functions. 
     """
-    def build_fn(self, interface: Interface, **_kw) -> Callable:
-        return interface.func
-
-
+    def build_fn(self, interface: Interface, fn: Callable | str | None = None, **_kw) -> Callable:
+        if isinstance(fn, str):
+            return locals()[fn]
+        elif fn is not None:
+            return fn
+        else:
+            return interface.func
 
 class SimulateFactory(Implementation.Factory):
     """Simulate a function call with an LLM.
@@ -50,13 +55,15 @@ class SimulateFactory(Implementation.Factory):
         """
         template = _load_template('simulate.txt')
         input_args = interface.format_args(*args, **kw)
+        if (not input_args.strip()):
+            raise ValueError(f'input_args null for {args=} {kw=}')
         if config.get('llm.thinking'):
             thoughts = "<thought>\nANY THOUGHTS\n</thought>\n"
         else:
             thoughts = ""
         prompt = template.substitute(
             dict(stub_src=interface.src,
-                 args=input_args,
+                 input_args=input_args,
                  thoughts=thoughts))
         return prompt
 
@@ -130,6 +137,7 @@ def _extract_answer(return_type, text, answer_pattern):
             'answer_pattern is required when return type is not str')
     match_result = re.search(answer_pattern, text, re.DOTALL | re.MULTILINE)
     if match_result is None:
+        llm_util.echo_boxed(text, 'bad code_eval_output')
         raise ValueError(f'cannot find answer matching pattern {answer_pattern!r}')
     final_answer = match_result.group(1).strip()
     if return_type in [int, str, float]:
@@ -169,7 +177,7 @@ class PoTFactory(Implementation.Factory):
                 generated_code = _extract_answer(
                     str,
                     llm_output,
-                    answer_pattern='```python\n(.*)\n```')
+                    answer_pattern='```python\n([^`]*)\n```')
                 if config.get('echo.code_eval_input'):
                     llm_util.echo_boxed(generated_code, 'code_eval_input')
                 code_output = python_executor(generated_code)
@@ -186,6 +194,8 @@ class PoTFactory(Implementation.Factory):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
         input_args = interface.format_args(*args, **kw)
+        if (not input_args.strip()):
+            raise ValueError(f'input_args null for {interface.name} on {args=} {kw=}')
         tool_stub_src_listing = '\n\n'.join([
             tool_interface.src
             for tool_interface in all_interfaces()

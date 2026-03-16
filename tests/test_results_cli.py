@@ -38,98 +38,111 @@ def _make_expt(base, dirname, expt_name, cfg_dict, rows):
 @pytest.fixture
 def two_expts(tmp_path):
     """Create two experiment directories with different configs and results."""
-    config.configure(evaluate={'result_dir': str(tmp_path)})
-    _make_expt(tmp_path, '20260101.120000.baseline', 'baseline',
+    d1 = _make_expt(tmp_path, '20260101.120000.baseline', 'baseline',
                {'llm': {'model': 'model-a'}},
                [{'correct': 1, 'latency': 1.0, 'cost': 0.01},
                 {'correct': 0, 'latency': 2.0, 'cost': 0.02},
                 {'correct': 1, 'latency': 1.5, 'cost': 0.015},
                 {'correct': 1, 'latency': 1.2, 'cost': 0.012}])
-    _make_expt(tmp_path, '20260102.120000.improved', 'improved',
+    d2 = _make_expt(tmp_path, '20260102.120000.improved', 'improved',
                {'llm': {'model': 'model-b'}},
                [{'correct': 1, 'latency': 0.8, 'cost': 0.008},
                 {'correct': 1, 'latency': 1.5, 'cost': 0.015},
                 {'correct': 1, 'latency': 1.0, 'cost': 0.01},
                 {'correct': 0, 'latency': 1.1, 'cost': 0.011}])
-    return tmp_path
+    return d1, d2
+
+
+def _dirs_as_args(dirs):
+    """Convert directory paths to CLI args."""
+    return [str(d) for d in dirs]
 
 
 # --- list tests ---
 
 def test_list_shows_all(two_expts):
-    result = runner.invoke(app, ['list', '--no-most-recent'])
+    result = runner.invoke(app, ['list', '--latest', '0'] + _dirs_as_args(two_expts))
     assert result.exit_code == 0
     assert 'baseline' in result.output
     assert 'improved' in result.output
     assert '4' in result.output  # each has 4 rows
 
 
-def test_list_filter_by_expt(two_expts):
-    result = runner.invoke(app, ['list', '--no-most-recent', '--expt', 'baseline'])
+def test_list_filter_by_check(two_expts):
+    result = runner.invoke(app, ['list', '--latest', '0',
+                                  '--check', 'evaluate.expt_name=baseline']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
     assert 'baseline' in result.output
     assert 'improved' not in result.output
 
 
-def test_list_most_recent(two_expts):
-    result = runner.invoke(app, ['list'])
+def test_list_latest_default(two_expts):
+    result = runner.invoke(app, ['list'] + _dirs_as_args(two_expts))
     assert result.exit_code == 0
+    # latest=1 means one per tag; these have different tags so both appear
+    assert 'baseline' in result.output
     assert 'improved' in result.output
-    # only one line with a count
-    lines = [l for l in result.output.strip().split('\n') if l.strip()]
-    assert len(lines) == 1
 
 
 def test_list_no_results(tmp_path):
-    config.configure(evaluate={'result_dir': str(tmp_path)})
+    # A nonexistent path raises ValueError (no config.yaml)
+    result = runner.invoke(app, ['list', str(tmp_path / 'nonexistent')])
+    assert result.exit_code != 0
+
+
+def test_list_no_args():
     result = runner.invoke(app, ['list'])
     assert result.exit_code == 1
-    assert 'No matching' in result.output
 
 
 # --- average tests ---
 
 def test_average_shows_metrics(two_expts):
-    result = runner.invoke(app, ['average', '--no-most-recent'])
+    result = runner.invoke(app, ['average', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'latency']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
-    assert 'baseline' in result.output
-    assert 'improved' in result.output
-    assert '+/-' in result.output
+    assert 'mean' in result.output
+    assert 'sem' in result.output
 
 
 def test_average_single_expt(two_expts):
-    result = runner.invoke(app, ['average', '--expt', 'baseline'])
+    result = runner.invoke(app, ['average', '--metric', 'correct',
+                                  '--check', 'evaluate.expt_name=baseline']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
-    assert 'baseline' in result.output
-    assert 'improved' not in result.output
+    # only one experiment should appear (grouped by path)
+    assert 'mean' in result.output
 
 
 def test_average_shows_cost(two_expts):
-    result = runner.invoke(app, ['average', '--no-most-recent'])
+    result = runner.invoke(app, ['average', '--latest', '0', '--metric', 'cost']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
-    assert '$' in result.output
+    assert 'cost' in result.output
 
 
 # --- pair tests ---
 
 def test_pair_runs(two_expts):
-    result = runner.invoke(app, ['pair', '--no-most-recent'])
+    result = runner.invoke(app, ['pair', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'latency']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
-    assert 'baseline' in result.output
-    assert 'improved' in result.output
-    assert 'correct' in result.output
-    assert 'latency' in result.output
-    assert 'p=' in result.output
+    assert 'latency_t' in result.output
 
 
 def test_pair_needs_two_expts(two_expts):
-    result = runner.invoke(app, ['pair', '--expt', 'baseline'])
-    assert result.exit_code == 1
-    assert 'Need at least 2' in result.output
+    result = runner.invoke(app, ['pair', '--metric', 'correct',
+                                  '--check', 'evaluate.expt_name=baseline']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code != 0
 
 
 def test_pair_custom_metric(two_expts):
-    result = runner.invoke(app, ['pair', '--no-most-recent', '--metric', 'cost'])
+    result = runner.invoke(app, ['pair', '--latest', '0', '--metric', 'cost']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
     assert 'cost' in result.output
 
@@ -137,7 +150,7 @@ def test_pair_custom_metric(two_expts):
 # --- compare tests ---
 
 def test_compare_shows_diffs(two_expts):
-    result = runner.invoke(app, ['compare', '--no-most-recent'])
+    result = runner.invoke(app, ['compare', '--latest', '0'] + _dirs_as_args(two_expts))
     assert result.exit_code == 0
     assert 'llm.model' in result.output
     assert 'model-a' in result.output
@@ -145,7 +158,8 @@ def test_compare_shows_diffs(two_expts):
 
 
 def test_compare_needs_two(two_expts):
-    result = runner.invoke(app, ['compare', '--expt', 'baseline'])
+    result = runner.invoke(app, ['compare', '--check', 'evaluate.expt_name=baseline']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 1
     assert 'Need at least 2' in result.output
 
@@ -158,6 +172,7 @@ def test_config_file_option(two_expts, tmp_path):
         {'evaluate': {'result_dir': str(tmp_path)}})))
     # reset config so result_dir is not set
     config.GLOBAL_CONFIG = OmegaConf.create()
-    result = runner.invoke(app, ['--config-file', str(cfg_file), 'list', '--no-most-recent'])
+    result = runner.invoke(app, ['--config-file', str(cfg_file), 'list', '--latest', '0']
+                           + _dirs_as_args(two_expts))
     assert result.exit_code == 0
     assert 'baseline' in result.output

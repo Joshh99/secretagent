@@ -55,6 +55,68 @@ def test_dotlist_overrides_earlier_config():
     assert config.get("llm.model") == "new-model"
 
 
+def test_dotlist_preserves_existing_keys():
+    """Regression: configure(dotlist=...) should merge, not clobber existing config."""
+    config.configure(llm={"model": "claude"}, echo={"service": True})
+    config.configure(dotlist=["llm.thinking=true"])
+    assert config.get("llm.model") == "claude"
+    assert config.get("echo.service") is True
+    assert config.get("llm.thinking") is True
+
+
+# --- config.to_dotlist() ---
+
+def test_to_dotlist_flat():
+    cfg = OmegaConf.create({"a": 1, "b": "hello"})
+    result = config.to_dotlist(cfg)
+    assert "a=1" in result
+    assert "b=hello" in result
+
+
+def test_to_dotlist_nested():
+    cfg = OmegaConf.create({"llm": {"model": "claude", "thinking": True}})
+    result = config.to_dotlist(cfg)
+    assert "llm.model=claude" in result
+    assert "llm.thinking=True" in result
+
+
+def test_to_dotlist_empty():
+    cfg = OmegaConf.create({})
+    assert config.to_dotlist(cfg) == []
+
+
+# --- config.load_yaml_cfg() ---
+
+def test_load_yaml_cfg(tmp_path):
+    cfg_file = tmp_path / "test.yaml"
+    cfg_file.write_text(OmegaConf.to_yaml(OmegaConf.create({"llm": {"model": "claude"}})))
+    loaded = config.load_yaml_cfg(cfg_file)
+    assert OmegaConf.select(loaded, "llm.model") == "claude"
+
+
+def test_load_yaml_cfg_missing_file(tmp_path):
+    with pytest.raises(ValueError, match="expected config file"):
+        config.load_yaml_cfg(tmp_path / "nonexistent.yaml")
+
+
+# --- config.sanity_check() ---
+
+def test_sanity_check_no_warning_on_valid_key():
+    cfg = OmegaConf.create({"llm": {"model": "claude"}})
+    # should not warn
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        config.sanity_check("test", ["llm.model=claude"], cfg)
+
+
+def test_sanity_check_warns_on_unknown_key():
+    cfg = OmegaConf.create({"llm": {"model": "claude"}})
+    import warnings
+    with pytest.warns(match="unexpected config key"):
+        config.sanity_check("test", ["llm.nonexistent=foo"], cfg)
+
+
 # --- config.set_root() ---
 
 def test_set_root_resolves_relative_dir():

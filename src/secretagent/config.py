@@ -4,6 +4,8 @@
 from contextlib import contextmanager
 from omegaconf import OmegaConf, DictConfig
 from typing import Any
+from pathlib import Path
+import warnings
 
 GLOBAL_CONFIG: DictConfig = OmegaConf.create()
 
@@ -23,7 +25,7 @@ def configure(yaml_file=None, cfg=None, dotlist=None, **kw):
     if cfg is not None:
         GLOBAL_CONFIG = OmegaConf.merge(GLOBAL_CONFIG, cfg)
     if dotlist is not None:
-        configure(cfg=OmegaConf.from_dotlist(dotlist))
+        GLOBAL_CONFIG = OmegaConf.merge(GLOBAL_CONFIG, OmegaConf.from_dotlist(dotlist))
     if kw:
         GLOBAL_CONFIG = OmegaConf.merge(GLOBAL_CONFIG, kw)
 
@@ -82,3 +84,36 @@ def save(filename):
     """
     with open(filename, 'w') as fp:
         fp.write(OmegaConf.to_yaml(GLOBAL_CONFIG))
+
+#
+# some utils for working with configs that don't involve changing the global config
+#
+
+def load_yaml_cfg(pathlike):
+    path = Path(pathlike)
+    if not path.exists():
+        raise ValueError(f'expected config file at {path}')
+    return OmegaConf.load(path)
+
+def to_dotlist(cfg):
+    """Flatten a nested dict into dot-separated keys."""
+    def collect_pairs(cfg, ancestors=[]):
+        def lhs(ancestors, key):
+            return ".".join(ancestors + [key])
+        pairs = []
+        for k, v in cfg.items():
+            if isinstance(v, DictConfig):
+                pairs.extend(collect_pairs(v, ancestors + [k]))
+            else:
+                pairs.append(f'{lhs(ancestors, k)}={v}')
+        return pairs
+    return collect_pairs(cfg, [])
+
+def sanity_check(context_msg: str, dotlist, full_cfg):
+    """
+    """
+    for pair in dotlist:
+        key, val = pair.split('=')
+        if OmegaConf.select(full_cfg, key) is None:
+            expected_keys = [pair.split('=')[0] for pair in to_dotlist(full_cfg)]
+            warnings.warn(f'{context_msg}: unexpected config key {key} in {pair}: expected {expected_keys}')

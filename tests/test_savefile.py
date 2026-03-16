@@ -80,7 +80,7 @@ def test_filename_with_file_under(result_dir):
     assert 'test_expt' in path.parent.name
 
 
-# --- getfiles tests ---
+# --- filter_paths tests ---
 
 def _make_expt_dir(base, name, cfg_dict):
     """Helper to create a fake experiment directory with config.yaml."""
@@ -91,82 +91,80 @@ def _make_expt_dir(base, name, cfg_dict):
     return d
 
 
-def test_getfiles_finds_all(result_dir):
+def _all_subdirs(base):
+    """Return all subdirectory Paths under base."""
+    return sorted(base.iterdir())
+
+
+def test_filter_paths_finds_all(result_dir):
     _make_expt_dir(result_dir, '20260101.120000.exptA', {'llm': {'model': 'a'}})
     _make_expt_dir(result_dir, '20260102.120000.exptB', {'llm': {'model': 'b'}})
-    dirs = savefile.getfiles(result_dir, most_recent=False)
+    dirs = savefile.filter_paths(_all_subdirs(result_dir), latest=0)
     assert len(dirs) == 2
 
 
-def test_getfiles_filters_by_file_under(result_dir):
-    _make_expt_dir(result_dir, '20260101.120000.test_expt', {'llm': {'model': 'a'}})
-    _make_expt_dir(result_dir, '20260102.120000.other', {'llm': {'model': 'b'}})
-    dirs = savefile.getfiles(result_dir, file_under='test_expt')
-    assert len(dirs) == 1
-    assert 'test_expt' in dirs[0].name
-
-
-def test_getfiles_most_recent(result_dir):
+def test_filter_paths_latest_per_tag(result_dir):
     _make_expt_dir(result_dir, '20260101.120000.exptA', {'llm': {'model': 'a'}})
-    _make_expt_dir(result_dir, '20260102.120000.exptB', {'llm': {'model': 'b'}})
-    dirs = savefile.getfiles(result_dir, most_recent=True)
-    assert len(dirs) == 1
-    assert 'exptB' in dirs[0].name
+    _make_expt_dir(result_dir, '20260102.120000.exptA', {'llm': {'model': 'b'}})
+    _make_expt_dir(result_dir, '20260103.120000.exptB', {'llm': {'model': 'c'}})
+    dirs = savefile.filter_paths(_all_subdirs(result_dir), latest=1)
+    assert len(dirs) == 2  # one per tag
+    names = {d.name for d in dirs}
+    assert '20260102.120000.exptA' in names  # most recent exptA
+    assert '20260103.120000.exptB' in names
 
 
-def test_getfiles_config_filter(result_dir):
+def test_filter_paths_config_filter(result_dir):
     _make_expt_dir(result_dir, '20260101.120000.exptA', {'llm': {'model': 'model-a'}})
     _make_expt_dir(result_dir, '20260102.120000.exptB', {'llm': {'model': 'model-b'}})
-    dirs = savefile.getfiles(result_dir, dotlist=['llm.model=model-a'])
+    dirs = savefile.filter_paths(_all_subdirs(result_dir), dotlist=['llm.model=model-a'])
     assert len(dirs) == 1
     assert 'exptA' in dirs[0].name
 
 
-def test_getfiles_config_filter_no_match(result_dir):
+def test_filter_paths_config_filter_no_match(result_dir):
     _make_expt_dir(result_dir, '20260101.120000.exptA', {'llm': {'model': 'model-a'}})
-    dirs = savefile.getfiles(result_dir, dotlist=['llm.model=no-such-model'])
+    dirs = savefile.filter_paths(_all_subdirs(result_dir), dotlist=['llm.model=no-such-model'])
     assert len(dirs) == 0
 
 
-def test_getfiles_combined_filters(result_dir):
-    _make_expt_dir(result_dir, '20260101.120000.test_expt', {'llm': {'model': 'model-a'}})
-    _make_expt_dir(result_dir, '20260102.120000.test_expt', {'llm': {'model': 'model-b'}})
-    _make_expt_dir(result_dir, '20260103.120000.other', {'llm': {'model': 'model-a'}})
-    dirs = savefile.getfiles(
-        result_dir,
-        file_under='test_expt',
+def test_filter_paths_combined_filters(result_dir):
+    d1 = _make_expt_dir(result_dir, '20260101.120000.test_expt', {'llm': {'model': 'model-a'}})
+    d2 = _make_expt_dir(result_dir, '20260102.120000.test_expt', {'llm': {'model': 'model-b'}})
+    d3 = _make_expt_dir(result_dir, '20260103.120000.other', {'llm': {'model': 'model-a'}})
+    dirs = savefile.filter_paths(
+        [d1, d2, d3],
         dotlist=['llm.model=model-a'])
-    assert len(dirs) == 1
-    assert 'test_expt' in dirs[0].name
+    assert len(dirs) == 2  # d1 and d3 match
+    dirs = savefile.filter_paths(
+        [d1, d2, d3],
+        latest=1,
+        dotlist=['llm.model=model-a'])
+    assert len(dirs) == 2  # one per tag: test_expt and other
 
 
-def test_getfiles_empty_dir(result_dir):
-    dirs = savefile.getfiles(result_dir)
+def test_filter_paths_empty_list(result_dir):
+    dirs = savefile.filter_paths([])
     assert dirs == []
 
 
-def test_getfiles_ignores_non_dirs(result_dir):
-    # file without config.yaml should be ignored
+def test_filter_paths_rejects_non_dirs(result_dir):
     (result_dir / 'stray_file.txt').write_text('hello')
-    dirs = savefile.getfiles(result_dir)
-    assert dirs == []
+    with pytest.raises(ValueError, match='No config.yaml'):
+        savefile.filter_paths(_all_subdirs(result_dir))
 
 
-def test_getfiles_ignores_dirs_without_config(result_dir):
+def test_filter_paths_rejects_dirs_without_config(result_dir):
     (result_dir / 'no_config_dir').mkdir()
-    dirs = savefile.getfiles(result_dir)
-    assert dirs == []
+    with pytest.raises(ValueError, match='No config.yaml'):
+        savefile.filter_paths(_all_subdirs(result_dir))
 
 
-def test_getfiles_nonexistent_basedir(tmp_path):
-    with pytest.raises(ValueError, match='is not a directory'):
-        savefile.getfiles(tmp_path / 'does_not_exist')
-
-
-def test_getfiles_sorted_oldest_first(result_dir):
+def test_filter_paths_sorted_by_tag_then_newest(result_dir):
     _make_expt_dir(result_dir, '20260103.120000.c', {'x': 1})
     _make_expt_dir(result_dir, '20260101.120000.a', {'x': 1})
     _make_expt_dir(result_dir, '20260102.120000.b', {'x': 1})
-    dirs = savefile.getfiles(result_dir)
+    dirs = savefile.filter_paths(_all_subdirs(result_dir), latest=0)
     names = [d.name for d in dirs]
-    assert names == sorted(names)
+    # grouped by tag alphabetically, newest first within each tag
+    assert names == ['20260101.120000.a', '20260102.120000.b', '20260103.120000.c']
