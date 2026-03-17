@@ -1,0 +1,193 @@
+"""Tests for resolve_dotted and resolve_tools utilities."""
+
+import pytest
+from omegaconf import OmegaConf
+
+from secretagent import config
+from secretagent.core import interface, _INTERFACES
+from secretagent.implement_core import resolve_dotted, resolve_tools
+
+
+@pytest.fixture(autouse=True)
+def reset_config():
+    config.GLOBAL_CONFIG = OmegaConf.create()
+    yield
+    config.GLOBAL_CONFIG = OmegaConf.create()
+
+
+# --- resolve_dotted ---
+
+def test_resolve_dotted_stdlib():
+    """Resolves a dotted name from the standard library."""
+    result = resolve_dotted('os.path.join')
+    import os.path
+    assert result is os.path.join
+
+
+def test_resolve_dotted_module():
+    """Resolves a top-level module."""
+    result = resolve_dotted('os')
+    import os
+    assert result is os
+
+
+def test_resolve_dotted_nested():
+    """Resolves a nested attribute."""
+    result = resolve_dotted('os.path.sep')
+    import os.path
+    assert result == os.path.sep
+
+
+def test_resolve_dotted_bad_module():
+    with pytest.raises(ModuleNotFoundError):
+        resolve_dotted('nonexistent_module_xyz.foo')
+
+
+def test_resolve_dotted_bad_attr():
+    with pytest.raises(AttributeError):
+        resolve_dotted('os.nonexistent_attribute_xyz')
+
+
+# --- resolve_tools ---
+
+def test_resolve_tools_none():
+    """None returns an empty list."""
+    @interface
+    def dummy(x: int) -> int:
+        """Dummy."""
+
+    assert resolve_tools(dummy, None) == []
+    _INTERFACES.remove(dummy)
+
+
+def test_resolve_tools_empty_list():
+    """Empty list returns an empty list."""
+    @interface
+    def dummy(x: int) -> int:
+        """Dummy."""
+
+    assert resolve_tools(dummy, []) == []
+    _INTERFACES.remove(dummy)
+
+
+def test_resolve_tools_all():
+    """'__all__' returns all implemented interfaces except the given one."""
+    @interface
+    def tool_a(x: int) -> int:
+        """Tool A."""
+        return x + 1
+
+    tool_a.implement_via('direct')
+
+    @interface
+    def tool_b(x: int) -> int:
+        """Tool B."""
+        return x + 2
+
+    tool_b.implement_via('direct')
+
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    resolved = resolve_tools(main_fn, '__all__')
+    # should include tool_a and tool_b's implementing functions
+    assert tool_a.implementation.implementing_fn in resolved
+    assert tool_b.implementation.implementing_fn in resolved
+    # should not include main_fn (unimplemented, and it's the excluded interface)
+    _INTERFACES.remove(tool_a)
+    _INTERFACES.remove(tool_b)
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_all_excludes_self():
+    """'__all__' excludes the interface itself even if implemented."""
+    @interface
+    def self_fn(x: int) -> int:
+        """Self."""
+        return x
+
+    self_fn.implement_via('direct')
+
+    resolved = resolve_tools(self_fn, '__all__')
+    assert self_fn.implementation.implementing_fn not in resolved
+    _INTERFACES.remove(self_fn)
+
+
+def test_resolve_tools_with_interface():
+    """An Interface in the list is resolved to its implementing function."""
+    @interface
+    def tool_a(x: int) -> int:
+        """Tool A."""
+        return x + 1
+
+    tool_a.implement_via('direct')
+
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    resolved = resolve_tools(main_fn, [tool_a])
+    assert resolved == [tool_a.implementation.implementing_fn]
+    _INTERFACES.remove(tool_a)
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_with_callable():
+    """A plain callable is passed through as-is."""
+    def my_func(x):
+        return x
+
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    resolved = resolve_tools(main_fn, [my_func])
+    assert resolved == [my_func]
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_with_string():
+    """A dotted string is resolved via resolve_dotted."""
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    resolved = resolve_tools(main_fn, ['os.path.join'])
+    import os.path
+    assert resolved == [os.path.join]
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_mixed():
+    """A list with mixed types (Interface, callable, string) all resolve."""
+    @interface
+    def tool_a(x: int) -> int:
+        """Tool A."""
+        return x + 1
+
+    tool_a.implement_via('direct')
+
+    def my_func(x):
+        return x
+
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    import os.path
+    resolved = resolve_tools(main_fn, [tool_a, my_func, 'os.path.join'])
+    assert resolved == [tool_a.implementation.implementing_fn, my_func, os.path.join]
+    _INTERFACES.remove(tool_a)
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_string_bad_name():
+    """A bad dotted string raises an error."""
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    with pytest.raises((ModuleNotFoundError, AttributeError)):
+        resolve_tools(main_fn, ['nonexistent_module_xyz.foo'])
+    _INTERFACES.remove(main_fn)

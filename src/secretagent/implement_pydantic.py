@@ -16,8 +16,8 @@ from litellm import cost_per_token
 
 from secretagent import config, record
 from secretagent.cache_util import cached, clear_all_caches
-from secretagent.core import Interface, all_interfaces, register_factory
-from secretagent.implement_core import SimulateFactory
+from secretagent.core import Interface, register_factory
+from secretagent.implement_core import SimulateFactory, resolve_tools
 from secretagent.llm_util import echo_boxed
 
 def _run_agent_hashkey(_, kwds):
@@ -93,15 +93,7 @@ class SimulatePydanticFactory(SimulateFactory):
     """
 
     def build_fn(self, interface: Interface, tools=None, **prompt_kw) -> Callable:
-        if tools == '__all__':
-            # use all implemented interfaces except the current one
-            tools = [iface for iface in all_interfaces()
-                     if iface is not interface and iface.implementation is not None]
-        tools = tools or []
-        # pydantic seems to need tools to be functions, not just callable
-        for i in range(len(tools)):
-            if isinstance(tools[i], Interface):
-                tools[i] = tools[i].implementation.implementing_fn
+        tools = resolve_tools(interface, tools)
 
         def result_fn(*args, **kw):
             with config.configuration(**prompt_kw):

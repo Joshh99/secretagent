@@ -6,7 +6,7 @@ from omegaconf import OmegaConf
 
 from secretagent import config, record
 from secretagent.core import interface, all_factories, all_interfaces, _INTERFACES
-from secretagent.implement_core import PoTFactory
+from secretagent.implement_core import PoTFactory, resolve_tools
 
 
 @pytest.fixture(autouse=True)
@@ -43,7 +43,7 @@ def test_create_prompt_includes_stub_and_args():
         """Compute something using add."""
 
     factory = PoTFactory()
-    prompt = factory.create_prompt(compute, None, 5)
+    prompt = factory.create_prompt(compute, [add], None, 5)
     assert 'Compute something using add' in prompt
     assert "x = 5" in prompt
     # tool stubs should be listed
@@ -64,7 +64,7 @@ def test_create_prompt_includes_tool_stubs():
         """Main function that uses helper."""
 
     factory = PoTFactory()
-    prompt = factory.create_prompt(main_fn, None, "test")
+    prompt = factory.create_prompt(main_fn, [helper], None, "test")
     assert 'A helper tool' in prompt
     # main_fn's own stub should not be in tool listing
     assert prompt.count('Main function that uses helper') == 1
@@ -78,7 +78,7 @@ def test_create_prompt_mentions_final_answer():
         """Double x."""
 
     factory = PoTFactory()
-    prompt = factory.create_prompt(my_fn, None, 3)
+    prompt = factory.create_prompt(my_fn, [], None, 3)
     assert 'final_answer' in prompt
     _INTERFACES.remove(my_fn)
 
@@ -89,7 +89,7 @@ def test_create_prompt_without_thinking():
         """Double x."""
 
     factory = PoTFactory()
-    prompt = factory.create_prompt(my_fn, None, 3)
+    prompt = factory.create_prompt(my_fn, [], None, 3)
     assert '<thought>' not in prompt
     _INTERFACES.remove(my_fn)
 
@@ -102,7 +102,7 @@ def test_create_prompt_with_thinking():
         """Double x."""
 
     factory = PoTFactory()
-    prompt = factory.create_prompt(my_fn, None, 3)
+    prompt = factory.create_prompt(my_fn, [], None, 3)
     assert '<thought>' in prompt
     _INTERFACES.remove(my_fn)
 

@@ -23,24 +23,50 @@ def _load_template(name: str) -> Template:
     """Load a prompt template from the prompt_templates directory."""
     return Template((PROMPT_TEMPLATE_DIR / name).read_text())
 
+def resolve_dotted(name: str) -> Callable:
+    """Resolve a dotted name like 'module.func' to the actual object.
+    """
+    parts = name.split('.')
+    obj = importlib.import_module(parts[0])
+    for part in parts[1:]:
+        obj = getattr(obj, part)
+    return obj
+
+
+def resolve_tools(interface: Interface, tools) -> list[Callable]:
+    """Resolve a tools specification into a list of callables.
+
+    The tools parameter can be:
+      - None or [] → no tools (returns [])
+      - '__all__' → all implemented interfaces except the given one
+      - a list where each element is:
+          - a callable (used as-is)
+          - an Interface (resolved to its implementing function)
+          - a string (resolved via resolve_dotted)
+    """
+    if tools == '__all__':
+        tools = [iface for iface in all_interfaces()
+                 if iface is not interface and iface.implementation is not None]
+    tools = tools or []
+    resolved = []
+    for tool in tools:
+        if isinstance(tool, str):
+            resolved.append(resolve_dotted(tool))
+        elif isinstance(tool, Interface):
+            resolved.append(tool.implementation.implementing_fn)
+        else:
+            resolved.append(tool)
+    return resolved
+
+
 class DirectFactory(Implementation.Factory):
     """Use a Python function as the implementation.
 
-    Defaults to the body of the interface functions. 
+    Defaults to the body of the interface functions.
     """
-    @staticmethod
-    def _resolve_dotted(name: str) -> Callable:
-        """Resolve a dotted name like 'module.func' to the actual object.
-        """
-        parts = name.split('.')
-        obj = importlib.import_module(parts[0])
-        for part in parts[1:]:
-            obj = getattr(obj, part)
-        return obj
-
     def build_fn(self, interface: Interface, fn: Callable | str | None = None, **_kw) -> Callable:
         if isinstance(fn, str):
-            return DirectFactory._resolve_dotted(fn)
+            return resolve_dotted(fn)
         elif fn is not None:
             return fn
         else:
@@ -161,13 +187,12 @@ class PoTFactory(Implementation.Factory):
     def build_fn(
             self,
             interface: Interface,
-            additional_imports: list[types.ModuleType] | None = None, 
+            tools='__all__',
+            additional_imports: list[types.ModuleType] | None = None,
             **prompt_kw
     ) -> Callable:
-        tool_functions = {
-            called_inf.name: called_inf.implementation.implementing_fn
-            for called_inf in all_interfaces()
-            if called_inf != interface and called_inf.implementation is not None}
+        resolved_tools = resolve_tools(interface, tools)
+        tool_functions = {fn.__name__: fn for fn in resolved_tools}
         python_executor = LocalPythonExecutor(
             additional_authorized_imports=(additional_imports or []),
             )
@@ -180,9 +205,16 @@ class PoTFactory(Implementation.Factory):
         python_executor.static_tools = {
             "final_answer": lambda x: x,
         }
+        # collect interfaces for tool stubs in the prompt
+        tool_interfaces = [
+            iface for iface in all_interfaces()
+            if iface is not interface
+            and iface.implementation is not None
+            and iface.implementation.implementing_fn in tool_functions.values()]
         def result_fn(*args, **kw):
             with config.configuration(**prompt_kw):
-                prompt = self.create_prompt(interface, additional_imports, *args, **kw)
+                prompt = self.create_prompt(
+                    interface, tool_interfaces, additional_imports, *args, **kw)
                 llm_output, stats = llm_util.llm(
                     prompt, config.require('llm.model'))
                 generated_code = _extract_answer(
@@ -201,7 +233,7 @@ class PoTFactory(Implementation.Factory):
                 return answer
         return result_fn
 
-    def create_prompt(self, interface, additional_authorized_imports, *args, **kw):
+    def create_prompt(self, interface, tool_interfaces, additional_authorized_imports, *args, **kw):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
         input_args = interface.format_args(*args, **kw)
@@ -209,8 +241,7 @@ class PoTFactory(Implementation.Factory):
             raise ValueError(f'input_args null for {interface.name} on {args=} {kw=}')
         tool_stub_src_listing = '\n\n'.join([
             tool_interface.src
-            for tool_interface in all_interfaces()
-            if tool_interface != interface
+            for tool_interface in tool_interfaces
             ])
         if additional_authorized_imports:
             imports = '\n' + join(
