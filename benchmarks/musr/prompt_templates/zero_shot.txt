@@ -1,0 +1,11 @@
+$narrative
+
+$question
+
+$choices
+
+Answer with the 0-based index of the correct choice.
+
+<answer>
+INDEX
+</answer>
