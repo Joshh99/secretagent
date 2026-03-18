@@ -1,15 +1,10 @@
 """Tests for examples/quickstart.py."""
 
-import os
 import pytest
 from pydantic import BaseModel
+from conftest import needs_anthropic_key
 from secretagent.core import _INTERFACES
 from secretagent import config
-
-needs_api_key = pytest.mark.skipif(
-    not os.environ.get("ANTHROPIC_API_KEY"),
-    reason="ANTHROPIC_API_KEY not set",
-)
 
 # Keep track of interfaces created by imports so we can clean up
 _before = set(id(i) for i in _INTERFACES)
@@ -71,7 +66,7 @@ def _reasonable(french_translation: str) -> bool:
         return False        
     return True
 
-@needs_api_key
+@needs_anthropic_key
 def test_quickstart_translate_returns_reasonable_string():
     """translate should return a non-empty string."""
     qs = _import_quickstart()
@@ -82,7 +77,7 @@ def test_quickstart_translate_returns_reasonable_string():
     assert _reasonable(result)
 
 
-@needs_api_key
+@needs_anthropic_key
 def test_quickstart_translate_structured_returns_reasonable_model():
     """translate_structured should return a FrenchEnglishTranslation."""
     qs = _import_quickstart()

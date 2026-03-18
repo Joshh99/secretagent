@@ -1,11 +1,6 @@
-import os
 import pytest
+from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent.core import interface, implement_via, all_interfaces, _INTERFACES
-
-needs_api_key = pytest.mark.skipif(
-    not os.environ.get("ANTHROPIC_API_KEY"),
-    reason="ANTHROPIC_API_KEY not set",
-)
 
 
 @interface
@@ -110,7 +105,7 @@ def test_direct_with_dotted_string_fn():
 
 @needs_api_key
 def test_simulate():
-    sport_for.implement_via('simulate', llm = dict(model="claude-haiku-4-5-20251001"))
+    sport_for.implement_via('simulate', llm = dict(model=CI_TEST_MODEL))
     result = sport_for('Kobe Bryant')
     assert isinstance(result, str)
     assert len(result) > 0

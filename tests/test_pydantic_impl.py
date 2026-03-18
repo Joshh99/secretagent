@@ -1,18 +1,13 @@
 """Tests for secretagent.implement_pydantic."""
 
-import os
 import pytest
 from omegaconf import OmegaConf
 from pydantic import BaseModel
 
+from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent import config, record
 from secretagent.core import interface, all_factories, _INTERFACES
 from secretagent.implement_pydantic import SimulatePydanticFactory, _summarize_messages
-
-needs_api_key = pytest.mark.skipif(
-    not os.environ.get("ANTHROPIC_API_KEY"),
-    reason="ANTHROPIC_API_KEY not set",
-)
 
 
 @pytest.fixture(autouse=True)
@@ -118,7 +113,7 @@ def test_simulate_pydantic_str():
     def capital_of(country: str) -> str:
         """Return the capital city of the given country."""
 
-    capital_of.implement_via('simulate_pydantic', llm={'model': 'claude-haiku-4-5-20251001'})
+    capital_of.implement_via('simulate_pydantic', llm={'model': CI_TEST_MODEL})
     with config.configuration(cachier={'enable_caching':False}):
         result = capital_of('France')
     assert isinstance(result, str)
@@ -137,7 +132,7 @@ def test_simulate_pydantic_structured():
     def capital_info(country: str) -> CityInfo:
         """Return the capital city and country name."""
 
-    capital_info.implement_via('simulate_pydantic', llm={'model': 'claude-haiku-4-5-20251001'})
+    capital_info.implement_via('simulate_pydantic', llm={'model': CI_TEST_MODEL})
     # disable caching
     with config.configuration(cachier={'enable_caching':False}):
         result = capital_info('France')
@@ -152,7 +147,7 @@ def test_simulate_pydantic_records():
     def double(x: int) -> int:
         """Return x times 2."""
 
-    double.implement_via('simulate_pydantic', llm={'model': 'claude-haiku-4-5-20251001'})
+    double.implement_via('simulate_pydantic', llm={'model': CI_TEST_MODEL})
     with record.recorder() as rollout:
         with config.configuration(cachier={'enable_caching':False}):
             double(5)

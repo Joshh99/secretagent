@@ -1,9 +1,9 @@
 """Tests for PoTFactory (program_of_thought)."""
 
-import os
 import pytest
 from omegaconf import OmegaConf
 
+from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent import config, record
 from secretagent.core import interface, all_factories, _INTERFACES
 from secretagent.implement_core import PoTFactory
@@ -14,12 +14,6 @@ def reset_config():
     config.GLOBAL_CONFIG = OmegaConf.create()
     yield
     config.GLOBAL_CONFIG = OmegaConf.create()
-
-
-needs_api_key = pytest.mark.skipif(
-    not os.environ.get("ANTHROPIC_API_KEY"),
-    reason="ANTHROPIC_API_KEY not set",
-)
 
 
 # --- factory registration ---
@@ -148,7 +142,7 @@ def test_pot_simple_tool_call():
         """Return x times 4 by calling double twice."""
 
     quadruple.implement_via('program_of_thought',
-                            llm={'model': 'claude-haiku-4-5-20251001'})
+                            llm={'model': CI_TEST_MODEL})
     with config.configuration(cachier={'enable_caching': False}):
         result = quadruple(3)
     assert result == 12
@@ -171,7 +165,7 @@ def test_pot_records_generated_code():
         """Return x + 2 by calling inc twice."""
 
     add_two.implement_via('program_of_thought',
-                          llm={'model': 'claude-haiku-4-5-20251001'})
+                          llm={'model': CI_TEST_MODEL})
     with config.configuration(cachier={'enable_caching': False}):
         with record.recorder() as rollout:
             add_two(5)
