@@ -18,7 +18,7 @@ ptools:
   raw_answer:
     method: simulate
   extract_index:
-    method: match_choice
+    method: simulate
   extract_profiles:
     method: simulate
   evaluate_allocations:

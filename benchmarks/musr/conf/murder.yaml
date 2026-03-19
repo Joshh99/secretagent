@@ -14,22 +14,16 @@ dataset:
   shuffle_seed: 42
   n: 4
 
-# Zero-shot (default): raw_answer -> extract_index
-# answer_question is direct, calls raw_answer (simulate) + extract_index (match_choice)
-#
-# Workflow override:
-#   evaluate.entry_point=answer_question_workflow
-#
-# Agent loop override:
-#   ptools.answer_question.method=program_of_thought
 ptools:
   raw_answer:
     method: simulate
   extract_index:
-    method: match_choice
-  extract_evidence:
     method: simulate
-  deduce_answer:
+  extract_suspects_and_evidence:
+    method: simulate
+  verify_alibis:
+    method: simulate
+  deduce_murderer:
     method: simulate
   answer_question:
     method: direct
