@@ -15,9 +15,9 @@ Your directory structure will look something like this:
 │   ├── train.json
 │   └── valid.json
 ├── expt.py            # your driver program
-├── llm\_cache         # caches llm calls
+├── llm_cache          # caches llm calls
 ├── Makefile           # optional, for repeated tasks
-├── prompt\_templates  # optional, if you have hand-constructed prompts
+├── prompt_templates   # optional, if you have hand-constructed prompts
 │   └── zeroshot.txt
 ├── ptools.py          # ptools and code implementations of ptools for this benchmark
 └── results            # results from runs of expt.py
