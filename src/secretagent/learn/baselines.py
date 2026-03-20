@@ -12,6 +12,7 @@ Example usage:
     uv run -m secretagent.learn.baselines rote --interface consistent_sports recordings/* --latest 2 --check llm.model=claude-haiku-4-5-20251001
 """
 
+import textwrap
 from collections import Counter
 from pathlib import Path
 from typing import Optional
@@ -59,6 +60,42 @@ class RoteLearner:
     @property
     def total_observations(self) -> int:
         return sum(c.total() for c in self.counts.values())
+
+    def learn(self, outdir: str | Path, interface_name: str) -> Path:
+        """Write a learned.py file with a function that returns the most common output.
+
+        The generated function accepts *args, **kw and looks up the input
+        in a precomputed dict, returning the most common output or None.
+        """
+        outdir = Path(outdir)
+        outdir.mkdir(parents=True, exist_ok=True)
+        # Build lookup: input_key -> most_common_output (unhashable original form)
+        lookup = {}
+        for input_key, counter in self.counts.items():
+            best_output, _ = counter.most_common(1)[0]
+            lookup[input_key] = best_output
+        outpath = outdir / 'learned.py'
+        outpath.write_text(textwrap.dedent(f"""\
+            \"\"\"Auto-generated rote-learned implementation for {interface_name}.\"\"\"
+
+
+            def _make_hashable(obj):
+                if isinstance(obj, list):
+                    return tuple(_make_hashable(x) for x in obj)
+                if isinstance(obj, dict):
+                    return tuple(sorted((k, _make_hashable(v)) for k, v in obj.items()))
+                return obj
+
+
+            _LOOKUP = {repr(lookup)}
+
+
+            def {interface_name}(*args, **kw):
+                args_key = _make_hashable(list(args))
+                kw_key = _make_hashable(kw)
+                return _LOOKUP.get((args_key, kw_key))
+        """))
+        return outpath
 
     def report(self) -> list[dict]:
         """Return per-input statistics.
