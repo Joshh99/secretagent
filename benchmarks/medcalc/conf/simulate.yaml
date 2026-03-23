@@ -1,0 +1,23 @@
+# L1: Simulate — LLM predicts function output from rich docstring
+llm:
+  model: together_ai/Qwen/Qwen3.5-9B
+  max_tokens: 16384
+
+cachier:
+  cache_dir: llm_cache
+  enable_caching: true
+
+evaluate:
+  result_dir: results
+  expt_name: simulate
+  entry_point: calculate_medical_value
+
+dataset:
+  split: train
+  stratified: true
+  n: null
+  shuffle_seed: 42
+
+ptools:
+  calculate_medical_value:
+    method: simulate

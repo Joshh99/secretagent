@@ -1,0 +1,31 @@
+# L3: Program of Thought — LLM generates Python code with tool access
+llm:
+  model: together_ai/Qwen/Qwen3.5-9B
+  max_tokens: 16384
+
+cachier:
+  cache_dir: llm_cache
+  enable_caching: true
+
+evaluate:
+  result_dir: results
+  expt_name: pot
+  entry_point: calculate_medical_value
+
+dataset:
+  split: train
+  stratified: true
+  n: null
+  shuffle_seed: 42
+
+ptools:
+  extract_clinical_values:
+    method: simulate
+  compute_calculation:
+    method: direct
+    fn: ptools.compute_calculation_impl
+  calculate_medical_value:
+    method: program_of_thought
+    tools:
+      - ptools.extract_clinical_values
+      - ptools.compute_calculation
