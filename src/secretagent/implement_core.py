@@ -74,8 +74,13 @@ class SimulateFactory(Implementation.Factory):
                 prompt = self.create_prompt(interface, *args, examples=examples_cases, **kw)
                 llm_output, stats = llm_util.llm(
                     prompt, config.require('llm.model'))
-                return_type = interface.annotations.get('return', str)
-                answer = self.parse_output(return_type, llm_output)
+                try:
+                    return_type = interface.annotations.get('return', str)
+                    answer = self.parse_output(return_type, llm_output)
+                except Exception as ex:
+                    record.record(func=interface.name, args=args, kw=kw,
+                                  output=f'**exception**: {ex}', stats=stats)
+                    raise
                 record.record(func=interface.name, args=args, kw=kw, output=answer, stats=stats)
                 return answer
         return result_fn
@@ -159,8 +164,13 @@ class PromptLLMFactory(Implementation.Factory):
                 prompt = template.substitute(arg_dict)
                 llm_output, stats = llm_util.llm(
                     prompt, config.require('llm.model'))
-                return_type = interface.annotations.get('return', str)
-                answer = _extract_answer(return_type, llm_output, answer_pattern)
+                try:
+                    return_type = interface.annotations.get('return', str)
+                    answer = _extract_answer(return_type, llm_output, answer_pattern)
+                except Exception as ex:
+                    record.record(func=interface.name, args=args, kw=kw,
+                                  output=f'**exception**: {ex}', stats=stats)
+                    raise
                 record.record(func=interface.name, args=args, kw=kw,
                               output=answer, stats=stats)
                 return answer
@@ -226,14 +236,21 @@ class PoTFactory(Implementation.Factory):
                     interface, tool_interfaces, additional_imports, *args, **kw)
                 llm_output, stats = llm_util.llm(
                     prompt, config.require('llm.model'))
-                generated_code = _extract_answer(
-                    str,
-                    llm_output,
-                    answer_pattern='```python\n([^`]*)\n```')
-                if config.get('echo.code_eval_input'):
-                    llm_util.echo_boxed(generated_code, 'code_eval_input')
-                code_output = python_executor(generated_code)
-                answer = code_output.output
+                try:
+                    generated_code = _extract_answer(
+                        str,
+                        llm_output,
+                        answer_pattern='```python\n([^`]*)\n```')
+                    if config.get('echo.code_eval_input'):
+                        llm_util.echo_boxed(generated_code, 'code_eval_input')
+                    code_output = python_executor(generated_code)
+                    answer = code_output.output
+                except Exception as ex:
+                    record.record(
+                        func=interface.name, args=args, kw=kw,
+                        output=f'**exception**: {ex}', stats=stats,
+                        step_info=dict(generated_code=llm_output))
+                    raise
                 if config.get('echo.code_eval_output'):
                     llm_util.echo_boxed(str(answer), 'code_eval_output')
                 record.record(

@@ -126,7 +126,11 @@ def pair(
             row[f'{m}_t'] = t
             row[f'{m}_p'] = p
         rows.append(row)
-    print(pd.DataFrame(rows))
+    df = pd.DataFrame(rows)
+    p_cols = [c for c in df.columns if c.endswith('_p')]
+    for c in p_cols:
+        df[c] = df[c].map(lambda x: f'{x:.5f}')
+    print(df)
             
 
 @app.command(context_settings=_EXTRA_ARGS)

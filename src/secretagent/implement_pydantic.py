@@ -103,12 +103,19 @@ class SimulatePydanticFactory(SimulateFactory):
         def result_fn(*args, **kw):
             with config.configuration(**prompt_kw):
                 prompt = self.create_prompt(interface, *args, **kw)
-                answer, stats, messages = _run_agent(
-                    interface=interface,
-                    model_name=config.require('llm.model'),
-                    return_type=interface.annotations.get('return', str),
-                    prompt=prompt,
-                    tools=tools)
+                try:
+                    answer, stats, messages = _run_agent(
+                        interface=interface,
+                        model_name=config.require('llm.model'),
+                        return_type=interface.annotations.get('return', str),
+                        prompt=prompt,
+                        tools=tools)
+                except Exception as ex:
+                    record.record(
+                        func=interface.name, args=args, kw=kw,
+                        output=f'**exception**: {ex}', step_info=[],
+                        stats=dict(input_tokens=0, output_tokens=0, latency=0, cost=0))
+                    raise
                 record.record(
                     func=interface.name,
                     args=args,
