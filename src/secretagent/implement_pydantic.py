@@ -97,7 +97,7 @@ class SimulatePydanticFactory(SimulateFactory):
         means just those tools
     """
 
-    def build_fn(self, interface: Interface, tools=None, **prompt_kw) -> Callable:
+    def build_fn(self, interface: Interface, tools=None, **prompt_kw) -> Callable:  # type: ignore[override]
         tools = resolve_tools(interface, tools)
 
         def result_fn(*args, **kw):

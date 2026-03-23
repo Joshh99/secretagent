@@ -78,7 +78,7 @@ class LearnedFunctionFactory(Implementation.Factory):
       foo.implement_via('learned', learner='rote', backoff=True)
     """
 
-    def build_fn(self, interface: Interface, learner: str,
+    def build_fn(self, interface: Interface, learner: str,  # type: ignore[override]
                  backoff: bool = False, **_kw) -> Callable:
         learned_path = _find_learned_path(interface.name, learner)
         mod = _load_learned_module(learned_path)

@@ -33,7 +33,7 @@ class RoteLearner(Learner):
     def fit(self) -> Learner:
         """Compute the most common output for each input."""
         # for each possible input, count output frequencies
-        counts = defaultdict(Counter)
+        counts: defaultdict[tuple, Counter] = defaultdict(Counter)
         original_output = {}  # hashable_output -> original output
         for case in self.dataset.cases:
             args_key = _make_hashable(case.input_args or [])
