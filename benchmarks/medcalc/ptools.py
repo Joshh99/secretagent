@@ -44,6 +44,34 @@ FORMULA_REFERENCE = get_formula_reference()
 
 
 # =============================================================================
+# Generate L0 baseline prompt template (same formulas, direct framing)
+# =============================================================================
+
+_BASELINE_TEMPLATE = f"""You are a medical calculation assistant.
+
+{FORMULA_REFERENCE}
+
+Patient Note:
+$patient_note
+
+Question: $question
+
+Instructions:
+1. Read the patient note carefully
+2. Extract the relevant values needed for the calculation
+3. Perform the calculation step by step
+4. Provide your final numeric answer
+
+Show your reasoning, then give the final answer as:
+ANSWER: <number>"""
+
+# Write at import time so prompt_llm can load it from file
+from pathlib import Path as _Path
+(_Path(__file__).parent / 'prompt_templates' / 'baseline.txt').write_text(
+    _BASELINE_TEMPLATE)
+
+
+# =============================================================================
 # Main entry-point interface (all levels evaluate this)
 # =============================================================================
 
