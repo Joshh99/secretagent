@@ -76,12 +76,17 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
     response = completion(model=model, messages=messages)
     latency = time.time() - start_time
     msg = response.choices[0].message
-    # Thinking models (e.g. Qwen 3.5) put content in reasoning_content.
-    # Concatenate so downstream parsers (like SimulateFactory) can find
-    # <answer> tags regardless of where the model placed them.
-    reasoning = getattr(msg, 'reasoning_content', None) or ''
     content = msg.content or ''
-    model_output = (reasoning + '\n' + content).strip() if reasoning else content
+    reasoning = getattr(msg, 'reasoning_content', None) or ''
+    # Thinking models (e.g. Qwen 3.5) sometimes put <answer> tags in
+    # reasoning_content instead of content. Prefer content; fall back
+    # to reasoning_content only if content lacks the expected tags.
+    if content and '<answer>' in content:
+      model_output = content
+    elif reasoning and '<answer>' in reasoning:
+      model_output = reasoning
+    else:
+      model_output = content or reasoning
 
     stats = dict(
       input_tokens=response.usage.prompt_tokens,

@@ -172,12 +172,12 @@ def run_experiment(name: str, pipeline_fn, test_cases: list) -> dict:
 def main():
     # Configure
     config.configure(
-        llm={'model': 'together_ai/Qwen/Qwen3.5-9B', 'stream': True},
+        llm={'model': 'together_ai/Qwen/Qwen3.5-9B'},
         orchestrate={
-            'model': 'together_ai/Qwen/Qwen3.5-397B-A17B',
+            'model': 'together_ai/Qwen/Qwen3.5-9B',
             'max_retries': 3,
         },
-        echo={'orchestrate': True, 'stream': True},
+        echo={'orchestrate': True},
         cachier={'enable_caching': False},
     )
 
