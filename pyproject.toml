@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "cachier>=4.1.0",
+    "datasets>=4.8.3",
     "litellm>=1.81.15",
     "omegaconf>=2.3.0",
     "pandas>=3.0.1",
@@ -26,7 +27,7 @@ dependencies = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-secretagent = ["prompt_templates/*.txt"]
+secretagent = ["prompt_templates/*.txt", "orchestrate/prompt_templates/*.txt"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

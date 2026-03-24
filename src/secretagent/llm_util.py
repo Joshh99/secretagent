@@ -1,12 +1,13 @@
 """Access an LLM model, and monitor cost, latency, etc.
 """
 
+import sys
 import time
 from typing import Any
 
 from secretagent import config
 from secretagent.cache_util import cached
-from litellm import completion, completion_cost
+from litellm import completion, completion_cost, token_counter
 
 def echo_boxed(text: str, tag:str = ''):
     """Echo some text in a pretty box."""
@@ -21,7 +22,9 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
   """Use an LLM model.
 
   Returns result as a string plus a dictionary of measurements,
-  including # input_tokens, # output_tokens, latency in seconds, and
+  including # input_tokens, # output_tokens, latency in seconds, and cost.
+
+  Set config 'llm.stream' to True to stream responses (visible with echo.stream).
   """
   if config.get('echo.model'):
     print(f'calling model {model}')
@@ -30,23 +33,84 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
     echo_boxed(prompt, 'llm_input')
 
   messages = [dict(role='user', content=prompt)]
+  stream = config.get('llm.stream', False)
+  max_tokens = config.get('llm.max_tokens', None)
+  extra_kw = {}
+  if max_tokens:
+    extra_kw['max_tokens'] = int(max_tokens)
   start_time = time.time()
-  response = completion(
-    model=model,
-    messages=messages
-  )
-  latency = time.time() - start_time
-  model_output = response.choices[0].message.content
+
+  if stream:
+    chunks = []
+    response_stream = completion(
+        model=model, messages=messages, stream=True,
+        stream_options={'include_usage': True},
+        **extra_kw,
+    )
+    for chunk in response_stream:
+      delta = ''
+      if chunk.choices:
+        delta = chunk.choices[0].delta.content or ''
+      chunks.append(delta)
+      if config.get('echo.stream') and delta:
+        sys.stderr.write(delta)
+        sys.stderr.flush()
+    if config.get('echo.stream'):
+      sys.stderr.write('\n')
+    latency = time.time() - start_time
+    model_output = ''.join(chunks)
+
+    # Estimate tokens since streaming doesn't reliably return usage
+    input_tokens = token_counter(model=model, messages=messages)
+    output_tokens = token_counter(model=model, text=model_output)
+    try:
+      from litellm import model_cost
+      cost_info = model_cost.get(model, {})
+      cost = (input_tokens * cost_info.get('input_cost_per_token', 0) +
+              output_tokens * cost_info.get('output_cost_per_token', 0))
+    except Exception:
+      cost = 0.0
+
+    stats = dict(
+      input_tokens=input_tokens,
+      output_tokens=output_tokens,
+      latency=latency,
+      cost=cost,
+    )
+  else:
+    response = completion(model=model, messages=messages, **extra_kw)
+    latency = time.time() - start_time
+    msg = response.choices[0].message
+    content = msg.content or ''
+    reasoning = getattr(msg, 'reasoning_content', None) or ''
+    # Thinking models (e.g. Qwen 3.5) sometimes put <answer> tags in
+    # reasoning_content instead of content. Prefer content; fall back
+    # to reasoning_content only if content lacks the expected tags.
+    if content and '<answer>' in content:
+      model_output = content
+    elif reasoning and '<answer>' in reasoning:
+      # Extract only the LAST <answer>...</answer> block from reasoning,
+      # since earlier ones are the model thinking about the format.
+      import re
+      matches = re.findall(r'<answer>(.*?)</answer>', reasoning, re.DOTALL)
+      if matches:
+        last_answer = matches[-1].strip()
+        model_output = f'<answer>{last_answer}</answer>'
+      else:
+        model_output = reasoning
+    else:
+      model_output = content or reasoning
+
+    stats = dict(
+      input_tokens=response.usage.prompt_tokens,
+      output_tokens=response.usage.completion_tokens,
+      latency=latency,
+      cost=completion_cost(completion_response=response),
+    )
 
   if config.get('echo.llm_output'):
     echo_boxed(model_output, 'llm_output')
 
-  stats = dict(
-    input_tokens=response.usage.prompt_tokens,
-    output_tokens=response.usage.completion_tokens,
-    latency=latency,
-    cost=completion_cost(completion_response=response),
-  )
   return model_output, stats
 
 def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:

@@ -3,6 +3,10 @@
 benchmarks/*/llm_cache/*
 benchmarks/*/results/*
 benchmarks/*/recordings/*
+orchestrate_cache/
+*_results.json
+docs/orchestrator_demo.html
+docs/presentation.md
 
 # emacs
 
