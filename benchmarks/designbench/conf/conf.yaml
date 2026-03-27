@@ -1,0 +1,34 @@
+# Choose any litellm-compatible model.
+llm:
+  model: Qwen/Qwen3-VL-8B-Instruct
+
+cachier:
+  cache_dir: llm_cache
+
+evaluate:
+  result_dir: results
+  expt_name: designbench_ptool
+  entry_point: generate_code
+  clip_threshold: 0.75
+
+dataset:
+  framework: vanilla
+  shuffle_seed: 42
+  # Limit long HTML pages so prompts stay tractable.
+  max_reference_chars: 20000
+
+benchmark:
+  # If null, output framework follows dataset.framework.
+  output_framework: null
+  skip_eval: false
+
+# Optional path to local DesignBench repo.
+# designbench:
+#   root: /absolute/path/to/DesignBench
+
+ptools:
+  generate_code:
+    method: vlm
+    prompt_mode: docstring
+    output_mode: freeform
+    user_text: "The webpage screenshot:\n"

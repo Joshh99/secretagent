@@ -224,6 +224,10 @@ __marimo__/
 .env
 .claude/
 .cursor/
+.codex/
 .codex/benchmarks/natural_plan/llm_cache/
 
 strategy_comparison.png
+
+# Dataset specific
+benchmarks/designbench/data/

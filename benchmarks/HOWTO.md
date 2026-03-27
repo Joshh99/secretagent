@@ -5,7 +5,7 @@ This is a work-in-progress!
 ## Directory structure
 
 Your directory structure will look something like this:
-
+```
 ├── conf
 │   └── conf.yaml      # configuration settings used in all or most experiments
 ├── data
@@ -29,7 +29,7 @@ Your directory structure will look something like this:
     ... ├── config.yaml
         ├── results.csv
         └── results.jsonl
-
+```
 ## Defining the interfaces
 
 Use `ptools.py` to define the top-level Interface for problems in this
