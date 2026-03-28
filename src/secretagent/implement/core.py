@@ -238,6 +238,7 @@ class PoTFactory(Implementation.Factory):
             interface: Interface,
             tools='__all__',
             additional_imports: list[types.ModuleType] | None = None,
+            inject_args: bool = False,
             **prompt_kw
     ) -> Callable:
         resolved_tools = resolve_tools(interface, tools)
@@ -268,8 +269,15 @@ class PoTFactory(Implementation.Factory):
             and iface.implementation.implementing_fn in tool_functions.values()]
         def result_fn(*args, **kw):
             with config.configuration(**prompt_kw):
+                # Inject input arg values into sandbox so LLM can reference
+                # them as variables without copying large strings into code.
+                if inject_args:
+                    arg_names = list(interface.annotations.keys())[:-1]
+                    for name, val in zip(arg_names, args):
+                        python_executor.custom_tools[name] = val
                 prompt = self.create_prompt(
-                    interface, tool_interfaces, additional_imports, *args, **kw)
+                    interface, tool_interfaces, additional_imports,
+                    *args, inject_args=inject_args, **kw)
                 llm_output, stats = llm_util.llm(
                     prompt, config.require('llm.model'))
                 try:
@@ -295,10 +303,23 @@ class PoTFactory(Implementation.Factory):
                 return answer
         return result_fn
 
-    def create_prompt(self, interface, tool_interfaces, additional_authorized_imports, *args, **kw):
+    def create_prompt(self, interface, tool_interfaces, additional_authorized_imports,
+                      *args, inject_args=False, **kw):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
-        input_args = interface.format_args(*args, **kw)
+        if inject_args:
+            # Show truncated previews — full values are in the sandbox
+            arg_names = list(interface.annotations.keys())[:-1]
+            parts = []
+            for name, val in zip(arg_names, args):
+                r = repr(val)
+                preview = r[:200] + '...' if len(r) > 200 else r
+                parts.append(f'{name} = {preview}')
+            input_args = '\n'.join(parts)
+            input_args += ('\n\nThese variables are already available in the execution '
+                           'environment. Do NOT re-assign them in your code.')
+        else:
+            input_args = interface.format_args(*args, **kw)
         if (not input_args.strip()):
             raise ValueError(f'input_args null for {interface.name} on {args=} {kw=}')
         tool_stub_src_listing = '\n\n'.join([
