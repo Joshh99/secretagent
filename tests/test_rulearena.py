@@ -185,19 +185,32 @@ class TestMetrics:
         result = self.evaluator.compare_predictions(True, True)
         assert result["correct"] == 1.0
         assert result["correct_tolerance"] == 1.0
+        assert result["failure_mode"] == "none"
 
         result = self.evaluator.compare_predictions(False, True)
         assert result["correct"] == 0.0
+        assert result["failure_mode"] == "calculation_error"
 
     def test_compare_predictions_numeric(self):
         result = self.evaluator.compare_predictions(100.5, 100.0)
         assert result["correct"] == 1.0           # within 1%
         assert result["correct_tolerance"] == 0.0  # not np.isclose
+        assert result["failure_mode"] == "none"
 
     def test_compare_predictions_non_numeric(self):
         result = self.evaluator.compare_predictions("garbage", 100.0)
         assert result["correct"] == 0.0
         assert result["correct_tolerance"] == 0.0
+        assert result["failure_mode"] == "calculation_error"
+
+    def test_compare_predictions_exception_string(self):
+        result = self.evaluator.compare_predictions(
+            "**exception raised**: ValueError('no answer')", 100.0)
+        assert result["failure_mode"] == "extraction_failure"
+
+    def test_compare_predictions_none(self):
+        result = self.evaluator.compare_predictions(None, 100.0)
+        assert result["failure_mode"] == "extraction_failure"
 
 
 # ===================================================================

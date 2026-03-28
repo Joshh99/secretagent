@@ -83,7 +83,9 @@ class RuleArenaEvaluator(Evaluator):
         else:
             correct = float(_within_tolerance(predicted_output, expected_output))
             correct_tolerance = float(_isclose_match(predicted_output, expected_output))
-        if predicted_output is None:
+        if isinstance(predicted_output, str) and predicted_output.startswith("**exception"):
+            failure_mode = "extraction_failure"
+        elif predicted_output is None:
             failure_mode = "extraction_failure"
         elif correct:
             failure_mode = "none"
