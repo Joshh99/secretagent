@@ -45,12 +45,20 @@ from secretagent.core import implement_via_config
 from secretagent.dataset import Dataset, Case
 from secretagent.evaluate import Evaluator
 import secretagent.implement_pydantic  # noqa: F401 (registers simulate_pydantic factory)
+import secretagent.implement_ptp  # noqa: F401 (registers ptp factory)
 
-SPLIT_TO_MODULE = {
+_BASE_SPLIT_TO_MODULE = {
     'murder_mysteries': 'ptools_murder',
     'object_placements': 'ptools_object',
     'team_allocation': 'ptools_team',
 }
+
+def _resolve_module(split: str) -> str:
+    """Map split name (possibly with _train/_val/_test suffix) to module."""
+    for base, module in _BASE_SPLIT_TO_MODULE.items():
+        if split == base or split.startswith(base + '_'):
+            return module
+    raise KeyError(f'Unknown split: {split}')
 
 
 class MUSREvaluator(Evaluator):
@@ -96,7 +104,7 @@ def run(ctx: typer.Context,
     config.set_root(_BENCHMARK_DIR)
 
     split = config.require('dataset.split')
-    ptools = importlib.import_module(SPLIT_TO_MODULE[split])
+    ptools = importlib.import_module(_resolve_module(split))
     implement_via_config(ptools, config.require('ptools'))
 
     dataset = load_dataset(split).configure(

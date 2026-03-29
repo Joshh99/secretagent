@@ -218,6 +218,12 @@ class PoTFactory(Implementation.Factory):
         # Put tool functions in custom_tools directly, since
         # LocalPythonExecutor.__call__ passes custom_tools (not
         # additional_functions) to evaluate_python_code.
+        # Inject safe Python builtins that smolagents' sandbox blocks by default (issue #7)
+        SAFE_BUILTINS = {
+            'float': float, 'int': int, 'round': round, 'abs': abs,
+            'str': str, 'bool': bool, 'min': min, 'max': max, 'sum': sum,
+        }
+        tool_functions.update(SAFE_BUILTINS)
         python_executor.custom_tools = tool_functions
         # Provide final_answer in static_tools so the LLM can
         # return a value via final_answer(result).

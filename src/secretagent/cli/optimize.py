@@ -12,18 +12,8 @@ Usage::
     uv run -m secretagent.cli.optimize summary sweep_results.csv
 """
 
-import shlex
-import sys
-from pathlib import Path
-
 import typer
 import yaml
-
-# Ensure src/ is on path when run as module
-_CLI_DIR = Path(__file__).resolve().parent
-_SRC_DIR = _CLI_DIR.parent.parent
-if str(_SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(_SRC_DIR))
 
 from secretagent.optimize import SearchSpace, GridSearchRunner
 
