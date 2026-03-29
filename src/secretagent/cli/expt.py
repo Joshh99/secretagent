@@ -1,20 +1,24 @@
-"""Sports understanding benchmark experiment.
+"""Generic benchmark experiment runner.
 
-Example CLI commands:
+Run from a benchmark directory that contains a conf/conf.yaml, a data/
+subdirectory, and a ptools module.
+
+Example CLI commands (from a benchmark directory)::
 
     # run with defaults from conf/conf.yaml
-    uv run python expt.py run
+    uv run python -m secretagent.cli.expt run
 
     # run first 6 examples only
-    uv run python expt.py run dataset.n=6
+    uv run python -m secretagent.cli.expt run dataset.n=6
 
     # override model and experiment name
-    uv run python expt.py run llm.model=gpt-4o evaluate.expt_name=gpt4o_test
+    uv run python -m secretagent.cli.expt run llm.model=gpt-4o evaluate.expt_name=gpt4o_test
 
-    # record detailed results with rollouts
-    uv run python expt.py run evaluate.record_details=true dataset.n=6
+    # use a custom evaluator
+    uv run python -m secretagent.cli.expt run --evaluator mymodule.MyEvaluator
 """
 
+import importlib
 import pandas as pd
 from pathlib import Path
 import pprint
@@ -27,12 +31,7 @@ import secretagent.implement_pydantic  # noqa: F401 (registers simulate_pydantic
 import secretagent.learn.implement_learn  # noqa: F401 (registers learned factory)
 from secretagent.dataset import Dataset
 from secretagent.evaluate import ExactMatchEvaluator, Evaluator
-
-#
-# tools are the tools and interfaces
-#
-
-import ptools
+from secretagent.implement_core import resolve_dotted
 
 #
 # shared setup logic
@@ -45,22 +44,24 @@ def setup_and_load_dataset(dotlist: list[str]) -> Dataset:
 
     Returns dataset ready for evaluation.
     """
-    config_file = Path(__file__).parent / 'conf' / 'conf.yaml'
+    root = Path.cwd()
+    config_file = root / 'conf' / 'conf.yaml'
     config.configure(yaml_file=config_file, dotlist=dotlist)
-    config.set_root(Path(__file__).parent)
+    config.set_root(root)
 
     split = config.require('dataset.split')
-    dataset_json_file = Path(__file__).parent / 'data' / f'{split}.json'
+    dataset_json_file = root / 'data' / f'{split}.json'
     dataset = Dataset.model_validate_json(dataset_json_file.read_text())
     dataset.configure(
         shuffle_seed=config.get('dataset.shuffle_seed'),
         n=config.get('dataset.n') or None  # don't pass in 0
     )
+    ptools = importlib.import_module('ptools')
     implement_via_config(ptools, config.require('ptools'))
-    return dataset 
+    return dataset
 
 def run_experiment(
-        top_level_interface: Interface, 
+        top_level_interface: Interface,
         dotlist: list[str] | None = None,
         evaluator: Evaluator | None = None
 ) -> pd.DataFrame:
@@ -81,19 +82,29 @@ def run_experiment(
 app = typer.Typer()
 
 @app.command(context_settings=_EXTRA_ARGS)
-def run(ctx: typer.Context):
-    """Run sports understanding evaluation.
+def run(
+    ctx: typer.Context,
+    evaluator: str = typer.Option(None, help="Evaluator class as 'module.ClassName'"),
+    interface: str = typer.Option(..., help="Top-level interface as 'module.name'"),
+):
+    """Run a benchmark evaluation.
 
     Extra args are parsed as config overrides in dot notation, e.g.:
-        uv run python expt.py run llm.model=gpt-4o cachier.enable_caching=false
+        uv run python -m secretagent.cli.expt run --interface ptools.my_fn llm.model=gpt-4o
     """
+    eval_instance = resolve_dotted(evaluator)() if evaluator else None
+    top_level = resolve_dotted(interface)
     run_experiment(
-        top_level_interface=ptools.are_sports_in_sentence_consistent,
-        dotlist=ctx.args)
+        top_level_interface=top_level,
+        dotlist=ctx.args,
+        evaluator=eval_instance)
 
 
 @app.command(context_settings=_EXTRA_ARGS)
-def quick_test(ctx: typer.Context):
+def quick_test(
+    ctx: typer.Context,
+    interface: str = typer.Option(..., help="Top-level interface as 'module.name'"),
+):
     """Do a quick test of a configuration.
 
     Configures and loads data as in the run command, but just runs the
@@ -102,7 +113,7 @@ def quick_test(ctx: typer.Context):
     """
     dataset = setup_and_load_dataset(ctx.args)
     print('dataset is', dataset.summary())
-    interface = ptools.are_sports_in_sentence_consistent
+    top_level = resolve_dotted(interface)
     pprint.pprint(config.GLOBAL_CONFIG)
 
     input_args = dataset.cases[0].input_args
@@ -115,7 +126,7 @@ def quick_test(ctx: typer.Context):
                 'code_eval_input': True, 'code_eval_output': True}
     ):
         with record.recorder() as records:
-            predicted_output = interface(*input_args)
+            predicted_output = top_level(*input_args)
     print('predicted output', predicted_output)
     pprint.pprint(records)
 
