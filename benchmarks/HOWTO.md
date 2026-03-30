@@ -82,3 +82,18 @@ Multiple `--check` args can be used to check multiple values.
 
 The argument `--latest k` means to consider the `k` most recent
 directories for each expt_name, instead of the single most recent one.
+
+## Exporting results
+
+When you are ready to share results of your experiments, use the `export` subcommand of results.
+
+```
+uv run -m secretagent.cli.results export [--latest K] [--check KEY=VALUE] [--as RELATIVE_PATH] DIRS...
+```
+
+When you run this from a directory like
+`benchmarks/bbh/sports_understanding` it will copy the results you
+specify into `benchmarks/results/bbh/sports_understanding`, where
+`benchmarks/results` will be tracked in git.  If you're not organizing
+your problems as `benchmarks/TASK/SUBTASK` then you can use `--as
+TASK/SUBTASK` to specify where they will be copied to.

@@ -2,6 +2,8 @@
 # Run experiments - all on the validation data
 #
 
+basics: unstructured_baseline structured_baseline workflow pot react
+
 # the hand-coded workflow
 workflow:
 	uv run expt.py run evaluate.expt_name=workflow \
@@ -21,13 +23,13 @@ react:
 	  ptools.answer_penguin_question.tools=[ptools.analyze_input,ptools.table_operation,ptools.answer_question,ptools.choose_response]
 
 # zero-shot structured queries
-zeroshot_structured:
-	uv run expt.py run evaluate.expt_name=zeroshot_structured \
+structured_baseline:
+	uv run expt.py run evaluate.expt_name=structured_baseline \
 	  ptools.answer_penguin_question.method=simulate
 
 # zero-shot unstructured queries with a vanilla prompt
-zeroshot_unstructured:
-	uv run expt.py run evaluate.expt_name=zeroshot_unstructured \
+unstructured_baseline:
+	uv run expt.py run evaluate.expt_name=unstructured_baseline \
 	  ptools.answer_penguin_question.method=direct \
 	  ptools.answer_penguin_question.fn=ptools.zeroshot_unstructured_workflow
 

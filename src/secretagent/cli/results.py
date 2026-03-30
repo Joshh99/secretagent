@@ -437,23 +437,27 @@ def export_results(
     ctx: typer.Context,
     latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
     check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+    as_path: Optional[str] = typer.Option(None, '--as', help='Override relative path under benchmarks/results/'),
 ):
     """Copy filtered result directories to benchmarks/results/<relative_path>.
 
     Run from a benchmark directory (e.g. benchmarks/bbh/sports_understanding).
     Copies each filtered result directory to
     benchmarks/results/<path_from_benchmarks>/<result_dir_name>.
+    Use --as to override the relative path.
     """
     dirs = _get_dirs(ctx, latest=latest, check=check)
     benchmarks_dir = _find_benchmarks_dir()
-    cwd = Path.cwd().resolve()
 
-    # Compute relative path from benchmarks/ to cwd
-    try:
-        rel = cwd.relative_to(benchmarks_dir)
-    except ValueError:
-        raise ValueError(
-            f'cwd ({cwd}) is not under benchmarks/ ({benchmarks_dir})')
+    if as_path is not None:
+        rel = Path(as_path)
+    else:
+        cwd = Path.cwd().resolve()
+        try:
+            rel = cwd.relative_to(benchmarks_dir)
+        except ValueError:
+            raise ValueError(
+                f'cwd ({cwd}) is not under benchmarks/ ({benchmarks_dir})')
 
     dest_base = benchmarks_dir / 'results' / rel
     dest_base.mkdir(parents=True, exist_ok=True)

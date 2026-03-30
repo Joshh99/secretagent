@@ -384,3 +384,19 @@ def test_export_skips_existing(tmp_path, monkeypatch):
     result = runner.invoke(app, ['export', '--latest', '0'] + _dirs_as_args([d1]))
     assert result.exit_code == 0
     assert 'skipping' in result.output
+
+
+def test_export_as_path(tmp_path, monkeypatch):
+    """--as overrides the relative path under benchmarks/results/."""
+    bench_dir = tmp_path / 'benchmarks' / 'mybench'
+    bench_dir.mkdir(parents=True)
+    d1 = _make_expt(bench_dir, 'results/20260101.120000.alpha', 'alpha',
+                    {'llm': {'model': 'a'}},
+                    [{'correct': 1, 'cost': 0.01}])
+    monkeypatch.chdir(bench_dir)
+    result = runner.invoke(app, ['export', '--latest', '0',
+                                  '--as', 'custom/path']
+                           + _dirs_as_args([d1]))
+    assert result.exit_code == 0
+    export_dest = tmp_path / 'benchmarks' / 'results' / 'custom' / 'path'
+    assert (export_dest / '20260101.120000.alpha' / 'results.csv').exists()

@@ -26,7 +26,7 @@ Analyze experiment results saved by savefile. Experiment directories (or CSV fil
 Show available experiment directories and row counts.
 
 ```
-uv run -m secretagent.cli.results list DIRS... [--latest K] [--check KEY=VALUE]
+uv run -m secretagent.cli.results list [--latest K] [--check KEY=VALUE] DIRS...
 ```
 
 ### average
@@ -34,7 +34,7 @@ uv run -m secretagent.cli.results list DIRS... [--latest K] [--check KEY=VALUE]
 Report mean +/- stderr of metrics, grouped by experiment.
 
 ```
-uv run -m secretagent.cli.results average DIRS... [--latest K] [--check KEY=VALUE] [--metric NAME] [--pareto]
+uv run -m secretagent.cli.results average [--latest K] [--check KEY=VALUE] [--metric NAME] [--pareto] DIRS...
 ```
 
 Default metric is `cost`. Multiple `--metric` flags are supported. Append `-` to a metric name to indicate it should be minimized (e.g. `--metric cost-`); by default metrics are maximized. Use `--pareto` to show only Pareto-optimal experiments.
@@ -44,7 +44,7 @@ Default metric is `cost`. Multiple `--metric` flags are supported. Append `-` to
 Run paired t-tests on metrics across experiments (requires at least 2 experiments).
 
 ```
-uv run -m secretagent.cli.results pair DIRS... [--latest K] [--check KEY=VALUE] --metric NAME
+uv run -m secretagent.cli.results pair [--latest K] [--check KEY=VALUE] --metric NAME DIRS...
 ```
 
 At least one `--metric` is required. Metric names may have a `-` suffix (stripped before lookup).
@@ -54,7 +54,7 @@ At least one `--metric` is required. Metric names may have a `-` suffix (strippe
 Plot experiments as points on two metrics with error boxes.
 
 ```
-uv run -m secretagent.cli.results plot DIRS... [--latest K] [--check KEY=VALUE] --metric NAME --metric NAME [--pareto] [--output FILE]
+uv run -m secretagent.cli.results plot [--latest K] [--check KEY=VALUE] --metric NAME --metric NAME [--pareto] [--output FILE] DIRS...
 ```
 
 Exactly two `--metric` options are required. Each experiment is rendered as a point at (mean_metric1, mean_metric2) with a rectangle showing +/- 1 stderr. Pareto-optimal experiments are marked with stars; others with circles. Use `--pareto` to show only Pareto-optimal experiments.
@@ -69,7 +69,7 @@ Exactly two `--metric` options are required. Each experiment is rendered as a po
 Show configuration differences between experiments.
 
 ```
-uv run -m secretagent.cli.results compare-configs DIRS... [--latest K] [--check KEY=VALUE]
+uv run -m secretagent.cli.results compare-configs [--latest K] [--check KEY=VALUE] DIRS...
 ```
 
 ### validate
@@ -77,7 +77,7 @@ uv run -m secretagent.cli.results compare-configs DIRS... [--latest K] [--check 
 Check that experiment directories contain required files (`config.yaml`, `results.csv` by default).
 
 ```
-uv run -m secretagent.cli.results validate DIRS... [--latest K] [--check KEY=VALUE] [--require FILE] [--norequire FILE] [--purge]
+uv run -m secretagent.cli.results validate [--latest K] [--check KEY=VALUE] [--require FILE] [--norequire FILE] [--purge] DIRS...
 ```
 
 | Option | Description |
@@ -91,10 +91,26 @@ uv run -m secretagent.cli.results validate DIRS... [--latest K] [--check KEY=VAL
 Delete experiment directories not retained by `filter_paths`.
 
 ```
-uv run -m secretagent.cli.results delete-obsolete DIRS... [--latest K] [--check KEY=VALUE]
+uv run -m secretagent.cli.results delete-obsolete [--latest K] [--check KEY=VALUE] DIRS...
 ```
 
 Lists directories to keep and delete, then prompts for confirmation.
+
+### export
+
+Copy filtered result directories to `benchmarks/results/<relative_path>`.
+
+```
+uv run -m secretagent.cli.results export [--latest K] [--check KEY=VALUE] [--as RELATIVE_PATH] DIRS...
+```
+
+Run from a benchmark directory (e.g. `benchmarks/bbh/sports_understanding`). Copies each filtered result directory to `benchmarks/results/<path_from_benchmarks>/`. Use `--as` to override the relative path.
+
+| Option | Default | Description |
+|---|---|---|
+| `--as` | auto-detected from cwd | Override relative path under `benchmarks/results/` |
+
+Existing directories at the destination are skipped.
 
 ### Metric direction
 
@@ -178,7 +194,7 @@ Learn implementations from recorded interface calls.
 Collect training data for a rote (lookup-based) learner from recorded interface calls.
 
 ```
-uv run -m secretagent.cli.learn rote DIRS... --interface NAME [--latest K] [--check KEY=VALUE] [--train-dir DIR]
+uv run -m secretagent.cli.learn rote --interface NAME [--latest K] [--check KEY=VALUE] [--train-dir DIR] DIRS...
 ```
 
 | Option | Default | Description |

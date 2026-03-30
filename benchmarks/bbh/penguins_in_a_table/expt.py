@@ -28,7 +28,7 @@ import typer
 
 from secretagent import record, config
 from secretagent.core import implement_via_config
-from secretagent import implement_pydantic # force registration
+from secretagent.implement import pydantic # force registration
 from secretagent.dataset import Dataset, Case
 from secretagent.evaluate import Evaluator
 #
