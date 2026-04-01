@@ -1,17 +1,15 @@
-"""Faithful multi-turn text loop matching the original MedAgentBench protocol.
+"""Multi-turn interaction loops for MedAgentBench.
 
-The agent outputs raw text in one of three formats:
-  GET url?param1=value1&param2=value2...
-  POST url
-  {json payload}
-  FINISH([answer1, answer2, ...])
+Provides two protocol implementations:
+  - medagent_loop: raw text loop (GET/POST/FINISH) matching the paper
+  - codeact_loop: iterative code generation with error feedback
 
-The loop parses the text, executes the action, appends the result to the
-message history, and repeats up to max_round times.
+Prompts are loaded from prompt_templates/ (not hardcoded).
 """
 
 import json
 import time
+from pathlib import Path
 
 from litellm import completion, completion_cost
 from secretagent import config, record
@@ -19,94 +17,84 @@ from secretagent.llm_util import echo_boxed
 
 import fhir_tools
 
-# Exact system prompt from the original MedAgentBench paper
-_PROMPT_TEMPLATE = """You are an expert in using FHIR functions to assist medical professionals. You are given a question and a set of possible functions. Based on the question, you will need to make one or more function/tool calls to achieve the purpose.
-
-1. If you decide to invoke a GET function, you MUST put it in the format of
-GET url?param_name1=param_value1&param_name2=param_value2...
-
-2. If you decide to invoke a POST function, you MUST put it in the format of
-POST url
-[your payload data in JSON format]
-
-3. If you have got answers for all the questions and finished all the requested tasks, you MUST call to finish the conversation in the format of (make sure the list is JSON loadable.)
-FINISH([answer1, answer2, ...])
-
-Your response must be in the format of one of the three cases, and you can call only one function each time. You SHOULD NOT include any other text in the response.
-
-Here is a list of functions in JSON format that you can invoke. Note that you should use {api_base} as the api_base.
-{functions}
-
-Context: {context}
-Question: {question}"""
+_TEMPLATE_DIR = Path(__file__).parent / 'prompt_templates'
 
 
-def medagent_loop(instruction: str, context: str) -> list[str]:
-    """Multi-turn text loop faithfully replicating the MedAgentBench paper protocol."""
+def _load_template(name):
+    return (_TEMPLATE_DIR / name).read_text()
+
+
+def _completion_with_backoff(**kw):
+    """Retry completion with exponential backoff for rate limits."""
+    for attempt in range(5):
+        try:
+            return completion(**kw)
+        except Exception:
+            if attempt == 4:
+                raise
+            time.sleep(2 ** attempt)
+
+
+def _llm_call(model, messages, max_tokens, tag=''):
+    """Single LLM call with stats tracking and echo support."""
+    start = time.time()
+    response = _completion_with_backoff(model=model, messages=messages, max_tokens=max_tokens)
+    latency = time.time() - start
+
+    raw = response.choices[0].message.content or ''
+    stats = dict(
+        input_tokens=response.usage.prompt_tokens,
+        output_tokens=response.usage.completion_tokens,
+        latency=latency, cost=0.0)
+    try:
+        stats['cost'] = completion_cost(completion_response=response)
+    except Exception:
+        pass
+
+    if config.get('echo.llm_output') and tag:
+        echo_boxed(raw, tag)
+    return raw, stats
+
+
+def _extract_task_context(context):
+    """Extract raw task context from the enriched context string."""
+    marker = 'Task context: '
+    if marker in context:
+        return context[context.index(marker) + len(marker):]
+    return ''
+
+
+def _accumulate_stats(total, new):
+    for k in total:
+        total[k] += new.get(k, 0)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# L0: Paper baseline — multi-turn text loop (GET/POST/FINISH)
+# ──────────────────────────────────────────────────────────────────────
+
+def medagent_loop(instruction: str, context: str) -> list:
+    """Multi-turn text loop matching the MedAgentBench paper protocol."""
     model = config.require('llm.model')
     max_round = int(config.get('fhir.max_round', 8))
     max_tokens = int(config.get('llm.max_tokens', 2048))
     fhir_base = config.get('fhir.api_base', 'http://localhost:8080/fhir/')
 
-    # Load FHIR function definitions
-    from pathlib import Path
-    funcs_file = Path(__file__).parent / 'data' / 'funcs_v1.json'
-    funcs = json.loads(funcs_file.read_text())
-
-    # Extract raw task context from the enriched context
-    # (enriched context has FHIR base + API defs prepended by load_dataset;
-    # the original prompt template embeds those itself, so we extract just
-    # the task-specific context)
-    task_context = ''
-    marker = 'Task context: '
-    if marker in context:
-        task_context = context[context.index(marker) + len(marker):]
-
-    # Build the initial prompt using the paper's exact template
-    system_prompt = _PROMPT_TEMPLATE.format(
-        api_base=fhir_base,
-        functions=json.dumps(funcs),
-        context=task_context,
-        question=instruction,
-    )
+    funcs = json.loads((_TEMPLATE_DIR.parent / 'data' / 'funcs_v1.json').read_text())
+    system_prompt = _load_template('paper_baseline.txt').format(
+        api_base=fhir_base, functions=json.dumps(funcs),
+        context=_extract_task_context(context), question=instruction)
 
     messages = [{"role": "user", "content": system_prompt}]
-
-    if config.get('echo.llm_input'):
-        echo_boxed(system_prompt, 'llm_input (round 0)')
-
-    # Aggregate stats across all rounds
     total_stats = dict(input_tokens=0, output_tokens=0, latency=0.0, cost=0.0)
-    history = []  # for recording
 
     for round_idx in range(max_round):
-        # Call LLM
-        start = time.time()
-        response = completion(model=model, messages=messages, max_tokens=max_tokens)
-        latency = time.time() - start
+        raw, stats = _llm_call(model, messages, max_tokens, f'llm_output (round {round_idx})')
+        _accumulate_stats(total_stats, stats)
 
-        raw = response.choices[0].message.content or ''
-        total_stats['input_tokens'] += response.usage.prompt_tokens
-        total_stats['output_tokens'] += response.usage.completion_tokens
-        total_stats['latency'] += latency
-        try:
-            total_stats['cost'] += completion_cost(completion_response=response)
-        except Exception:
-            pass
-
-        if config.get('echo.llm_output'):
-            echo_boxed(raw, f'llm_output (round {round_idx})')
-
-        # Strip markdown wrappers (Gemini quirk from original code)
         r = raw.strip().replace('```tool_code', '').replace('```', '').strip()
 
-        # Parse action
         if r.startswith('GET'):
-            url = r[3:].strip() + '&_format=json'
-            get_res = fhir_tools.fhir_get(url.replace('&_format=json&_format=json', '&_format=json'))
-            # fhir_get already appends _format=json, so use raw URL
-            # Actually, replicate original exactly: original does url + '&_format=json'
-            # and fhir_get also adds it. Let's use the raw send_get_request instead.
             raw_res = fhir_tools._send_get_request_raw(r[3:].strip() + '&_format=json')
             if 'data' in raw_res:
                 feedback = (f"Here is the response from the GET request:\n{raw_res['data']}. "
@@ -116,15 +104,12 @@ def medagent_loop(instruction: str, context: str) -> list[str]:
                 feedback = f"Error in sending the GET request: {raw_res['error']}"
             messages.append({"role": "assistant", "content": raw})
             messages.append({"role": "user", "content": feedback})
-            history.append({'round': round_idx, 'action': 'GET', 'url': r[3:].strip()})
 
         elif r.startswith('POST'):
             lines = r.split('\n')
             post_url = lines[0][4:].strip()
-            payload_text = '\n'.join(lines[1:])
             try:
-                payload = json.loads(payload_text)
-                # Log the POST for refsol grading (same as fhir_tools.fhir_post)
+                payload = json.loads('\n'.join(lines[1:]))
                 fhir_tools.log_post(post_url, payload)
                 feedback = ("POST request accepted and executed successfully. "
                             "Please call FINISH if you have got answers for all the questions "
@@ -133,32 +118,83 @@ def medagent_loop(instruction: str, context: str) -> list[str]:
                 feedback = "Invalid POST request"
             messages.append({"role": "assistant", "content": raw})
             messages.append({"role": "user", "content": feedback})
-            history.append({'round': round_idx, 'action': 'POST', 'url': post_url})
 
         elif r.startswith('FINISH('):
-            # Extract answer list
-            result_str = r[len('FINISH('):-1]
             try:
-                answers = json.loads(result_str)
+                answers = json.loads(r[len('FINISH('):-1])
                 if not isinstance(answers, list):
                     answers = [answers]
             except (json.JSONDecodeError, TypeError):
-                answers = [result_str]
-            history.append({'round': round_idx, 'action': 'FINISH', 'answers': answers})
-            record.record(
-                func='solve_medical_task', args=(instruction, context),
-                kw={}, output=answers, stats=total_stats,
-                step_info={'history': history, 'rounds': round_idx + 1})
+                answers = [r[len('FINISH('):-1]]
+            record.record(func='solve_medical_task', args=(instruction, context),
+                          kw={}, output=answers, stats=total_stats,
+                          step_info={'rounds': round_idx + 1})
             return answers
-
         else:
-            # Invalid action — stop (matching original behavior)
-            history.append({'round': round_idx, 'action': 'INVALID', 'content': r[:200]})
             break
 
-    # Reached max rounds without FINISH
-    record.record(
-        func='solve_medical_task', args=(instruction, context),
-        kw={}, output='**max rounds reached**', stats=total_stats,
-        step_info={'history': history, 'rounds': max_round, 'status': 'TASK_LIMIT_REACHED'})
+    record.record(func='solve_medical_task', args=(instruction, context),
+                  kw={}, output='**max rounds reached**', stats=total_stats,
+                  step_info={'rounds': max_round, 'status': 'TASK_LIMIT_REACHED'})
+    return []
+
+
+# ──────────────────────────────────────────────────────────────────────
+# L3: CodeAct — iterative code generation with error feedback
+# ──────────────────────────────────────────────────────────────────────
+
+def codeact_loop(instruction: str, context: str) -> list:
+    """CodeAct: generate code, execute, re-prompt with errors, up to 8 passes."""
+    import re as re_mod
+    from smolagents.local_python_executor import LocalPythonExecutor, BASE_PYTHON_TOOLS
+
+    model = config.require('llm.model')
+    max_passes = int(config.get('fhir.max_round', 8))
+    max_tokens = int(config.get('llm.max_tokens', 4096))
+    fhir_base = config.get('fhir.api_base', 'http://localhost:8080/fhir/')
+
+    executor = LocalPythonExecutor(additional_authorized_imports=['json', 're'])
+    executor.custom_tools = {
+        'fhir_get': fhir_tools.fhir_get,
+        'fhir_post': fhir_tools.fhir_post,
+        'instruction': instruction, 'context': context,
+    }
+    executor.static_tools = {**BASE_PYTHON_TOOLS, 'final_answer': lambda x: x}
+
+    funcs = json.loads((_TEMPLATE_DIR.parent / 'data' / 'funcs_v1.json').read_text())
+    prompt = _load_template('codeact.txt').format(
+        api_base=fhir_base, functions=json.dumps(funcs),
+        context=_extract_task_context(context), question=instruction)
+    messages = [{"role": "user", "content": prompt}]
+    total_stats = dict(input_tokens=0, output_tokens=0, latency=0.0, cost=0.0)
+
+    for attempt in range(max_passes):
+        raw, stats = _llm_call(model, messages, max_tokens, f'codeact (pass {attempt})')
+        _accumulate_stats(total_stats, stats)
+
+        match = re_mod.search(r'```python\n(.*?)\n```', raw, re_mod.DOTALL)
+        if not match:
+            messages.append({"role": "assistant", "content": raw})
+            messages.append({"role": "user", "content":
+                "No ```python``` code block found. Please output ONLY a ```python``` code block."})
+            continue
+
+        code = match.group(1)
+        try:
+            result = executor(code)
+            answer = result.output
+            if not isinstance(answer, list):
+                answer = [answer]
+            record.record(func='solve_medical_task', args=(instruction, context),
+                          kw={}, output=answer, stats=total_stats,
+                          step_info={'passes': attempt + 1, 'code': code})
+            return answer
+        except Exception as ex:
+            messages.append({"role": "assistant", "content": raw})
+            messages.append({"role": "user", "content":
+                f"Code execution error:\n{ex}\n\nFix the code and try again."})
+
+    record.record(func='solve_medical_task', args=(instruction, context),
+                  kw={}, output='**max passes reached**', stats=total_stats,
+                  step_info={'passes': max_passes, 'status': 'EXHAUSTED'})
     return []
