@@ -151,7 +151,8 @@ class Implementation(BaseModel):
         - __call__(*args, **kw) is the implementing function
 
         Each call to build_implementation() creates a fresh copy of the
-        factory, so setup() can safely store per-interface state on self.
+        factory, so setup() can safely store per-interface state on self,
+        to be used by __call__() later on.
         """
         bound_interface: Optional['Interface'] = Field(
             default=None,

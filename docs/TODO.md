@@ -11,18 +11,12 @@
 
 ## Core issues/bugs
 
- * `model` is not passed down to `llm_util` in simulate - see
-   `model_sweep` code in local `sports_understanding`
- * non-primitive types don't work with simulate
-   * problem is output validation, should at least give warnings
-   * when errors are caught by evaluator's, should _record relevant
-     information from the stack trace
+ * output processing code is so fragile and messy, is there a way to fix that?
  * boxes should wrap text
 
 ## Caching
 
  * Check if disabling caching from the command-line works
- * Revisit how llm_util does caching - as is using the cache bypasses echos
 
 ## Experimentation
 

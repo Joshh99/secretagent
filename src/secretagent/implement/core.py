@@ -5,6 +5,7 @@ Provides DirectFactory, SimulateFactory, PromptLLMFactory, and PoTFactory.
 
 import ast
 import importlib
+import json
 import pathlib
 import re
 
@@ -75,7 +76,6 @@ class SimulateFactory(Implementation.Factory):
     def setup(self, example_file=None, **prompt_kw):
         self.prompt_kw = prompt_kw
         if example_file:
-            import json
             data = json.loads(pathlib.Path(example_file).read_text())
             self.examples_cases = data.get(self.bound_interface.name, [])
 
@@ -83,8 +83,7 @@ class SimulateFactory(Implementation.Factory):
         interface = self.bound_interface
         with config.configuration(**self.prompt_kw):
             prompt = self.create_prompt(interface, *args, examples=self.examples_cases, **kw)
-            llm_output, stats = llm_util.llm(
-                prompt, self.llm_model)
+            llm_output, stats = llm_util.llm(prompt, self.llm_model)
             try:
                 return_type = interface.annotations.get('return', str)
                 answer = self.parse_output(return_type, llm_output)
