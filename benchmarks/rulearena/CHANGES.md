@@ -1,3 +1,30 @@
+# Changes - April 1
+
+## Tax extraction: return type and schema overhaul
+
+- Changed `extract_tax_params` return type from `dict` to `str` to avoid
+  `ast.literal_eval` failures on JSON booleans (`true`/`false`), trailing
+  commas, and `//` comments. `l1_extract_workflow` now parses the raw
+  string via `json.loads` after stripping JS-style comments.
+- Expanded the `extract_tax_params` docstring with the full field schema
+  (~70 fields), line references, and extraction rules. The docstring is
+  the LLM prompt — this makes extraction more reliable.
+
+## Bugfixes
+
+- `SimulateFactory.parse_output` (framework-level, `implement/core.py`):
+  raised `AttributeError` for `str` return types when the LLM omitted
+  `<answer>` tags. Now falls back to returning the raw text.
+- `calculators/airline.py`: cast return value to native `int`. The
+  underlying fee tables produce `numpy.int64`, which broke pydantic-ai
+  tool-result serialization in L3 experiments.
+
+## Pilot verification
+
+- Ran n=5 pilots (n=3 for L3) across all 14 experiment configurations.
+  All pass. See `rulearena_secretagent_execution_guide.md` in the
+  project root for a full execution reference.
+
 # Changes - March 28
 
 ## Prompt fixes
