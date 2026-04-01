@@ -119,7 +119,7 @@ def quick_test(
     with config.configuration(
             cachier={'enable_caching': False},
             echo={
-                'service': True,
+                'model': True,
                 'llm_input': True, 'llm_output': True,
                 'code_eval_input': True, 'code_eval_output': True}
     ):
