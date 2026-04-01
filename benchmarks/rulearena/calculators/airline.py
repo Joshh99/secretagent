@@ -37,4 +37,4 @@ def compute_airline_fee(info: Dict[str, Any]) -> int:
         bag_list=info['bag_list'],
         check_base_tables=FEE_TABLES,
     )
-    return total_cost
+    return int(total_cost)
