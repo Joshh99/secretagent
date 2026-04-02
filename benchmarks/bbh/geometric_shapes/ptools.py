@@ -2,137 +2,196 @@
 
 The task: given an SVG path element, identify which geometric shape it draws,
 returning the correct multiple-choice letter (e.g. "(J)").
-
-Derived from the program trace mock in geometric_shapes_tuned.py
-(doctest-prompting project).
 """
 
-from typing import Dict, List, Optional, Tuple, Union
-from pydantic import BaseModel, ConfigDict
+from collections import defaultdict
+from typing import List, Optional, Tuple
 
 from secretagent.core import interface, implement_via
 
-# ── type aliases ──────────────────────────────────────────────────────────────
+# ── path normalization ──────────────────────────────────────────────────────
 
-class Point(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    x: float
-    y: float
+def _round_pt(x: float, y: float, decimals: int = 2) -> Tuple[float, float]:
+    return (round(x, decimals), round(y, decimals))
 
-class SVGCommand(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    command: str
-    arg: Point
-    start: Optional[Point] = None
+def _parse_coord(s: str) -> Tuple[float, float]:
+    """Parse 'x,y' or 'x y' into a float tuple."""
+    parts = s.replace(',', ' ').split()
+    return (float(parts[0]), float(parts[1]))
 
-class Sqrt(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    val: float
+def _segments_from_commands(commands: List[str]) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
+    """Extract line segments from a list of SVG commands.
 
-SegmentName = str
+    Returns a list of (start, end) point pairs, one per L command.
+    """
+    segments = []
+    current = None
+    for cmd in commands:
+        cmd = cmd.strip()
+        if cmd.upper().startswith('M'):
+            current = _round_pt(*_parse_coord(cmd[1:].strip()))
+        elif cmd.upper().startswith('L'):
+            end = _round_pt(*_parse_coord(cmd[1:].strip()))
+            if current is not None:
+                segments.append((current, end))
+            current = end
+    return segments
 
-class LengthCluster(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    length: Sqrt
-    segments: List[SegmentName]
+def _find_eulerian_path(adj, degree):
+    """Find an Eulerian path using Hierholzer's algorithm on a multigraph.
 
-class LengthClusters(BaseModel):
-    model_config = ConfigDict(frozen=True)
-    clusters: List[LengthCluster]
+    adj: dict mapping node -> list of (neighbor, edge_index)
+    degree: dict mapping node -> degree (number of edges)
+
+    Returns a list of nodes forming the path, or None if no Eulerian path exists.
+    """
+    # find start node: prefer an odd-degree node, else any node with edges
+    odd_nodes = [n for n, d in degree.items() if d % 2 == 1]
+    if len(odd_nodes) > 2:
+        return None  # no Eulerian path possible
+    start = odd_nodes[0] if odd_nodes else next((n for n, d in degree.items() if d > 0), None)
+    if start is None:
+        return None
+
+    stack = [start]
+    path = []
+    used = set()
+    while stack:
+        v = stack[-1]
+        found = False
+        while adj[v]:
+            u, idx = adj[v].pop()
+            if idx not in used:
+                used.add(idx)
+                # also remove from the other side's list lazily (handled by used set)
+                stack.append(u)
+                found = True
+                break
+        if not found:
+            path.append(stack.pop())
+    path.reverse()
+    return path
+
+def normalize_path(commands: List[str]) -> List[str]:
+    """Rearrange SVG commands into continuous chains where possible.
+
+    Treats each L command as an undirected edge between two points, then
+    finds a continuous traversal (Eulerian path) of those edges. Falls back
+    to separate M-started chains for disconnected components.
+    """
+    segments = _segments_from_commands(commands)
+    if not segments:
+        return commands
+
+    # build adjacency for Eulerian path
+    adj = defaultdict(list)
+    degree = defaultdict(int)
+    for idx, (a, b) in enumerate(segments):
+        adj[a].append((b, idx))
+        adj[b].append((a, idx))
+        degree[a] += 1
+        degree[b] += 1
+
+    # try to find an Eulerian path over the whole graph
+    path = _find_eulerian_path(adj, degree)
+    if path is not None and len(path) == len(segments) + 1:
+        result = [f'M {path[0][0]},{path[0][1]}']
+        for pt in path[1:]:
+            result.append(f'L {pt[0]},{pt[1]}')
+        return result
+
+    # fallback: chain segments greedily per connected component
+    point_to_segs = defaultdict(list)
+    for idx, (a, b) in enumerate(segments):
+        point_to_segs[a].append(idx)
+        point_to_segs[b].append(idx)
+
+    used = [False] * len(segments)
+    result = []
+
+    for start_idx in range(len(segments)):
+        if used[start_idx]:
+            continue
+        # start a new chain from this segment
+        a, b = segments[start_idx]
+        used[start_idx] = True
+        chain = [a, b]
+        # extend forward
+        while True:
+            tip = chain[-1]
+            found = False
+            for idx in point_to_segs[tip]:
+                if not used[idx]:
+                    used[idx] = True
+                    sa, sb = segments[idx]
+                    chain.append(sb if sa == tip else sa)
+                    found = True
+                    break
+            if not found:
+                break
+        result.append(f'M {chain[0][0]},{chain[0][1]}')
+        for pt in chain[1:]:
+            result.append(f'L {pt[0]},{pt[1]}')
+
+    return result
 
 # ── sub-tools ────────────────────────────────────────────────────────────────
 
 @interface
-def extract_path(input_str: str) -> str:
-    """Extract the SVG path element from the input string.
+def extract_path_and_options(input: str) -> Tuple[str, List[Tuple[str, str]]]:
+    """Extract the SVG path string and answer options from the prompt.
+
+    Returns (path, options) where path is the raw SVG path d="..." string
+    and options is a list of (letter, shape_name) pairs, e.g. [('A', 'circle'), ('B', 'heptagon')].
     """
     ...
 
 @interface
-def extract_options(input_str: str) -> List[Tuple[str, str]]:
-    """Extract the possible answers from the input string.
+def decompose_path(path: str) -> List[str]:
+    """Break an SVG path string into a list of individual command strings.
 
-    Each answer is a (letter, shape_name) pair, e.g. ('A', 'circle').
-
-    Examples:
-    >>> extract_options('This SVG path element <path d="M 1,2 L 3,4"/> draws a\\nOptions:\\n(A) circle\\n(B) triangle\\n')
-    [('A', 'circle'), ('B', 'triangle')]
+    Each entry is one command with its arguments, e.g. 'M 37.73,31.58' or 'L 41.81,33.73'.
     """
     ...
 
 @interface
-def explain_path(path: str) -> str:
-    """Generate a string giving background information on the SVG commands used in a path.
+def describe_command(command: str, previous_command: Optional[str] = None) -> str:
+    """Describe what a single SVG path command does in plain English,
+    including where it starts from.
 
-    Examples:
-    >>> explain_path('<path d="M 31.00,73.00 L 32.00,59.00"/>')
-    'This SVG path element contains "M" and "L" commands. M takes two parameters (x,y) and moves the current point to the coordinates (x,y). L takes two parameters (x,y) and draws a line from the previous coordinate to the new coordinate (x,y).'
+    For an M command, describe the move to the given point.
+    For an L command, previous_command provides the starting point;
+    describe the line drawn from that starting point to the new point.
+
+    E.g. describe_command('L 41.81,33.73', 'M 37.73,31.58')
+      -> 'Draw a line from (37.73, 31.58) to (41.81, 33.73)'.
     """
     ...
 
 @interface
-def decompose_path(path: str) -> List[SVGCommand]:
-    """Convert an SVG path string to a list of SVGCommand objects.
+def compute_angle(prev_command: str, current_command: str, next_command: str) -> str:
+    """Compute the angle formed at the point where two line segments meet.
 
-    Unnecessary M (move) commands that do not change the position are removed.
+    prev_command and current_command define the incoming segment;
+    current_command and next_command define the outgoing segment.
+    The angle is measured at the endpoint of current_command.
 
-    Examples:
-    >>> decompose_path('<path d="M 33.00,18.00 L 36.00,26.00 M 36.00,26.00 L 33.33,26.00 M 33.33,26.00 L 31.00,27.00"/>')
-    [SVGCommand(command='M', arg=Point(x=33.0, y=18.0), start=None), SVGCommand(command='L', arg=Point(x=36.0, y=26.0), start=Point(x=33.0, y=18.0)), SVGCommand(command='L', arg=Point(x=33.33, y=26.0), start=Point(x=36.0, y=26.0)), SVGCommand(command='L', arg=Point(x=31.0, y=27.0), start=Point(x=33.33, y=26.0))]
+    Returns a plain-English description of the angle, or indicates
+    that no angle applies (e.g. for a move command).
     """
     ...
 
 @interface
-def summarize_decomposed_path(path_decomposition: List[SVGCommand]) -> Dict[str, Union[str, int]]:
-    """Extract important properties of a decomposed path as a dictionary.
+def describe_shape(annotated_commands: List[str]) -> str:
+    """Given the full list of commands with angle descriptions interspersed,
+    describe what geometric shape the path forms.
     """
     ...
 
 @interface
-def summary_matches_option(
-        path_summary: Dict[str, Union[str, int]], option: Tuple[str, str]) -> bool:
-    """Determine if a path summary describes the shape associated with option.
-
-    Examples:
-    >>> summary_matches_option({'num_consecutive_touching_lines': 5, 'num_curved_lines': 0}, ('G', 'pentagon'))
-    True
-    >>> summary_matches_option({'num_consecutive_touching_lines': 4, 'num_curved_lines': 0}, ('H', 'rectangle'))
-    True
-    >>> summary_matches_option({'num_consecutive_touching_lines': 7, 'num_curved_lines': 0}, ('B', 'heptagon'))
-    True
-    >>> summary_matches_option({'num_consecutive_touching_lines': 3, 'num_curved_lines': 0}, ('J', 'triangle'))
-    True
-    >>> summary_matches_option({'num_consecutive_touching_lines': 6, 'num_curved_lines': 0}, ('C', 'hexagon'))
-    False
-    """
-    ...
-
-@interface
-def compute_length_clusters(path_decomposition: List[SVGCommand]) -> LengthClusters:
-    """Cluster line segments by length.
-
-    Returns a LengthClusters object whose clusters field is a list of
-    LengthCluster entries, each with a Sqrt length and a list of segment
-    names ('A', 'B', ...) in the order they appear in the decomposition.
-    """
-    ...
-
-@interface
-def relate_length_clusters_to_option(length_clusters: LengthClusters, option: Tuple[str, str]) -> str:
-    """Return a string summarising the relationship between the length clusters
-    and the shape associated with option.
-    """
-    ...
-
-@interface
-def length_clusters_match_option(length_clusters: LengthClusters, option: Tuple[str, str]) -> bool:
-    """Determine if the length clusters are consistent with the shape associated with option.
-    """
-    ...
-
-@interface
-def is_unique_answer(matching_options: List[Tuple[str, str]]) -> bool:
-    """Check if there is exactly one answer in the set of matching options.
+def select_option(description: str, options: List[Tuple[str, str]]) -> str:
+    """Given a shape description and the list of answer options, return the
+    option letter that best matches, e.g. '(F)'.
     """
     ...
 
@@ -156,31 +215,24 @@ def geometric_shapes_workflow(input: str) -> str:
         ptools.identify_shape.method=direct
         ptools.identify_shape.fn=ptools.geometric_shapes_workflow
     """
-    # print("Attempting extract_path")
-    path = extract_path(input)
-    # print("Finished extract_path. Attempting explain_path")
-    explain_path(path)  # provides SVG command context; result used by PoT
-    # print("Finished explain_path. Attempting decompose_path")
-    decomposition = decompose_path(path)
-    # print("Finished decompose_path. Attempting summarize_decomposed_path")
-    summary = summarize_decomposed_path(decomposition)
-    # print("Finished summarize_decomposed_path. Attempting extract_options")
-    options = extract_options(input)
-    # print("Finished extract_options. Attempting summary_matches_option")
+    path, options = extract_path_and_options(input)
+    commands = normalize_path(decompose_path(path))
 
-    matching_options = [opt for opt in options if summary_matches_option(summary, opt)]
-    # print(matching_options)
+    # describe each command, passing the previous command for L commands
+    descriptions = [describe_command(commands[0])]
+    for i in range(1, len(commands)):
+        descriptions.append(describe_command(commands[i], previous_command=commands[i - 1]))
 
-    if is_unique_answer(matching_options):
-        letter = matching_options[0][0]
-        return f'({letter})'
+    # build annotated list with angles interspersed
+    annotated = [descriptions[0]]
+    for i in range(1, len(descriptions)):
+        if i + 1 < len(commands):
+            angle = compute_angle(commands[i - 1], commands[i], commands[i + 1])
+            annotated.append(angle)
+        annotated.append(descriptions[i])
 
-    # Ambiguous on summary alone — use length clusters to disambiguate
-    length_clusters = compute_length_clusters(decomposition)
-    final_matches = [opt for opt in matching_options if length_clusters_match_option(length_clusters, opt)]
-
-    letter = final_matches[0][0]
-    return f'({letter})'
+    description = describe_shape(annotated)
+    return select_option(description, options)
 
 # ── zero-shot unstructured workflow ──────────────────────────────────────────
 

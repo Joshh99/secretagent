@@ -4,6 +4,9 @@
 
 basics: unstructured_baseline structured_baseline workflow pot react
 
+pot:
+	sar plot --metric cost- --metric correct results/*; open plot_results.png
+
 # zero-shot unstructured queries with a vanilla prompt
 # technically the vanilla prompt returns a string, which is then coerced to a bool
 # in the second stage of a very simple workflow

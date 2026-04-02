@@ -13,25 +13,17 @@ dataset:
   shuffle_seed: 137
 
 ptools:
-  extract_path:
-    method: simulate_pydantic
-  extract_options:
-    method: simulate_pydantic
-  explain_path:
-    method: simulate_pydantic
+  extract_path_and_options:
+    method: simulate
   decompose_path:
-    method: simulate_pydantic
-  summarize_decomposed_path:
-    method: simulate_pydantic
-  summary_matches_option:
-    method: simulate_pydantic
-  compute_length_clusters:
-    method: simulate_pydantic
-  relate_length_clusters_to_option:
-    method: simulate_pydantic
-  length_clusters_match_option:
-    method: simulate_pydantic
-  is_unique_answer:
-    method: simulate_pydantic
+    method: simulate
+  describe_command:
+    method: simulate
+  compute_angle:
+    method: simulate
+  describe_shape:
+    method: simulate
+  select_option:
+    method: simulate
   identify_shape:
     method: DEFAULT #should raise an error

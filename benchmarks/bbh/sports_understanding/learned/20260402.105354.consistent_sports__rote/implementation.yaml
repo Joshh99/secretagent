@@ -1,0 +1,4 @@
+consistent_sports:
+  backoff: 'true'
+  learner: rote
+  method: learned_code

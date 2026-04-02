@@ -1,0 +1,300 @@
+{"predicted_output": "['Patient not found']", "expected_output": "['S1986380']", "task_type": "task1", "num_posts": 0, "case_name": "task1_3", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "['S6534835']", "task_type": "task1", "num_posts": 0, "case_name": "task1_1", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S2703270']", "task_type": "task1", "num_posts": 0, "case_name": "task1_5", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6426560']", "task_type": "task1", "num_posts": 0, "case_name": "task1_2", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S2874099']", "task_type": "task1", "num_posts": 0, "case_name": "task1_6", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6530532']", "task_type": "task1", "num_posts": 0, "case_name": "task1_8", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6200102']", "task_type": "task1", "num_posts": 0, "case_name": "task1_7", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6539215']", "task_type": "task1", "num_posts": 0, "case_name": "task1_9", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['S6264184']", "expected_output": "['S6264184']", "task_type": "task1", "num_posts": 0, "case_name": "task1_10", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S0789363']", "task_type": "task1", "num_posts": 0, "case_name": "task1_12", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6521727']", "task_type": "task1", "num_posts": 0, "case_name": "task1_11", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['S2154941']", "expected_output": "['S2154941']", "task_type": "task1", "num_posts": 0, "case_name": "task1_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['S2197736']", "expected_output": "['S2197736']", "task_type": "task1", "num_posts": 0, "case_name": "task1_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S3228213']", "task_type": "task1", "num_posts": 0, "case_name": "task1_15", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6551923']", "task_type": "task1", "num_posts": 0, "case_name": "task1_16", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S2863714']", "task_type": "task1", "num_posts": 0, "case_name": "task1_18", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['S6192632']", "expected_output": "['S6192632']", "task_type": "task1", "num_posts": 0, "case_name": "task1_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['S0658561']", "expected_output": "['S0658561']", "task_type": "task1", "num_posts": 0, "case_name": "task1_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S0547588']", "task_type": "task1", "num_posts": 0, "case_name": "task1_21", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[{'use': 'usual', 'type': {'coding': [{'system': 'http://terminology.hl7.org/CodeSystem/v2-0203', 'code': 'MR', 'display': 'Medical Record Number'}]}, 'value': 'S0722219'}]", "expected_output": "['S0722219']", "task_type": "task1", "num_posts": 0, "case_name": "task1_22", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['S6484983']", "expected_output": "['S6484983']", "task_type": "task1", "num_posts": 0, "case_name": "task1_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['S2119664']", "expected_output": "['S2119664']", "task_type": "task1", "num_posts": 0, "case_name": "task1_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6538722']", "task_type": "task1", "num_posts": 0, "case_name": "task1_24", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S6545016']", "task_type": "task1", "num_posts": 0, "case_name": "task1_25", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S3236936']", "task_type": "task1", "num_posts": 0, "case_name": "task1_26", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['S2704870']", "task_type": "task1", "num_posts": 0, "case_name": "task1_28", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['S3213957']", "expected_output": "['S3213957']", "task_type": "task1", "num_posts": 0, "case_name": "task1_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['Patient not found']", "expected_output": "['Patient not found']", "task_type": "task1", "num_posts": 0, "case_name": "task1_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[60]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "['S3057899']", "task_type": "task1", "num_posts": 0, "case_name": "task1_23", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "['Patient not found']", "task_type": "task1", "num_posts": 0, "case_name": "task1_29", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[80]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[68]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[67]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[55]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[72]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[39]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[89]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[48]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[79]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_10", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[44]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_11", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[81]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[75]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[90]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[66]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_16", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[76]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[84]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[86]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[28]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[67]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[63]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_21", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[82]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_22", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[54]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_24", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[62]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[51]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_25", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[70]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[69]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_26", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[62]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[50]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[80]", "expected_output": "None", "task_type": "task2", "num_posts": 0, "case_name": "task2_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_10", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_11", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_16", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_22", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_21", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_24", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_25", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_26", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task3", "num_posts": 1, "case_name": "task3_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.7]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_10", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.2]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_11", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.2]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_16", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.0]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_22", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_21", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_24", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_23", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[2.0]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_25", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[1.8]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[2.5]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_26", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task4", "num_posts": 0, "case_name": "task4_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_11", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_10", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_18", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_16", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_22", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_21", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_25", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_26", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_24", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task5", "num_posts": 0, "case_name": "task5_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[97.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[89.88888888888889]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[93.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[100.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[100.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[90.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[115.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[123.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[108.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[118.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_11", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[116.15384615384616]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[188.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_16", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_10", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[105.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[168.85714285714286]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[127.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[97.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_22", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[87.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[102.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_21", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[90.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_24", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[89.66666666666667]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[94.33333333333333]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_25", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[245.0]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_26", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_28", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_30", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[123.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_1", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_2", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[215.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_4", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[134.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_3", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task6", "num_posts": 0, "case_name": "task6_29", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[110.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[73.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[97.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "['134.0 mg/dL']", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_5", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[109.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[87.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_10", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['-1']", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_11", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[79.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[161.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_13", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[90.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[81.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_16", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['94.0 mg/dL']", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_18", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[107.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[190.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[85.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_21", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_22", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_24", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[102.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[109.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_25", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_26", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "['140.0 mg/dL']", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_28", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_27", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[110.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_1", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_2", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[105.0]", "expected_output": "None", "task_type": "task7", "num_posts": 0, "case_name": "task7_30", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_4", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_3", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_7", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_6", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_8", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_10", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_9", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_11", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_12", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_13", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_14", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_15", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_16", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_17", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_19", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_20", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_21", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_22", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_23", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_24", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_25", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_26", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_29", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_27", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[]", "expected_output": "None", "task_type": "task8", "num_posts": 1, "case_name": "task8_30", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_1", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_3", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_2", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_6", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_5", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_4", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_7", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_8", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_9", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_10", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_11", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_12", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_13", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_16", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_14", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_15", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_17", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_18", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_20", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_21", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_19", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_23", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_22", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_25", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_24", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_26", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_27", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_28", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_30", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_1", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task9", "num_posts": 0, "case_name": "task9_29", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[5.9]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_2", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_3", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[5.4]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_4", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[6.6, '2023-11-04T14:54:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_5", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_7", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_6", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_9", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1, 'No HbA1C found, new test ordered']", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_11", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_12", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_8", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_10", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_14", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_16", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_13", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[5.0]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_17", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[5.9, '2023-11-12T06:19:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_18", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_15", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1.0]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_19", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_22", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_21", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_23", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_24", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_25", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[-1]", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_26", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[6.5, '2022-03-08T08:14:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 1, "case_name": "task10_20", "correct": 0.0, "expt_name": "codeact"}
+{"predicted_output": "[5.4, '2023-11-02T06:53:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_27", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[8.3, '2023-10-30T13:10:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_30", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[7.4, '2023-06-27T23:25:00+00:00']", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_28", "correct": 1.0, "expt_name": "codeact"}
+{"predicted_output": "[6.2]", "expected_output": "None", "task_type": "task10", "num_posts": 0, "case_name": "task10_29", "correct": 0.0, "expt_name": "codeact"}

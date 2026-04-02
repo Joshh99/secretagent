@@ -1,5 +1,37 @@
 # Changes - April 1
 
+## Pipeline Optimizer integration
+
+New files for Pareto-optimal config search across rulearena domains:
+
+- `search_spaces.py` — per-domain search space definitions. Each domain
+  returns a list of `SearchDimension`s (the axes to search) and fixed
+  overrides applied to every config. Current space: 2 workflows (L1,
+  L0F) x 2 models (DeepSeek-V3, DeepSeek-V3.1) = 4 configs per domain.
+- `run_pareto.py` — CLI runner. Calls `run_nsga2()` from the optimizer
+  infra, prints the frontier with short labels (L1/L0F + DSv3/DSv3.1),
+  saves a Pareto plot to `results/pareto_{domain}.png`.
+- `toy_nsga2.py` — standalone DEAP verification script with a known
+  27-config toy problem. Not used in production.
+- `sweep_airline_test.yaml` — minimal 2-config sweep space used to
+  validate the existing grid search infrastructure.
+
+### Known limitations
+
+- **NBA metric is accuracy, not F1 macro.** The evaluator computes
+  per-instance `correct` (0/1), which averages to accuracy. For NBA's
+  binary classification with class imbalance, this is misleading — a
+  model predicting all-True gets high accuracy but low F1. Do not draw
+  conclusions from NBA frontier until F1 is added (either in the
+  evaluator or as post-hoc aggregation in the optimizer).
+- **All current results are n=5** (infrastructure validation only).
+  Production runs need n>=30 minimum, n=300 for the paper.
+- **L3 (ReAct) and PoT not in the search space.** Both require
+  different override sets than method=direct. L3 needs a wrapper
+  workflow function or compound config support. Deferred.
+- **n_demos not a search dimension yet.** Requires wiring a config key
+  that the simulate/ptp factories read.
+
 ## Tax extraction: return type and schema overhaul
 
 - Changed `extract_tax_params` return type from `dict` to `str` to avoid

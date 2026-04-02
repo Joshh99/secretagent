@@ -1,0 +1,301 @@
+case_name,predicted_output,expected_output,task_type,num_posts,correct,expt_name
+task1_3,['Patient not found'],['S1986380'],task1,0,0.0,codeact
+task1_1,[-1],['S6534835'],task1,0,0.0,codeact
+task1_5,['Patient not found'],['S2703270'],task1,0,0.0,codeact
+task1_2,['Patient not found'],['S6426560'],task1,0,0.0,codeact
+task1_6,['Patient not found'],['S2874099'],task1,0,0.0,codeact
+task1_8,['Patient not found'],['S6530532'],task1,0,0.0,codeact
+task1_7,['Patient not found'],['S6200102'],task1,0,0.0,codeact
+task1_9,['Patient not found'],['S6539215'],task1,0,0.0,codeact
+task1_10,['S6264184'],['S6264184'],task1,0,1.0,codeact
+task1_12,['Patient not found'],['S0789363'],task1,0,0.0,codeact
+task1_11,['Patient not found'],['S6521727'],task1,0,0.0,codeact
+task1_13,['S2154941'],['S2154941'],task1,0,1.0,codeact
+task1_14,['S2197736'],['S2197736'],task1,0,1.0,codeact
+task1_15,['Patient not found'],['S3228213'],task1,0,0.0,codeact
+task1_16,['Patient not found'],['S6551923'],task1,0,0.0,codeact
+task1_18,['Patient not found'],['S2863714'],task1,0,0.0,codeact
+task1_19,['S6192632'],['S6192632'],task1,0,1.0,codeact
+task1_20,['S0658561'],['S0658561'],task1,0,1.0,codeact
+task1_21,['Patient not found'],['S0547588'],task1,0,0.0,codeact
+task1_22,"[{'use': 'usual', 'type': {'coding': [{'system': 'http://terminology.hl7.org/CodeSystem/v2-0203', 'code': 'MR', 'display': 'Medical Record Number'}]}, 'value': 'S0722219'}]",['S0722219'],task1,0,0.0,codeact
+task1_4,['S6484983'],['S6484983'],task1,0,1.0,codeact
+task1_17,['S2119664'],['S2119664'],task1,0,1.0,codeact
+task1_24,['Patient not found'],['S6538722'],task1,0,0.0,codeact
+task1_25,['Patient not found'],['S6545016'],task1,0,0.0,codeact
+task1_26,['Patient not found'],['S3236936'],task1,0,0.0,codeact
+task1_28,['Patient not found'],['S2704870'],task1,0,0.0,codeact
+task1_27,['S3213957'],['S3213957'],task1,0,1.0,codeact
+task1_30,['Patient not found'],['Patient not found'],task1,0,1.0,codeact
+task2_1,[60],None,task2,0,1.0,codeact
+task1_23,[-1],['S3057899'],task1,0,0.0,codeact
+task1_29,[-1],['Patient not found'],task1,0,0.0,codeact
+task2_2,[80],None,task2,0,1.0,codeact
+task2_3,[68],None,task2,0,1.0,codeact
+task2_5,[67],None,task2,0,1.0,codeact
+task2_4,[55],None,task2,0,1.0,codeact
+task2_7,[72],None,task2,0,1.0,codeact
+task2_6,[39],None,task2,0,1.0,codeact
+task2_8,[89],None,task2,0,1.0,codeact
+task2_9,[48],None,task2,0,1.0,codeact
+task2_10,[79],None,task2,0,1.0,codeact
+task2_11,[44],None,task2,0,1.0,codeact
+task2_13,[81],None,task2,0,1.0,codeact
+task2_14,[75],None,task2,0,1.0,codeact
+task2_12,[90],None,task2,0,1.0,codeact
+task2_16,[66],None,task2,0,1.0,codeact
+task2_17,[76],None,task2,0,1.0,codeact
+task2_18,[84],None,task2,0,1.0,codeact
+task2_15,[86],None,task2,0,1.0,codeact
+task2_19,[28],None,task2,0,1.0,codeact
+task2_20,[67],None,task2,0,1.0,codeact
+task2_21,[63],None,task2,0,1.0,codeact
+task2_22,[82],None,task2,0,1.0,codeact
+task2_24,[54],None,task2,0,1.0,codeact
+task2_23,[62],None,task2,0,1.0,codeact
+task2_25,[51],None,task2,0,1.0,codeact
+task2_27,[70],None,task2,0,1.0,codeact
+task2_26,[69],None,task2,0,1.0,codeact
+task2_29,[62],None,task2,0,1.0,codeact
+task2_28,[50],None,task2,0,1.0,codeact
+task2_30,[80],None,task2,0,1.0,codeact
+task3_2,[],None,task3,1,1.0,codeact
+task3_1,[],None,task3,1,1.0,codeact
+task3_4,[],None,task3,1,1.0,codeact
+task3_3,[],None,task3,1,1.0,codeact
+task3_5,[],None,task3,1,1.0,codeact
+task3_8,[],None,task3,1,1.0,codeact
+task3_6,[],None,task3,1,1.0,codeact
+task3_7,[],None,task3,1,1.0,codeact
+task3_10,[],None,task3,1,1.0,codeact
+task3_9,[],None,task3,1,1.0,codeact
+task3_11,[],None,task3,1,1.0,codeact
+task3_13,[],None,task3,1,1.0,codeact
+task3_12,[],None,task3,1,1.0,codeact
+task3_15,[],None,task3,1,1.0,codeact
+task3_14,[],None,task3,1,1.0,codeact
+task3_16,[],None,task3,1,1.0,codeact
+task3_17,[-1],None,task3,1,1.0,codeact
+task3_18,[],None,task3,1,1.0,codeact
+task3_20,[],None,task3,1,1.0,codeact
+task3_22,[],None,task3,1,0.0,codeact
+task3_19,[],None,task3,1,1.0,codeact
+task3_21,[],None,task3,1,1.0,codeact
+task3_23,[],None,task3,1,1.0,codeact
+task3_24,[],None,task3,1,1.0,codeact
+task3_27,[],None,task3,1,1.0,codeact
+task3_25,[],None,task3,1,0.0,codeact
+task3_28,[],None,task3,1,1.0,codeact
+task3_29,[],None,task3,1,1.0,codeact
+task3_26,[],None,task3,1,1.0,codeact
+task3_30,[-1],None,task3,1,1.0,codeact
+task4_2,[-1],None,task4,0,1.0,codeact
+task4_3,[2.7],None,task4,0,1.0,codeact
+task4_4,[-1],None,task4,0,1.0,codeact
+task4_5,[2.1],None,task4,0,1.0,codeact
+task4_7,[-1],None,task4,0,1.0,codeact
+task4_6,[-1],None,task4,0,1.0,codeact
+task4_8,[-1],None,task4,0,1.0,codeact
+task4_9,[-1],None,task4,0,1.0,codeact
+task4_1,[-1],None,task4,0,1.0,codeact
+task4_10,[-1],None,task4,0,1.0,codeact
+task4_13,[2.2],None,task4,0,1.0,codeact
+task4_11,[-1],None,task4,0,1.0,codeact
+task4_15,[2.2],None,task4,0,1.0,codeact
+task4_14,[-1],None,task4,0,1.0,codeact
+task4_16,[-1],None,task4,0,1.0,codeact
+task4_12,[-1],None,task4,0,1.0,codeact
+task4_19,[-1],None,task4,0,1.0,codeact
+task4_17,[2.1],None,task4,0,1.0,codeact
+task4_18,[-1],None,task4,0,1.0,codeact
+task4_20,[2.0],None,task4,0,1.0,codeact
+task4_22,[-1],None,task4,0,1.0,codeact
+task4_21,[-1],None,task4,0,1.0,codeact
+task4_24,[-1],None,task4,0,1.0,codeact
+task4_23,[-1],None,task4,0,0.0,codeact
+task4_25,[2.0],None,task4,0,1.0,codeact
+task4_27,[1.8],None,task4,0,1.0,codeact
+task4_28,[2.1],None,task4,0,1.0,codeact
+task4_26,[2.5],None,task4,0,1.0,codeact
+task4_30,[-1],None,task4,0,1.0,codeact
+task4_29,[-1],None,task4,0,1.0,codeact
+task5_2,[-1],None,task5,0,1.0,codeact
+task5_1,[],None,task5,0,1.0,codeact
+task5_3,[],None,task5,0,1.0,codeact
+task5_4,[],None,task5,0,1.0,codeact
+task5_6,[],None,task5,0,1.0,codeact
+task5_7,[],None,task5,0,1.0,codeact
+task5_8,[],None,task5,0,1.0,codeact
+task5_5,[],None,task5,0,1.0,codeact
+task5_9,[-1],None,task5,0,1.0,codeact
+task5_12,[-1],None,task5,0,1.0,codeact
+task5_11,[-1],None,task5,0,0.0,codeact
+task5_13,[-1],None,task5,0,1.0,codeact
+task5_10,[-1],None,task5,0,0.0,codeact
+task5_14,[],None,task5,0,1.0,codeact
+task5_15,[-1],None,task5,0,1.0,codeact
+task5_18,[-1],None,task5,0,0.0,codeact
+task5_17,[],None,task5,0,1.0,codeact
+task5_16,[],None,task5,0,1.0,codeact
+task5_20,[],None,task5,0,1.0,codeact
+task5_22,[-1],None,task5,0,1.0,codeact
+task5_19,[],None,task5,0,1.0,codeact
+task5_21,[-1],None,task5,0,0.0,codeact
+task5_25,[],None,task5,0,0.0,codeact
+task5_26,[],None,task5,0,1.0,codeact
+task5_24,[-1],None,task5,0,1.0,codeact
+task5_23,[-1],None,task5,0,1.0,codeact
+task5_27,[],None,task5,0,1.0,codeact
+task5_29,[],None,task5,0,1.0,codeact
+task5_28,[],None,task5,0,1.0,codeact
+task5_30,[-1],None,task5,0,1.0,codeact
+task6_1,[97.0],None,task6,0,1.0,codeact
+task6_4,[89.88888888888889],None,task6,0,1.0,codeact
+task6_5,[93.0],None,task6,0,1.0,codeact
+task6_6,[100.0],None,task6,0,1.0,codeact
+task6_3,[100.0],None,task6,0,1.0,codeact
+task6_2,[90.0],None,task6,0,1.0,codeact
+task6_8,[115.0],None,task6,0,1.0,codeact
+task6_7,[123.0],None,task6,0,1.0,codeact
+task6_9,[108.0],None,task6,0,1.0,codeact
+task6_11,[118.0],None,task6,0,1.0,codeact
+task6_13,[116.15384615384616],None,task6,0,1.0,codeact
+task6_12,[188.0],None,task6,0,1.0,codeact
+task6_14,[-1],None,task6,0,1.0,codeact
+task6_15,[-1],None,task6,0,1.0,codeact
+task6_16,[-1],None,task6,0,0.0,codeact
+task6_10,[-1],None,task6,0,0.0,codeact
+task6_17,[105.0],None,task6,0,1.0,codeact
+task6_20,[168.85714285714286],None,task6,0,1.0,codeact
+task6_18,[127.0],None,task6,0,1.0,codeact
+task6_22,[97.0],None,task6,0,1.0,codeact
+task6_19,[87.0],None,task6,0,1.0,codeact
+task6_21,[102.0],None,task6,0,1.0,codeact
+task6_24,[90.0],None,task6,0,1.0,codeact
+task6_23,[89.66666666666667],None,task6,0,1.0,codeact
+task6_25,[94.33333333333333],None,task6,0,1.0,codeact
+task6_27,[245.0],None,task6,0,1.0,codeact
+task6_26,[-1],None,task6,0,0.0,codeact
+task6_28,[-1],None,task6,0,0.0,codeact
+task6_30,[-1],None,task6,0,0.0,codeact
+task7_1,[123.0],None,task7,0,1.0,codeact
+task7_2,[-1],None,task7,0,0.0,codeact
+task7_4,[215.0],None,task7,0,1.0,codeact
+task7_3,[134.0],None,task7,0,1.0,codeact
+task6_29,[-1],None,task6,0,0.0,codeact
+task7_7,[110.0],None,task7,0,1.0,codeact
+task7_6,[73.0],None,task7,0,1.0,codeact
+task7_8,[97.0],None,task7,0,1.0,codeact
+task7_5,['134.0 mg/dL'],None,task7,0,0.0,codeact
+task7_9,[109.0],None,task7,0,1.0,codeact
+task7_10,[87.0],None,task7,0,0.0,codeact
+task7_11,['-1'],None,task7,0,0.0,codeact
+task7_12,[79.0],None,task7,0,1.0,codeact
+task7_13,[161.0],None,task7,0,1.0,codeact
+task7_14,[90.0],None,task7,0,1.0,codeact
+task7_15,[81.0],None,task7,0,1.0,codeact
+task7_16,[-1],None,task7,0,0.0,codeact
+task7_18,['94.0 mg/dL'],None,task7,0,0.0,codeact
+task7_17,[107.0],None,task7,0,1.0,codeact
+task7_19,[190.0],None,task7,0,1.0,codeact
+task7_20,[85.0],None,task7,0,1.0,codeact
+task7_21,[-1],None,task7,0,0.0,codeact
+task7_22,[-1],None,task7,0,0.0,codeact
+task7_24,[-1],None,task7,0,0.0,codeact
+task7_23,[102.0],None,task7,0,1.0,codeact
+task7_25,[109.0],None,task7,0,1.0,codeact
+task7_26,[-1],None,task7,0,0.0,codeact
+task7_28,['140.0 mg/dL'],None,task7,0,0.0,codeact
+task7_27,[-1],None,task7,0,0.0,codeact
+task7_29,[110.0],None,task7,0,1.0,codeact
+task8_1,[],None,task8,1,0.0,codeact
+task8_2,[],None,task8,1,1.0,codeact
+task7_30,[105.0],None,task7,0,0.0,codeact
+task8_4,[],None,task8,1,0.0,codeact
+task8_3,[],None,task8,1,0.0,codeact
+task8_5,[],None,task8,1,1.0,codeact
+task8_7,[],None,task8,1,1.0,codeact
+task8_6,[],None,task8,1,1.0,codeact
+task8_8,[],None,task8,1,1.0,codeact
+task8_10,[],None,task8,1,1.0,codeact
+task8_9,[],None,task8,1,1.0,codeact
+task8_11,[],None,task8,1,1.0,codeact
+task8_12,[],None,task8,1,1.0,codeact
+task8_13,[-1],None,task8,1,0.0,codeact
+task8_14,[],None,task8,1,1.0,codeact
+task8_15,[],None,task8,1,1.0,codeact
+task8_16,[],None,task8,1,1.0,codeact
+task8_17,[],None,task8,1,1.0,codeact
+task8_18,[],None,task8,1,1.0,codeact
+task8_19,[],None,task8,1,1.0,codeact
+task8_20,[],None,task8,1,1.0,codeact
+task8_21,[],None,task8,1,1.0,codeact
+task8_22,[],None,task8,1,1.0,codeact
+task8_23,[],None,task8,1,1.0,codeact
+task8_24,[],None,task8,1,0.0,codeact
+task8_25,[],None,task8,1,1.0,codeact
+task8_26,[],None,task8,1,1.0,codeact
+task8_28,[],None,task8,1,1.0,codeact
+task8_29,[],None,task8,1,1.0,codeact
+task8_27,[],None,task8,1,0.0,codeact
+task8_30,[],None,task8,1,0.0,codeact
+task9_1,[-1],None,task9,0,0.0,codeact
+task9_3,[-1],None,task9,0,0.0,codeact
+task9_2,[-1],None,task9,0,0.0,codeact
+task9_6,[-1],None,task9,0,0.0,codeact
+task9_5,[-1],None,task9,0,0.0,codeact
+task9_4,[-1],None,task9,0,0.0,codeact
+task9_7,[-1],None,task9,0,0.0,codeact
+task9_8,[-1],None,task9,0,0.0,codeact
+task9_9,[-1],None,task9,0,0.0,codeact
+task9_10,[-1],None,task9,0,0.0,codeact
+task9_11,[-1],None,task9,0,0.0,codeact
+task9_12,[-1],None,task9,0,0.0,codeact
+task9_13,[-1],None,task9,0,0.0,codeact
+task9_16,[-1],None,task9,0,0.0,codeact
+task9_14,[-1],None,task9,0,0.0,codeact
+task9_15,[-1],None,task9,0,0.0,codeact
+task9_17,[-1],None,task9,0,0.0,codeact
+task9_18,[-1],None,task9,0,0.0,codeact
+task9_20,[-1],None,task9,0,0.0,codeact
+task9_21,[-1],None,task9,0,0.0,codeact
+task9_19,[-1],None,task9,0,0.0,codeact
+task9_23,[-1],None,task9,0,0.0,codeact
+task9_22,[-1],None,task9,0,0.0,codeact
+task9_25,[-1],None,task9,0,0.0,codeact
+task9_24,[-1],None,task9,0,0.0,codeact
+task9_26,[-1],None,task9,0,0.0,codeact
+task9_27,[-1],None,task9,0,0.0,codeact
+task9_28,[-1],None,task9,0,0.0,codeact
+task9_30,[-1],None,task9,0,0.0,codeact
+task10_1,[-1],None,task10,0,0.0,codeact
+task9_29,[-1],None,task9,0,0.0,codeact
+task10_2,[5.9],None,task10,0,0.0,codeact
+task10_3,[-1],None,task10,1,0.0,codeact
+task10_4,[5.4],None,task10,0,0.0,codeact
+task10_5,"[6.6, '2023-11-04T14:54:00+00:00']",None,task10,0,1.0,codeact
+task10_7,[-1],None,task10,0,0.0,codeact
+task10_6,[-1],None,task10,1,0.0,codeact
+task10_9,[-1],None,task10,0,0.0,codeact
+task10_11,"[-1, 'No HbA1C found, new test ordered']",None,task10,1,0.0,codeact
+task10_12,[-1],None,task10,0,0.0,codeact
+task10_8,[-1],None,task10,1,0.0,codeact
+task10_10,[-1],None,task10,1,0.0,codeact
+task10_14,[-1],None,task10,1,0.0,codeact
+task10_16,[-1],None,task10,0,0.0,codeact
+task10_13,[-1],None,task10,1,0.0,codeact
+task10_17,[5.0],None,task10,0,0.0,codeact
+task10_18,"[5.9, '2023-11-12T06:19:00+00:00']",None,task10,0,1.0,codeact
+task10_15,[-1],None,task10,1,0.0,codeact
+task10_19,[-1.0],None,task10,0,0.0,codeact
+task10_22,[-1],None,task10,0,0.0,codeact
+task10_21,[-1],None,task10,0,0.0,codeact
+task10_23,[-1],None,task10,0,0.0,codeact
+task10_24,[-1],None,task10,1,0.0,codeact
+task10_25,[-1],None,task10,1,0.0,codeact
+task10_26,[-1],None,task10,1,0.0,codeact
+task10_20,"[6.5, '2022-03-08T08:14:00+00:00']",None,task10,1,0.0,codeact
+task10_27,"[5.4, '2023-11-02T06:53:00+00:00']",None,task10,0,1.0,codeact
+task10_30,"[8.3, '2023-10-30T13:10:00+00:00']",None,task10,0,1.0,codeact
+task10_28,"[7.4, '2023-06-27T23:25:00+00:00']",None,task10,0,1.0,codeact
+task10_29,[6.2],None,task10,0,0.0,codeact

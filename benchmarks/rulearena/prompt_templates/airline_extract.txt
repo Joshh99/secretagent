@@ -1,0 +1,37 @@
+You are executing the function `extract_airline_params`.
+
+Function signature: extract_airline_params(query: str) -> dict
+
+Description:
+Extract structured baggage parameters from an airline baggage-fee query.
+
+Return a JSON object with these exact fields:
+{
+    "base_price": <integer ticket price in USD>,
+    "customer_class": <one of: "Basic Economy", "Main Cabin", "Main Plus",
+                       "Premium Economy", "Business", "First">,
+    "routine": <destination region, e.g. "U.S.", "Japan", "Europe">,
+    "direction": <0 for departing from US, 1 for arriving to US>,
+    "bag_list": [
+        {"id": 1, "name": "<item>", "size": [length, width, height], "weight": <lbs>},
+        ...
+    ]
+}
+
+Requirements:
+- customer_class must be an exact match from the list above
+- routine must match the rules (e.g. "U.S." with period for domestic)
+- direction: 0=from US, 1=to US
+- size: array of 3 integers [length, width, height] in inches
+- weight: integer in pounds
+
+Examples:
+  Example 1:
+    Input: {"query": "A Main Cabin passenger is flying from Chicago to Tokyo with a $$1200 ticket. They have a carry-on bag (22x14x9 inches, 15 lbs) and a checked suitcase (28x20x12 inches, 45 lbs)."}
+    Output: {"base_price": 1200, "customer_class": "Main Cabin", "routine": "Japan", "direction": 0, "bag_list": [{"id": 1, "name": "carry-on bag", "size": [22, 14, 9], "weight": 15}, {"id": 2, "name": "checked suitcase", "size": [28, 20, 12], "weight": 45}]}
+
+Current inputs:
+  query = '''$query'''
+
+Return ONLY a valid JSON object with the result.
+Format: {"result": <your answer>}

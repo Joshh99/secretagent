@@ -1,5 +1,6 @@
 llm:
-  model: together_ai/deepseek-ai/DeepSeek-V3.1
+# model: together_ai/deepseek-ai/DeepSeek-V3.1
+  model: together_ai/openai/gpt-oss-20b
 
 cachier:
   cache_dir: llm_cache

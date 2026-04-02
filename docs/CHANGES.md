@@ -1,3 +1,43 @@
+# Changes - April 1
+
+## Pipeline Optimizer (Phase 1)
+
+Added multi-objective Pareto search to `src/secretagent/optimize/`:
+
+ * `encoder.py` — maps DEAP integer vectors to/from dotlist config
+   overrides. `SearchDimension(key, values)` defines one axis of the
+   search space. `encode()` / `decode()` / `decode_dict()` handle the
+   conversion; `space_size()` returns the Cartesian product size.
+
+ * `pareto.py` — two search modes behind a single `run_nsga2()` entry
+   point. Spaces with <= 20 configs get **exhaustive enumeration**
+   (guarantees complete coverage). Larger spaces use **NSGA-II** via
+   DEAP with categorical operators (uniform crossover, random-reset
+   mutation). `EvalCache` wraps subprocess evaluation, caches results
+   by chromosome, and assigns worst-case fitness (accuracy=0, cost=inf)
+   to failed configs so they can't appear Pareto-optimal.
+
+ * `viz.py` — `plot_pareto_frontier()` renders accuracy-vs-cost scatter
+   plots with frontier points as filled stars and dominated points as
+   hollow circles. Fixed y-axis (0-1) to prevent misleading auto-scaling.
+
+ * **New dependency**: `deap` (LGPL-3.0, evolutionary algorithms toolkit).
+
+### Design decisions
+
+ * Subprocess-level integration: the optimizer generates dotlist
+   overrides and passes them to the existing evaluator via subprocess.
+   No changes to core infra, config system, or benchmark code.
+ * Exhaustive/NSGA-II auto-selection avoids using evolutionary search
+   on spaces small enough to enumerate (a lesson learned during
+   development — NSGA-II on a 4-config space wastes budget on
+   duplicates).
+
+### Tests
+
+ * `tests/test_encoder.py` — 20 tests covering encode, decode,
+   round-trip, out-of-bounds, wrong-length, and space_size.
+
 # Changes - March 29-30
 
 ## To help get organized results 

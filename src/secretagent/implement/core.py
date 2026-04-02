@@ -11,7 +11,7 @@ import re
 
 from string import Template
 from textwrap import dedent
-from smolagents.local_python_executor import LocalPythonExecutor
+from smolagents.local_python_executor import LocalPythonExecutor, BASE_PYTHON_TOOLS
 from typing import Any, Callable
 
 from pydantic import Field
@@ -248,12 +248,14 @@ class PoTFactory(Implementation.Factory):
     python_executor: Any = None
     tool_interfaces: list = Field(default_factory=list)
     additional_imports: Any = None
+    inject_args: bool = False
     prompt_kw: dict = Field(default_factory=dict)
 
-    def setup(self, tools='__all__', additional_imports=None, **prompt_kw):
+    def setup(self, tools='__all__', additional_imports=None, inject_args=False, **prompt_kw):
         interface = self.bound_interface
         self.prompt_kw = prompt_kw
         self.additional_imports = additional_imports
+        self.inject_args = inject_args
         resolved_tools = resolve_tools(interface, tools)
         tool_functions = {fn.__name__: fn for fn in resolved_tools}
         self.python_executor = LocalPythonExecutor(
@@ -262,16 +264,13 @@ class PoTFactory(Implementation.Factory):
         # Put tool functions in custom_tools directly, since
         # LocalPythonExecutor.__call__ passes custom_tools (not
         # additional_functions) to evaluate_python_code.
-        # Inject safe Python builtins that smolagents' sandbox blocks by default (issue #7)
-        SAFE_BUILTINS = {
-            'float': float, 'int': int, 'round': round, 'abs': abs,
-            'str': str, 'bool': bool, 'min': min, 'max': max, 'sum': sum,
-        }
-        tool_functions.update(SAFE_BUILTINS)
         self.python_executor.custom_tools = tool_functions
-        # Provide final_answer in static_tools so the LLM can
-        # return a value via final_answer(result).
+        # Merge smolagents' BASE_PYTHON_TOOLS (len, list, dict, sorted,
+        # etc.) into static_tools so generated code can use standard
+        # builtins. Previously these were blocked because static_tools
+        # was overwritten with only final_answer (issue #7).
         self.python_executor.static_tools = {
+            **BASE_PYTHON_TOOLS,
             "final_answer": lambda x: x,
         }
         # collect interfaces for tool stubs in the prompt
@@ -284,8 +283,15 @@ class PoTFactory(Implementation.Factory):
     def __call__(self, *args, **kw):
         interface = self.bound_interface
         with config.configuration(**self.prompt_kw):
+            # Inject input arg values into sandbox so LLM can reference
+            # them as variables without copying large strings into code.
+            if self.inject_args:
+                arg_names = list(interface.annotations.keys())[:-1]
+                for name, val in zip(arg_names, args):
+                    self.python_executor.custom_tools[name] = val
             prompt = self.create_prompt(
-                interface, self.tool_interfaces, self.additional_imports, *args, **kw)
+                interface, self.tool_interfaces, self.additional_imports,
+                *args, inject_args=self.inject_args, **kw)
             llm_output, stats = llm_util.llm(
                 prompt, self.llm_model)
             try:
@@ -310,10 +316,17 @@ class PoTFactory(Implementation.Factory):
                 step_info=dict(generated_code=generated_code))
             return answer
 
-    def create_prompt(self, interface, tool_interfaces, additional_authorized_imports, *args, **kw):
+    def create_prompt(self, interface, tool_interfaces, additional_authorized_imports,
+                      *args, inject_args=False, **kw):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
-        input_args = interface.format_args(*args, **kw)
+        if inject_args:
+            arg_names = list(interface.annotations.keys())[:-1]
+            var_list = ', '.join(f'`{n}`' for n in arg_names)
+            input_args = interface.format_args(*args, **kw)
+            input_args += f'\n\nThe input args are available in these variables: {var_list}'
+        else:
+            input_args = interface.format_args(*args, **kw)
         if (not input_args.strip()):
             raise ValueError(f'input_args null for {interface.name} on {args=} {kw=}')
         tool_stub_src_listing = '\n\n'.join([
@@ -345,6 +358,12 @@ class PoTFactory(Implementation.Factory):
 
         template = _load_template('program_of_thought.txt')
         prompt = template.substitute(**template_bindings)
+        if inject_args:
+            prompt = prompt.replace(
+                'Start the\ncode block by initializing a variable for each input.  It is ESSENTIAL\n'
+                'that the code is able to be run independently.',
+                'The input variables are already loaded in the execution environment — '
+                'do not write them out in the code. Use them in your code if needed.')
         return prompt
 
 
