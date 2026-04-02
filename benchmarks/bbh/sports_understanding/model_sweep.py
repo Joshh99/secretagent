@@ -13,8 +13,8 @@ MODELS = [
     'together_ai/google/gemma-3n-E4B-it',     # ultra-cheap ($0.02/$0.04 per 1M tokens)
     'together_ai/openai/gpt-oss-20b',         # very cheap ($0.05/$0.20 per 1M tokens)
     'together_ai/openai/gpt-oss-120b',        # cheap ($0.15/$0.60 per 1M tokens)
-    'together_ai/deepseek-ai/DeepSeek-V3.1',  # inexpensive strong reasoning ($0.60/$1.70 per 1M tokens)
-    'together_ai/moonshotai/Kimi-K2.5',       # getting pricy ($0.50/$2.80 per 1M tokens)
+#    'together_ai/deepseek-ai/DeepSeek-V3.1',  # inexpensive strong reasoning ($0.60/$1.70 per 1M tokens)
+#    'together_ai/moonshotai/Kimi-K2.5',       # getting pricy ($0.50/$2.80 per 1M tokens)
 ]
 
 STEPS=[

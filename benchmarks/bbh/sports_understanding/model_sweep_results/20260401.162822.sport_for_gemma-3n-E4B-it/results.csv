@@ -1,0 +1,76 @@
+case_name,predicted_output,expected_output,correct,input_tokens,output_tokens,latency,cost,expt_name
+valid.043,**exception raised**: cannot find final answer,True,0.0,328.0,25.0,2.214712142944336,3.53e-05,sport_for_gemma-3n-E4B-it
+valid.002,False,False,1.0,1480.0,62.0,4.10955286026001,0.00028460000000000003,sport_for_gemma-3n-E4B-it
+valid.013,False,False,1.0,1485.0,67.0,3.738831043243408,0.00028660000000000003,sport_for_gemma-3n-E4B-it
+valid.006,**exception raised**: cannot find final answer,False,0.0,331.0,17.0,0.9426140785217285,3.48e-05,sport_for_gemma-3n-E4B-it
+valid.048,True,True,1.0,1174.0,49.0,3.1046605110168457,0.0002547,sport_for_gemma-3n-E4B-it
+valid.035,True,True,1.0,1172.0,51.0,6.4767866134643555,0.00025269999999999996,sport_for_gemma-3n-E4B-it
+valid.036,**exception raised**: cannot find final answer,False,0.0,330.0,31.0,1.4994251728057861,3.6099999999999997e-05,sport_for_gemma-3n-E4B-it
+valid.072,**exception raised**: cannot find final answer,False,0.0,331.0,17.0,1.158972978591919,3.48e-05,sport_for_gemma-3n-E4B-it
+valid.058,False,False,1.0,1494.0,69.0,5.219717741012573,0.0002882,sport_for_gemma-3n-E4B-it
+valid.046,True,True,1.0,1174.0,51.0,4.300080299377441,0.00025289999999999997,sport_for_gemma-3n-E4B-it
+valid.037,**exception raised**: cannot find final answer,False,0.0,333.0,36.0,1.8536808490753174,3.6899999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.005,True,True,1.0,1174.0,51.0,4.023700952529907,0.0002529,sport_for_gemma-3n-E4B-it
+valid.069,**exception raised**: cannot find final answer,False,0.0,334.0,38.0,2.7632646560668945,3.7199999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.014,True,True,1.0,1170.0,49.0,4.684383153915405,0.0002523,sport_for_gemma-3n-E4B-it
+valid.045,False,True,0.0,1173.0,46.0,3.5657076835632324,0.0002538,sport_for_gemma-3n-E4B-it
+valid.038,False,False,1.0,1179.0,50.0,4.125011920928955,0.0002538,sport_for_gemma-3n-E4B-it
+valid.016,"**exception raised**: unterminated string literal (detected at line 1) (<unknown>, line 1)",False,0.0,329.0,18.0,0.9642696380615234,3.47e-05,sport_for_gemma-3n-E4B-it
+valid.063,False,False,1.0,1178.0,52.0,2.9617629051208496,0.0002544,sport_for_gemma-3n-E4B-it
+valid.003,False,False,1.0,1172.0,49.0,3.0849270820617676,0.0002535,sport_for_gemma-3n-E4B-it
+valid.064,True,True,1.0,1713.0,73.0,3.9487736225128174,0.0004414,sport_for_gemma-3n-E4B-it
+valid.055,**exception raised**: cannot find final answer,True,0.0,327.0,23.0,1.4066059589385986,3.5e-05,sport_for_gemma-3n-E4B-it
+valid.047,"**exception raised**: invalid syntax (<unknown>, line 1)",False,0.0,330.0,17.0,0.9393038749694824,3.4699999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.028,**exception raised**: cannot find final answer,False,0.0,330.0,28.0,1.462949275970459,3.5799999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.034,False,False,1.0,1175.0,48.0,6.874807357788086,0.0002532,sport_for_gemma-3n-E4B-it
+valid.026,**exception raised**: cannot find final answer,True,0.0,328.0,13.0,1.7072110176086426,3.4099999999999995e-05,sport_for_gemma-3n-E4B-it
+valid.057,False,True,0.0,1168.0,46.0,2.8915157318115234,0.0002518,sport_for_gemma-3n-E4B-it
+valid.018,True,False,0.0,1712.0,71.0,7.824047327041626,0.0004391,sport_for_gemma-3n-E4B-it
+valid.017,False,False,1.0,1176.0,48.0,4.195172548294067,0.0002543,sport_for_gemma-3n-E4B-it
+valid.010,True,True,1.0,1720.0,76.0,5.04981255531311,0.0004414,sport_for_gemma-3n-E4B-it
+valid.019,**exception raised**: cannot find final answer,False,0.0,329.0,26.0,1.8129429817199707,3.55e-05,sport_for_gemma-3n-E4B-it
+valid.065,"**exception raised**: unterminated string literal (detected at line 1) (<unknown>, line 1)",False,0.0,330.0,19.0,1.1359310150146484,3.4899999999999995e-05,sport_for_gemma-3n-E4B-it
+valid.012,False,False,1.0,1177.0,49.0,3.9470889568328857,0.0002535,sport_for_gemma-3n-E4B-it
+valid.007,True,True,1.0,1720.0,72.0,8.00390100479126,0.00043999999999999996,sport_for_gemma-3n-E4B-it
+valid.032,False,False,1.0,1173.0,47.0,4.3311779499053955,0.00025289999999999997,sport_for_gemma-3n-E4B-it
+valid.049,False,False,1.0,1173.0,47.0,7.203941106796265,0.00025289999999999997,sport_for_gemma-3n-E4B-it
+valid.004,False,True,0.0,1491.0,64.0,8.240901470184326,0.00028639999999999997,sport_for_gemma-3n-E4B-it
+valid.054,**exception raised**: cannot find final answer,False,0.0,329.0,26.0,1.5892369747161865,3.55e-05,sport_for_gemma-3n-E4B-it
+valid.025,False,False,1.0,1176.0,65.0,3.210775136947632,0.0002555,sport_for_gemma-3n-E4B-it
+valid.061,False,True,0.0,1173.0,49.0,3.895251989364624,0.0002541,sport_for_gemma-3n-E4B-it
+valid.040,False,True,0.0,1175.0,51.0,6.679635763168335,0.0002535,sport_for_gemma-3n-E4B-it
+valid.020,False,False,1.0,1174.0,49.0,6.029947757720947,0.00025269999999999996,sport_for_gemma-3n-E4B-it
+valid.070,True,True,1.0,1178.0,50.0,5.162225723266602,0.0002532,sport_for_gemma-3n-E4B-it
+valid.031,**exception raised**: cannot find final answer,True,0.0,331.0,31.0,1.824591875076294,3.62e-05,sport_for_gemma-3n-E4B-it
+valid.015,True,True,1.0,1178.0,49.0,3.662429094314575,0.00025409999999999994,sport_for_gemma-3n-E4B-it
+valid.022,False,True,0.0,1489.0,67.0,5.117386341094971,0.00028599999999999996,sport_for_gemma-3n-E4B-it
+valid.011,**exception raised**: cannot find final answer,True,0.0,336.0,42.0,2.4265942573547363,3.78e-05,sport_for_gemma-3n-E4B-it
+valid.073,True,True,1.0,1171.0,47.0,3.6727354526519775,0.0002532,sport_for_gemma-3n-E4B-it
+valid.059,**exception raised**: cannot find final answer,False,0.0,331.0,31.0,1.9376728534698486,3.62e-05,sport_for_gemma-3n-E4B-it
+valid.074,**exception raised**: cannot find final answer,False,0.0,333.0,34.0,2.1122066974639893,3.67e-05,sport_for_gemma-3n-E4B-it
+valid.067,False,False,1.0,1172.0,47.0,3.2550573348999023,0.0002523,sport_for_gemma-3n-E4B-it
+valid.042,**exception raised**: cannot find final answer,False,0.0,333.0,36.0,1.6872401237487793,3.6899999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.066,**exception raised**: cannot find final answer,False,0.0,329.0,27.0,1.3017587661743164,3.56e-05,sport_for_gemma-3n-E4B-it
+valid.039,True,True,1.0,1726.0,77.0,5.659265518188477,0.0004451,sport_for_gemma-3n-E4B-it
+valid.000,False,False,1.0,1486.0,65.0,4.725954294204712,0.000287,sport_for_gemma-3n-E4B-it
+valid.021,**exception raised**: cannot find final answer,True,0.0,330.0,28.0,1.4473011493682861,3.5799999999999996e-05,sport_for_gemma-3n-E4B-it
+valid.056,False,False,1.0,1492.0,145.0,8.93191123008728,0.0004199,sport_for_gemma-3n-E4B-it
+valid.060,**exception raised**: cannot find final answer,True,0.0,332.0,33.0,3.0429019927978516,3.65e-05,sport_for_gemma-3n-E4B-it
+valid.027,False,False,1.0,1173.0,50.0,4.834486961364746,0.0002532,sport_for_gemma-3n-E4B-it
+valid.008,**exception raised**: cannot find final answer,False,0.0,330.0,29.0,2.1882598400115967,3.59e-05,sport_for_gemma-3n-E4B-it
+valid.030,False,False,1.0,1170.0,45.0,5.116008043289185,0.0002529,sport_for_gemma-3n-E4B-it
+valid.033,True,True,1.0,1728.0,75.0,7.609590530395508,0.0004451,sport_for_gemma-3n-E4B-it
+valid.068,**exception raised**: cannot find final answer,False,0.0,329.0,26.0,3.3162598609924316,3.55e-05,sport_for_gemma-3n-E4B-it
+valid.053,False,False,1.0,1174.0,46.0,4.4619786739349365,0.00025239999999999996,sport_for_gemma-3n-E4B-it
+valid.050,**exception raised**: cannot find final answer,False,0.0,330.0,29.0,1.3225760459899902,3.59e-05,sport_for_gemma-3n-E4B-it
+valid.071,**exception raised**: cannot find final answer,True,0.0,333.0,19.0,2.0563809871673584,3.5199999999999995e-05,sport_for_gemma-3n-E4B-it
+valid.051,**exception raised**: cannot find final answer,True,0.0,330.0,29.0,1.4854187965393066,3.59e-05,sport_for_gemma-3n-E4B-it
+valid.001,**exception raised**: cannot find final answer,True,0.0,329.0,15.0,1.9927198886871338,3.44e-05,sport_for_gemma-3n-E4B-it
+valid.044,False,False,1.0,1175.0,48.0,5.402968883514404,0.0002532,sport_for_gemma-3n-E4B-it
+valid.062,False,False,1.0,1716.0,70.0,5.183568000793457,0.00043939999999999995,sport_for_gemma-3n-E4B-it
+valid.029,**exception raised**: cannot find final answer,True,0.0,333.0,35.0,3.3417718410491943,3.679999999999999e-05,sport_for_gemma-3n-E4B-it
+valid.024,False,True,0.0,1474.0,58.0,5.083593845367432,0.0002846,sport_for_gemma-3n-E4B-it
+valid.041,"**exception raised**: unterminated string literal (detected at line 1) (<unknown>, line 1)",False,0.0,329.0,18.0,0.9368829727172852,3.47e-05,sport_for_gemma-3n-E4B-it
+valid.052,**exception raised**: cannot find final answer,True,0.0,330.0,29.0,1.9904260635375977,3.59e-05,sport_for_gemma-3n-E4B-it
+valid.023,False,False,1.0,1478.0,62.0,5.250580072402954,0.0002844,sport_for_gemma-3n-E4B-it
+valid.009,True,True,1.0,1172.0,51.0,3.187732219696045,0.00025269999999999996,sport_for_gemma-3n-E4B-it

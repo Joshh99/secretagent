@@ -1,0 +1,76 @@
+case_name,predicted_output,expected_output,correct,input_tokens,output_tokens,latency,cost,expt_name
+valid.043,True,True,1.0,1224.0,354.0,5.249829530715942,0.00029600000000000004,analyze_sentence_gpt-oss-20b
+valid.002,False,False,1.0,1535.0,411.0,5.939956903457642,0.00034359999999999995,analyze_sentence_gpt-oss-20b
+valid.013,True,False,0.0,1790.0,296.0,5.802279949188232,0.00033239999999999995,analyze_sentence_gpt-oss-20b
+valid.006,False,False,1.0,1782.0,1225.0,12.608023881912231,0.0006100999999999999,analyze_sentence_gpt-oss-20b
+valid.048,True,True,1.0,1230.0,454.0,5.168664216995239,0.00032659999999999997,analyze_sentence_gpt-oss-20b
+valid.035,True,True,1.0,1226.0,364.0,7.1679322719573975,0.000299,analyze_sentence_gpt-oss-20b
+valid.036,False,False,1.0,1228.0,677.0,6.360274314880371,0.0003941,analyze_sentence_gpt-oss-20b
+valid.072,True,False,0.0,1232.0,554.0,6.066437721252441,0.0003572,analyze_sentence_gpt-oss-20b
+valid.058,True,False,0.0,1796.0,566.0,8.634815216064453,0.0004148,analyze_sentence_gpt-oss-20b
+valid.046,True,True,1.0,1227.0,624.0,7.198720216751099,0.0003775,analyze_sentence_gpt-oss-20b
+valid.037,False,False,1.0,1535.0,855.0,7.814179182052612,0.00047660000000000004,analyze_sentence_gpt-oss-20b
+valid.005,True,True,1.0,1227.0,461.0,5.773808240890503,0.00032859999999999996,analyze_sentence_gpt-oss-20b
+valid.069,False,False,1.0,1537.0,515.0,6.687848806381226,0.0003756,analyze_sentence_gpt-oss-20b
+valid.014,True,True,1.0,1223.0,378.0,5.371436834335327,0.00030290000000000004,analyze_sentence_gpt-oss-20b
+valid.045,True,True,1.0,1227.0,546.0,6.3080737590789795,0.00035449999999999994,analyze_sentence_gpt-oss-20b
+valid.038,False,False,1.0,1231.0,195.0,4.060792446136475,0.0002502,analyze_sentence_gpt-oss-20b
+valid.016,True,False,0.0,1775.0,641.0,6.770438194274902,0.00043479999999999994,analyze_sentence_gpt-oss-20b
+valid.063,True,False,0.0,1234.0,507.0,5.9524171352386475,0.0003437,analyze_sentence_gpt-oss-20b
+valid.003,True,False,0.0,1229.0,377.0,5.529328107833862,0.0003036,analyze_sentence_gpt-oss-20b
+valid.064,True,True,1.0,1779.0,357.0,5.338680744171143,0.00034920000000000003,analyze_sentence_gpt-oss-20b
+valid.055,True,True,1.0,1225.0,379.0,8.064945936203003,0.00030359999999999995,analyze_sentence_gpt-oss-20b
+valid.047,False,False,1.0,1228.0,684.0,6.3330676555633545,0.000396,analyze_sentence_gpt-oss-20b
+valid.028,False,False,1.0,1227.0,429.0,5.795089960098267,0.00031959999999999996,analyze_sentence_gpt-oss-20b
+valid.034,"**exception raised**: unterminated string literal (detected at line 1) (<unknown>, line 1)",False,0.0,368.0,815.0,5.070152044296265,0.0003549,analyze_sentence_gpt-oss-20b
+valid.026,True,True,1.0,1225.0,376.0,4.406768798828125,0.00030349999999999995,analyze_sentence_gpt-oss-20b
+valid.057,True,True,1.0,1224.0,589.0,4.754589557647705,0.00036609999999999995,analyze_sentence_gpt-oss-20b
+valid.018,True,False,0.0,1780.0,503.0,6.670520067214966,0.0003937000000000001,analyze_sentence_gpt-oss-20b
+valid.017,True,False,0.0,1229.0,465.0,5.745628595352173,0.0003304,analyze_sentence_gpt-oss-20b
+valid.010,True,True,1.0,1792.0,535.0,10.18730115890503,0.00040469999999999997,analyze_sentence_gpt-oss-20b
+valid.019,True,False,0.0,1228.0,495.0,6.132093667984009,0.0003387,analyze_sentence_gpt-oss-20b
+valid.065,False,False,1.0,1228.0,282.0,3.6368579864501953,0.00027519999999999997,analyze_sentence_gpt-oss-20b
+valid.012,False,False,1.0,1229.0,234.0,4.314276218414307,0.0002615,analyze_sentence_gpt-oss-20b
+valid.007,True,True,1.0,1788.0,366.0,6.904117822647095,0.00035479999999999995,analyze_sentence_gpt-oss-20b
+valid.032,False,False,1.0,1225.0,374.0,5.078946590423584,0.00030270000000000004,analyze_sentence_gpt-oss-20b
+valid.049,False,False,1.0,1225.0,280.0,5.999532461166382,0.0002739,analyze_sentence_gpt-oss-20b
+valid.004,False,True,0.0,1543.0,417.0,9.911790609359741,0.00034740000000000004,analyze_sentence_gpt-oss-20b
+valid.054,False,False,1.0,1226.0,505.0,5.759506702423096,0.00034250000000000003,analyze_sentence_gpt-oss-20b
+valid.025,True,False,0.0,1230.0,364.0,4.865815877914429,0.00029979999999999997,analyze_sentence_gpt-oss-20b
+valid.061,False,True,0.0,1226.0,704.0,7.641463041305542,0.000401,analyze_sentence_gpt-oss-20b
+valid.040,False,True,0.0,1781.0,603.0,7.194092273712158,0.000424,analyze_sentence_gpt-oss-20b
+valid.020,False,False,1.0,1228.0,360.0,4.499563932418823,0.0002988,analyze_sentence_gpt-oss-20b
+valid.070,True,True,1.0,1231.0,661.0,7.064650535583496,0.00039000000000000005,analyze_sentence_gpt-oss-20b
+valid.031,"**exception raised**: invalid syntax. Perhaps you forgot a comma? (<unknown>, line 1)",True,0.0,369.0,241.0,1.8825922012329102,0.000183,analyze_sentence_gpt-oss-20b
+valid.015,True,True,1.0,1229.0,504.0,5.261137008666992,0.00034310000000000005,analyze_sentence_gpt-oss-20b
+valid.022,True,True,1.0,1790.0,475.0,7.392099142074585,0.00038729999999999993,analyze_sentence_gpt-oss-20b
+valid.011,True,True,1.0,1788.0,609.0,7.111509084701538,0.0004270999999999999,analyze_sentence_gpt-oss-20b
+valid.073,True,True,1.0,1227.0,521.0,8.562626600265503,0.00034659999999999997,analyze_sentence_gpt-oss-20b
+valid.059,False,False,1.0,1233.0,284.0,3.5251541137695312,0.00027729999999999996,analyze_sentence_gpt-oss-20b
+valid.074,"**exception raised**: invalid syntax (<unknown>, line 1)",False,0.0,371.0,586.0,4.660696029663086,0.0002871,analyze_sentence_gpt-oss-20b
+valid.067,False,False,1.0,1226.0,342.0,4.456756114959717,0.0002934,analyze_sentence_gpt-oss-20b
+valid.042,False,False,1.0,1538.0,840.0,8.899317979812622,0.00047379999999999997,analyze_sentence_gpt-oss-20b
+valid.066,False,False,1.0,1785.0,728.0,8.345173358917236,0.0004615,analyze_sentence_gpt-oss-20b
+valid.039,"**exception raised**: invalid syntax (<unknown>, line 2)",True,0.0,1790.0,483.0,7.107741355895996,0.0003881,analyze_sentence_gpt-oss-20b
+valid.000,True,False,0.0,1787.0,722.0,8.385053634643555,0.00046009999999999996,analyze_sentence_gpt-oss-20b
+valid.021,True,True,1.0,1227.0,300.0,3.380293130874634,0.00028030000000000004,analyze_sentence_gpt-oss-20b
+valid.056,False,False,1.0,1546.0,363.0,5.492844820022583,0.0003309,analyze_sentence_gpt-oss-20b
+valid.060,True,True,1.0,1233.0,322.0,4.506748914718628,0.00028769999999999995,analyze_sentence_gpt-oss-20b
+valid.027,False,False,1.0,1226.0,562.0,5.914923191070557,0.00035880000000000005,analyze_sentence_gpt-oss-20b
+valid.008,False,False,1.0,1230.0,365.0,4.284890174865723,0.0003001,analyze_sentence_gpt-oss-20b
+valid.030,True,False,0.0,1225.0,477.0,5.784234046936035,0.00033339999999999997,analyze_sentence_gpt-oss-20b
+valid.033,"**exception raised**: invalid syntax (<unknown>, line 2)",True,0.0,1793.0,384.0,6.252121448516846,0.00035969999999999996,analyze_sentence_gpt-oss-20b
+valid.068,True,False,0.0,1229.0,633.0,6.777489423751831,0.0003804,analyze_sentence_gpt-oss-20b
+valid.053,False,False,1.0,1227.0,355.0,4.789783716201782,0.00029759999999999997,analyze_sentence_gpt-oss-20b
+valid.050,False,False,1.0,1227.0,649.0,8.54711389541626,0.00038559999999999994,analyze_sentence_gpt-oss-20b
+valid.071,False,True,0.0,1783.0,247.0,4.4882590770721436,0.0003176,analyze_sentence_gpt-oss-20b
+valid.051,True,True,1.0,1232.0,400.0,7.478494882583618,0.0003114,analyze_sentence_gpt-oss-20b
+valid.001,True,True,1.0,1225.0,357.0,44.76625108718872,0.00029759999999999997,analyze_sentence_gpt-oss-20b
+valid.044,False,False,1.0,1228.0,362.0,4.631767272949219,0.0002992,analyze_sentence_gpt-oss-20b
+valid.062,False,False,1.0,1784.0,500.0,7.628255367279053,0.00039420000000000004,analyze_sentence_gpt-oss-20b
+valid.029,True,True,1.0,1233.0,265.0,3.6087658405303955,0.000271,analyze_sentence_gpt-oss-20b
+valid.024,"**exception raised**: invalid syntax (<unknown>, line 1)",True,0.0,366.0,638.0,9.398006677627563,0.0003012,analyze_sentence_gpt-oss-20b
+valid.041,True,False,0.0,1226.0,278.0,3.9079947471618652,0.00027420000000000005,analyze_sentence_gpt-oss-20b
+valid.052,True,True,1.0,1227.0,280.0,4.28936767578125,0.0002743,analyze_sentence_gpt-oss-20b
+valid.023,False,False,1.0,1533.0,598.0,12.255676984786987,0.0003983,analyze_sentence_gpt-oss-20b
+valid.009,True,True,1.0,1226.0,510.0,6.314584255218506,0.000337,analyze_sentence_gpt-oss-20b
