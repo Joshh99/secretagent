@@ -1,18 +1,13 @@
 llm:
-# model: together_ai/deepseek-ai/DeepSeek-V3.1
   model: together_ai/openai/gpt-oss-20b
-
 cachier:
-  cache_dir: llm_cache
-
+  cache_dir: /Users/wcohen/Documents/code/secretagent/benchmarks/bbh/penguins_in_a_table/llm_cache
 evaluate:
-  result_dir: results
-  expt_name: DEFAULT # means the expt isn't fully configured and should be discarded
-
+  result_dir: /Users/wcohen/Documents/code/secretagent/benchmarks/bbh/penguins_in_a_table/results
+  expt_name: structured_baseline
 dataset:
   split: valid
   shuffle_seed: 137
-
 ptools:
   analyze_input:
     method: simulate
@@ -23,4 +18,4 @@ ptools:
   choose_response:
     method: simulate
   answer_penguin_question:
-    method: DEFAULT #should raise an error
+    method: simulate
