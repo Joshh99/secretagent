@@ -1,3 +1,20 @@
+# Changes - April 2
+
+ * Refactored implement/ to make creating new Implementation.Factories
+   less obscure.  Subclasses now override `setup()` and `__call__()`,
+   and theres no build_fn that returns a closure.  **I believe this
+   should not affect anyone unless they are implementing factories**.
+
+```
+ - setup(**builder_kwargs) configures per-interface state on self
+ - __call__(*args, **kw) is the implementing function
+```
+
+ * I did this to facilitate fixing a bug: I intended you to be able to
+ pass `model` in as a parameter to every Implementation.Factory and
+ override the default configured model.  This is now fixed,
+ and `sports_understanding/model_sweep.py` is an example.
+
 # Changes - April 1
 
 ## Pipeline Optimizer (Phase 1)

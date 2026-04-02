@@ -2,7 +2,7 @@
 
 ## Cleanups
 
- * subprocess out of optimizer
+ * move subprocess out of optimizer
  * cleanup learn/examples.py, and traces.py
    - It should be a Learner
    - maybe a Learner should output an implementation config? that's more general
@@ -17,14 +17,6 @@
 ## Caching
 
  * Check if disabling caching from the command-line works
-
-## Experimentation
-
- * Run experiments in sports_understanding
-     * use smaller models till the task gets "interesting"?
-       * even with deepseek unstructured_baseline is 69, pot 72, react 65
-	   * react often runs out of retries
-       * unstructured_baseline has trouble finding final answer
 
 ## Learning methods
 
@@ -43,7 +35,7 @@ Add a learn/distill_pot.py
 ## Code quality/etc
 
  * More guidance for claude/devs on defense programming
- * Standardize implement strategies: [un]structured_baseline, pot, workflow, react
+ * Standardize implementation strategies: [un]structured_baseline, pot, workflow, react
 
 ## Known minor bugs
 
