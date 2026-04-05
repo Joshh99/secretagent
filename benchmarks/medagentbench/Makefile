@@ -4,7 +4,7 @@ docker-start:
 docker-stop:
 	docker ps -q --filter ancestor=jyxsu6/medagentbench:latest | xargs -r docker stop
 
-# ── Experiments (L0–L3) ─────────────────────────────────────────────
+# ── Experiments (L0–L4) ─────────────────────────────────────────────
 
 paper-baseline:
 	uv run python expt.py run --config-file conf/paper_baseline.yaml
@@ -17,6 +17,9 @@ pot:
 
 codeact:
 	uv run python expt.py run --config-file conf/codeact.yaml
+
+orchestrate:
+	uv run python expt.py run --config-file conf/orchestrate.yaml
 
 # ── Quick tests (single case) ───────────────────────────────────────
 

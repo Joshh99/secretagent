@@ -15,8 +15,8 @@ fhir:
 evaluate:
   result_dir: results
   expt_name: pot
-  record_details: false
-  max_workers: 10
+  record_details: true
+  max_workers: 1
 
 dataset:
   version: v2
