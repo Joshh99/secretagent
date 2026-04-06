@@ -492,5 +492,222 @@ def orchestrate_evolve_run(ctx: typer.Context,
                 print(f'  {task_type}: {rate:.3f} ({n} cases)')
 
 
+@app.command(context_settings=_EXTRA_ARGS)
+def orchestrate_improve_prompt(ctx: typer.Context,
+                               config_file: Path = typer.Option(None, help="Config YAML file")):
+    """Improve the orchestrate task description, re-generate workflow, evaluate.
+
+    Uses the improve module to evolve the task description that orchestrate
+    uses to generate the workflow. Each variant = different description →
+    different generated workflow → different accuracy.
+    """
+    from collections import defaultdict
+    from secretagent.experimental.improve import _FitnessTracker, _llm_call, _extract_code
+    from secretagent.orchestrate.catalog import PtoolCatalog
+    from secretagent.orchestrate.composer import compose
+    from secretagent.orchestrate.pipeline import build_pipeline, _entry_signature_from_interface
+    from secretagent.core import all_interfaces, Interface
+    import json as json_mod
+    import random
+
+    # Load config and dataset but DON'T bind solve_medical_task yet
+    if config_file is None:
+        config_file = _BENCHMARK_DIR / 'conf' / 'orchestrate.yaml'
+    config.configure(yaml_file=config_file, dotlist=ctx.args)
+    config.set_root(_BENCHMARK_DIR)
+
+    fhir_base = config.get('fhir.api_base', 'http://localhost:8080/fhir/')
+    fhir_tools.set_api_base(fhir_base)
+    if not fhir_tools.verify_fhir_server():
+        print(f'ERROR: FHIR server not reachable at {fhir_base}')
+        raise SystemExit(1)
+
+    version = config.get('dataset.version', 'v2')
+    dataset = load_dataset(version)
+    dataset.configure(
+        shuffle_seed=config.get('dataset.shuffle_seed'),
+        n=config.get('dataset.n') or None)
+
+    # Bind all ptools EXCEPT solve_medical_task
+    ptools_cfg = dict(config.require('ptools'))
+    smt_cfg = ptools_cfg.pop('solve_medical_task')
+    implement_via_config(ptools, ptools_cfg)
+
+    # Build train set
+    train_per_task = int(config.get('improve.train_per_task', 2))
+    by_type = defaultdict(list)
+    for case in dataset.cases:
+        by_type[case.name.split('_')[0]].append(case)
+    train_cases = []
+    for task_type in sorted(by_type):
+        train_cases.extend(by_type[task_type][:train_per_task])
+    print(f'[improve-prompt] train set: {len(train_cases)} cases')
+
+    # Get orchestrate setup
+    tool_ifaces = [i for i in all_interfaces()
+                   if i.implementation is not None and i.name != 'solve_medical_task']
+    catalog = PtoolCatalog.from_interfaces(tool_ifaces)
+    entry_sig = _entry_signature_from_interface(ptools.solve_medical_task)
+    model = config.get('orchestrate.model', config.require('llm.model'))
+
+    # Get original task description
+    original_desc = smt_cfg.get('task_description', '')
+    print(f'[improve-prompt] original description: {original_desc[:100]}...')
+
+    pop_size = int(config.get('improve.population_size', 5))
+    n_gen = int(config.get('improve.n_generations', 2))
+    tracker = _FitnessTracker()
+
+    def evaluate_description(desc):
+        """Generate workflow from description, evaluate on train set."""
+        try:
+            code = compose(desc, catalog, entry_sig, model=model)
+            pipeline = build_pipeline(code, ptools.solve_medical_task, tool_ifaces)
+            import json
+            pipeline._fn.__globals__['json'] = json
+        except Exception as ex:
+            print(f'[improve-prompt]   compose failed: {ex}')
+            return 0.0, 999.0, 999.0, None
+
+        correct = 0
+        total_latency = 0.0
+        import time
+        for case in train_cases:
+            fhir_tools.clear_post_log()
+            try:
+                start = time.time()
+                predicted = ptools.solve_medical_task(*case.input_args)
+                latency = time.time() - start
+                total_latency += latency
+                if case.expected_output is not None and predicted == case.expected_output:
+                    correct += 1
+            except Exception:
+                pass
+
+        n = len(train_cases)
+        # Unbind so next variant can rebind
+        ptools.solve_medical_task.implementation = None
+        return correct / n, total_latency / n, 0.0, code
+
+    # Baseline
+    ptools.solve_medical_task.implement_via('orchestrate', **{k: v for k, v in smt_cfg.items() if k != 'method'})
+    acc, lat, cost, baseline_code = evaluate_description(original_desc)
+    baseline_entry = tracker.add(acc, lat, cost)
+    print(f'[improve-prompt] baseline: accuracy={acc:.2f} latency={lat:.1f}s')
+
+    # Generate variants
+    population = []  # (description, code, entry)
+    previous = []
+
+    for gen in range(n_gen + 1):
+        if gen == 0:
+            print(f'\n[improve-prompt] === Initial Population ===')
+            target_count = pop_size
+        else:
+            print(f'\n[improve-prompt] === Generation {gen}/{n_gen} ===')
+            population.sort(key=lambda x: tracker.get_fitness(x[2]), reverse=True)
+            survivors = population[:3]
+            for i, (d, c, e) in enumerate(survivors):
+                print(f'[improve-prompt] survivor {i}: fitness={tracker.get_fitness(e):.3f} accuracy={e["accuracy"]:.2f}')
+            population = list(survivors)
+            target_count = pop_size - len(population)
+
+        for i in range(target_count):
+            if gen == 0:
+                # Mutate: ask LLM to improve the task description
+                prev_text = '\n---\n'.join(previous[-3:]) if previous else 'None'
+                prompt = f"""Improve this task description used to generate a medical EHR workflow.
+The workflow is auto-generated by an LLM from this description. It currently fails on
+conditional ordering tasks (task5,9), referral tasks (task8), and stale-check tasks (task10).
+
+Current description:
+{original_desc}
+
+Previous attempts (don't repeat):
+{prev_text}
+
+Write an improved task description that will help the LLM generate correct workflow branches
+for ALL 10 task types. Be very specific about the conditional logic, thresholds, dosing
+calculations, SNOMED vs LOINC codes, and return formats.
+
+Return ONLY the improved description text (no code blocks, no markdown)."""
+            else:
+                # Crossover: merge two survivors' descriptions
+                p1, p2 = random.sample(population[:3], 2)
+                prompt = f"""Merge the best aspects of these two task descriptions into one.
+
+Description A:
+{p1[0]}
+
+Description B:
+{p2[0]}
+
+Create a merged description that combines the strengths of both.
+Return ONLY the merged description text."""
+
+            raw = _llm_call(prompt)
+            desc = raw.strip()
+            if desc.startswith('```'):
+                desc = '\n'.join(desc.split('\n')[1:-1])
+
+            ptools.solve_medical_task.implementation = None
+            acc, lat, cost, code = evaluate_description(desc)
+            if code:
+                entry = tracker.add(acc, lat, cost)
+                population.append((desc, code, entry))
+                previous.append(desc[:300])
+                print(f'[improve-prompt] variant: accuracy={acc:.2f} latency={lat:.1f}s fitness={tracker.get_fitness(entry):.3f}')
+            else:
+                print(f'[improve-prompt] variant failed to compile')
+
+    # Select best
+    tracker._renormalize()
+    all_candidates = [(original_desc, baseline_code, baseline_entry)] + population
+    all_candidates.sort(key=lambda x: tracker.get_fitness(x[2]), reverse=True)
+    best_desc, best_code, best_entry = all_candidates[0]
+
+    print(f'\n[improve-prompt] === Result ===')
+    print(f'[improve-prompt] best: accuracy={best_entry["accuracy"]:.2f} fitness={tracker.get_fitness(best_entry):.3f}')
+    if best_desc != original_desc:
+        print(f'[improve-prompt] improved description found!')
+        print(f'[improve-prompt] description: {best_desc[:200]}...')
+    else:
+        print(f'[improve-prompt] baseline was best')
+
+    # Apply best and run full evaluation
+    if best_code:
+        pipeline = build_pipeline(best_code, ptools.solve_medical_task, tool_ifaces)
+        import json
+        pipeline._fn.__globals__['json'] = json
+        ptools.solve_medical_task.implementation = type(ptools.solve_medical_task.implementation)(
+            implementing_fn=pipeline,
+            factory_method='orchestrate',
+            factory_kwargs={})
+
+    evaluator = MedAgentBenchEvaluator(fhir_base)
+    csv_path = evaluator.evaluate(dataset, ptools.solve_medical_task)
+
+    df = pd.read_csv(csv_path)
+    if 'task_type' in df.columns and 'correct' in df.columns:
+        numeric_df = df[df['correct'].notna()]
+        if not numeric_df.empty:
+            print(f"\nOverall success rate: {numeric_df['correct'].mean():.3f}")
+            for task_type in sorted(numeric_df['task_type'].unique()):
+                mask = numeric_df['task_type'] == task_type
+                print(f'  {task_type}: {numeric_df.loc[mask, "correct"].mean():.3f} ({mask.sum()} cases)')
+
+    # Save log
+    log_file = _BENCHMARK_DIR / 'improvements.jsonl'
+    with open(log_file, 'a') as f:
+        f.write(json_mod.dumps({
+            'type': 'orchestrate_prompt',
+            'original_desc': original_desc[:1000],
+            'best_desc': best_desc[:1000],
+            'best_accuracy': best_entry['accuracy'],
+            'baseline_accuracy': baseline_entry['accuracy'],
+            'all_scores': [{'fitness': tracker.get_fitness(e), **e} for _, _, e in all_candidates],
+        }, default=str) + '\n')
+
+
 if __name__ == '__main__':
     app()
