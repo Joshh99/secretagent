@@ -599,10 +599,10 @@ def orchestrate_improve_prompt(ctx: typer.Context,
     ptools.solve_medical_task.implement_via('orchestrate', **{k: v for k, v in smt_cfg.items() if k != 'method'})
     acc, lat, cost, baseline_code = evaluate_description(original_desc)
     baseline_entry = tracker.add(acc, lat, cost)
-    print(f'[improve-prompt] baseline: accuracy={acc:.2f} latency={lat:.1f}s')
+    print(f'[improve-prompt] baseline: accuracy={acc:.2f} latency={lat:.1f}s cost=${cost:.4f}')
 
-    # Generate variants
-    population = []  # (description, code, entry)
+    # Generate variants — seed population with baseline so it participates in selection
+    population = [(original_desc, baseline_code, baseline_entry)]
     previous = []
 
     for gen in range(n_gen + 1):
