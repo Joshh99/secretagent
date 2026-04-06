@@ -12,6 +12,28 @@ from secretagent.orchestrate.pipeline import Pipeline
 from secretagent.orchestrate.profiler import PipelineProfile
 
 
+def format_profiling_summary(profile: PipelineProfile) -> str:
+    """Format profile data as a readable table for LLM prompts."""
+    lines = [
+        f'Pipeline accuracy: {profile.accuracy:.1%}, '
+        f'avg cost: ${profile.avg_cost:.4f}/case, '
+        f'{profile.n_cases} cases',
+        '',
+        'Per-ptool breakdown:',
+    ]
+    for name, pp in profile.ptool_profiles.items():
+        lift_str = f'{pp.lift:.3f}' if pp.lift is not None else 'N/A'
+        err_count = sum(e.frequency for e in pp.error_patterns)
+        lines.append(
+            f'  {name}: cost_frac={pp.cost_fraction:.1%}, '
+            f'calls/case={pp.calls_per_case:.1f}, '
+            f'avg_cost=${pp.avg_cost:.4f}, '
+            f'lift={lift_str}, '
+            f'errors={err_count}'
+        )
+    return '\n'.join(lines)
+
+
 class TransformProposal(BaseModel):
     transform_name: str
     rationale: str
