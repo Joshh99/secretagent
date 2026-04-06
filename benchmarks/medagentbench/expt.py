@@ -423,7 +423,14 @@ def orchestrate_evolve_run(ctx: typer.Context,
 
     if improvable:
         import random
-        target = random.choice(improvable)
+        target_name = config.get('improve.target')
+        if target_name:
+            target = next((i for i in improvable if i.name == target_name), None)
+            if not target:
+                print(f'[evolve] target {target_name} not found, picking random')
+                target = random.choice(improvable)
+        else:
+            target = random.choice(improvable)
         print(f'[evolve] improving: {target.name}')
 
         pop_size = int(config.get('improve.population_size', 5))

@@ -343,8 +343,10 @@ def improve_ptool_within_workflow(
         print(f"[improve] target: {ptool_name} (method: {'direct' if is_direct else 'simulate'})")
         print(f"[improve] train set: {len(train_cases)} cases, pop: {population_size}, gen: {n_generations}")
 
-    # Save original implementation to restore later
+    # Save original state to restore between variants
     original_impl = ptool.implementation
+    original_doc = ptool.doc
+    original_src = ptool.src
 
     # Step 1: Baseline evaluation (with cachier warm-up)
     if verbose:
@@ -406,6 +408,8 @@ def improve_ptool_within_workflow(
         finally:
             # Restore original for next variant
             ptool.implementation = original_impl
+            ptool.doc = original_doc
+            ptool.src = original_src
 
     # Step 3: Evolutionary loop
     generation_history = [{'gen': 0, 'population': len(population)}]
@@ -492,8 +496,10 @@ Return ONLY a ```python``` code block."""
         else:
             print(f"[improve] improved implementation found ({len(best_code)} chars)")
 
-    # Restore original implementation
+    # Restore original state
     ptool.implementation = original_impl
+    ptool.doc = original_doc
+    ptool.src = original_src
 
     return {
         'code': best_code,
