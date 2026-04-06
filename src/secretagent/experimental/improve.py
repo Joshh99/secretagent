@@ -42,10 +42,15 @@ from secretagent.dataset import Case
 # ──────────────────────────────────────────────────────────────────────
 
 class _FitnessTracker:
-    """Track and normalize fitness scores across all candidates."""
+    """Track and normalize fitness scores across all candidates.
+
+    Bi-objective: accuracy (maximize) + cost (minimize).
+    Latency excluded — too noisy (crashed workflows get 0.0s which
+    looks like "fast" instead of "broken").
+    """
 
     def __init__(self):
-        self.history: list[dict] = []  # [{accuracy, latency, cost, normalized}]
+        self.history: list[dict] = []
 
     def add(self, accuracy: float, latency: float, cost: float) -> dict:
         entry = {'accuracy': accuracy, 'latency': latency, 'cost': cost}
@@ -58,7 +63,7 @@ class _FitnessTracker:
         if not self.history:
             return
 
-        for key in ['accuracy', 'latency', 'cost']:
+        for key in ['accuracy', 'cost']:
             values = [e[key] for e in self.history]
             lo, hi = min(values), max(values)
             for e in self.history:
@@ -66,14 +71,13 @@ class _FitnessTracker:
                     e[f'{key}_norm'] = 0.5
                 else:
                     norm = (e[key] - lo) / (hi - lo)
-                    # For latency and cost, lower is better → invert
-                    if key in ('latency', 'cost'):
-                        norm = 1.0 - norm
+                    if key == 'cost':
+                        norm = 1.0 - norm  # lower cost = higher score
                     e[f'{key}_norm'] = norm
 
-        # Overall fitness = mean of normalized scores
+        # Bi-objective fitness
         for e in self.history:
-            e['fitness'] = (e['accuracy_norm'] + e['latency_norm'] + e['cost_norm']) / 3.0
+            e['fitness'] = (e['accuracy_norm'] + e['cost_norm']) / 2.0
 
     def get_fitness(self, entry: dict) -> float:
         return entry.get('fitness', 0.0)
