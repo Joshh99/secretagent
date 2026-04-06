@@ -21,6 +21,9 @@ codeact:
 orchestrate:
 	uv run python expt.py run --config-file conf/orchestrate.yaml
 
+orchestrate-evolve:
+	uv run python expt.py orchestrate-evolve-run --config-file conf/orchestrate_evolve.yaml
+
 # ── Quick tests (single case) ───────────────────────────────────────
 
 quick-test:

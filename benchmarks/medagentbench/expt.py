@@ -389,5 +389,81 @@ def quick_test(ctx: typer.Context,
     pprint.pprint(records)
 
 
+@app.command(context_settings=_EXTRA_ARGS)
+def orchestrate_evolve_run(ctx: typer.Context,
+                           config_file: Path = typer.Option(None, help="Config YAML file")):
+    """Orchestrate a workflow, improve a random ptool, then evaluate.
+
+    1. Orchestrate generates workflow (bind-time)
+    2. Pick a random simulate ptool and improve it via evolutionary refinement
+    3. Run improved workflow on full dataset
+    """
+    from collections import defaultdict
+    from secretagent.experimental.improve import improve_ptool_within_workflow
+    from secretagent.core import all_interfaces, Interface
+
+    dataset, interface = setup(ctx.args, config_file)
+
+    # Build train set: 2 cases per task type
+    train_per_task = int(config.get('improve.train_per_task', 2))
+    by_type = defaultdict(list)
+    for case in dataset.cases:
+        by_type[case.name.split('_')[0]].append(case)
+    train_cases = []
+    for task_type in sorted(by_type):
+        train_cases.extend(by_type[task_type][:train_per_task])
+    print(f'[evolve] train set: {len(train_cases)} cases')
+
+    # Find improvable ptools (simulate-bound interfaces)
+    improvable = [i for i in all_interfaces()
+                  if isinstance(i, Interface)
+                  and i.implementation is not None
+                  and i.name not in ('solve_medical_task',)
+                  and i.name in config.get('ptools', {})]
+
+    if improvable:
+        import random
+        target = random.choice(improvable)
+        print(f'[evolve] improving: {target.name}')
+
+        pop_size = int(config.get('improve.population_size', 5))
+        n_gen = int(config.get('improve.n_generations', 2))
+
+        result = improve_ptool_within_workflow(
+            ptool_name=target.name,
+            workflow_interface=interface,
+            train_cases=train_cases,
+            population_size=pop_size,
+            n_generations=n_gen,
+        )
+
+        if result['improved'] and result['code']:
+            print(f'[evolve] improvement found! fitness: {result["fitness"].get("fitness", 0):.3f}')
+            # Apply the improvement
+            from secretagent.experimental.improve import _apply_variant, _get_ptool_info
+            _apply_variant(target, result['code'], _get_ptool_info(target))
+        else:
+            print(f'[evolve] no improvement over baseline')
+    else:
+        print(f'[evolve] no improvable ptools found')
+
+    # Run evaluation with (possibly improved) workflow
+    fhir_base = config.get('fhir.api_base', 'http://localhost:8080/fhir/')
+    evaluator = MedAgentBenchEvaluator(fhir_base)
+    csv_path = evaluator.evaluate(dataset, interface)
+
+    df = pd.read_csv(csv_path)
+    print(df)
+    if 'task_type' in df.columns and 'correct' in df.columns:
+        numeric_df = df[df['correct'].notna()]
+        if not numeric_df.empty:
+            print(f"\nOverall success rate: {numeric_df['correct'].mean():.3f}")
+            for task_type in sorted(numeric_df['task_type'].unique()):
+                mask = numeric_df['task_type'] == task_type
+                n = mask.sum()
+                rate = numeric_df.loc[mask, 'correct'].mean()
+                print(f'  {task_type}: {rate:.3f} ({n} cases)')
+
+
 if __name__ == '__main__':
     app()
