@@ -146,15 +146,68 @@ def _get_ptool_info(ptool: Interface) -> dict:
     return info
 
 
-def _collect_traces(interface: Interface, cases: list[Case], ptool_name: str, max_cases: int = 5) -> list[dict]:
-    """Run workflow on cases and collect input/output traces for the target ptool."""
+def _build_workflow_graph(interface: Interface, cases: list[Case], max_cases: int = 3) -> str:
+    """Extract a compact call graph from execution traces.
+
+    Shows how ptools connect: which calls which, with what data flows.
+    Example output:
+        Case task1_1: "What's the MRN of Peter Stafford..."
+          parse_task(instruction, context) → '{"task_type":"lookup","family":"Stafford",...}'
+          find_patient("http://...", "Stafford", "Peter", "1932-12-29") → "S6534835"
+          → WORKFLOW RETURNED: ["S6534835"] (expected: ["S6534835"]) ✓
+
+        Case task5_1: "Check patient S6315806's magnesium..."
+          parse_task(instruction, context) → '{"task_type":"conditional_order",...}'
+          get_observations("http://...", "S6315806", "MG", 24) → '[{"value":2.3,...}]'
+          → WORKFLOW RETURNED: [-1] (expected: [2.3]) ✗
+    """
+    graphs = []
+    for case in cases[:max_cases]:
+        with record.recorder() as records:
+            try:
+                result = interface(*case.input_args)
+            except Exception as ex:
+                result = f'**exception: {ex}**'
+
+        lines = [f'Case {case.name}: "{str(case.input_args[0])[:80]}..."']
+        for rec in records:
+            func = rec.get('func', '?')
+            args = rec.get('args', ())
+            kw = rec.get('kw', {})
+            output = rec.get('output', '')
+            # Compact arg display
+            arg_strs = [str(a)[:80] for a in args]
+            kw_strs = [f'{k}={str(v)[:40]}' for k, v in kw.items()]
+            all_args = ', '.join(arg_strs + kw_strs)
+            if len(all_args) > 150:
+                all_args = all_args[:150] + '...'
+            out_str = str(output)[:150]
+            lines.append(f'  {func}({all_args}) → {out_str}')
+
+        correct = case.expected_output is not None and result == case.expected_output
+        mark = '✓' if correct else '✗'
+        lines.append(f'  → RETURNED: {str(result)[:100]} (expected: {str(case.expected_output)[:100]}) {mark}')
+        graphs.append('\n'.join(lines))
+
+    return '\n\n'.join(graphs)
+
+
+def _collect_traces(interface: Interface, cases: list[Case], ptool_name: str, max_cases: int = 5) -> tuple[list[dict], str]:
+    """Run workflow on cases and collect traces + workflow graph.
+
+    Returns (traces_for_target_ptool, workflow_graph_string).
+    """
     traces = []
+    all_records = []
+
     for case in cases[:max_cases]:
         with record.recorder() as records:
             try:
                 result = interface(*case.input_args)
             except Exception:
                 result = '**exception**'
+
+        all_records.append((case, records, result))
 
         # Find records for our ptool
         for rec in records:
@@ -167,8 +220,7 @@ def _collect_traces(interface: Interface, cases: list[Case], ptool_name: str, ma
                     'workflow_output': str(result)[:200],
                     'expected': str(case.expected_output)[:200],
                 })
-        # If ptool wasn't recorded (e.g. direct impl without recording), add case-level trace
-        if not any(t['case_name'] == case.name for t in traces):
+        if not any(t.get('case_name') == case.name for t in traces):
             traces.append({
                 'input_args': str(case.input_args)[:500],
                 'output': str(result)[:200],
@@ -176,7 +228,10 @@ def _collect_traces(interface: Interface, cases: list[Case], ptool_name: str, ma
                 'case_name': case.name,
             })
 
-    return traces
+    # Build workflow graph from ALL records (not just target ptool)
+    graph = _build_workflow_graph(interface, cases[:max_cases])
+
+    return traces, graph
 
 
 def _llm_call(prompt: str, max_tokens: int = 4096) -> str:
@@ -197,10 +252,16 @@ def _generate_variant(
     fitness_entry: dict,
     previous_variants: list[str],
     is_direct: bool,
+    workflow_graph: str = '',
 ) -> str:
     """Ask LLM to generate an improved version of the ptool."""
     traces_text = json.dumps(traces[:5], indent=2, default=str)
     prev_text = '\n---\n'.join(previous_variants[-3:]) if previous_variants else 'None'
+
+    graph_section = f"""
+Workflow call graph (shows how this ptool connects to others):
+{workflow_graph}
+""" if workflow_graph else ''
 
     if is_direct:
         prompt = f"""Improve this Python function implementation. The function is used in a medical EHR workflow.
@@ -214,7 +275,7 @@ Interface definition:
 ```python
 {ptool_info['src']}
 ```
-
+{graph_section}
 Execution traces (input → output for recent cases):
 {traces_text}
 
@@ -233,7 +294,7 @@ Current interface:
 ```python
 {ptool_info['src']}
 ```
-
+{graph_section}
 Execution traces (what the LLM produced vs what was expected):
 {traces_text}
 
@@ -356,8 +417,10 @@ def improve_ptool_within_workflow(
     if verbose:
         print(f"[improve] baseline: accuracy={acc:.2f} latency={lat:.1f}s cost={cost:.4f}")
 
-    # Collect traces for LLM context
-    traces = _collect_traces(workflow_interface, train_cases, ptool_name)
+    # Collect traces + workflow graph for LLM context
+    traces, workflow_graph = _collect_traces(workflow_interface, train_cases, ptool_name)
+    if verbose and workflow_graph:
+        print(f"[improve] workflow graph:\n{workflow_graph[:500]}")
 
     # Step 2: Generate initial population of variants
     if verbose:
@@ -370,7 +433,7 @@ def improve_ptool_within_workflow(
         if verbose:
             print(f"[improve] generating variant {i+1}/{population_size}...")
 
-        response = _generate_variant(ptool_info, traces, baseline_entry, previous_variants, is_direct)
+        response = _generate_variant(ptool_info, traces, baseline_entry, previous_variants, is_direct, workflow_graph)
         code = _extract_code(response)
         if not code:
             if verbose:
