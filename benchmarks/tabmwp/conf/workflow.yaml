@@ -1,0 +1,22 @@
+# Best workflow: PTP-style trace simulation (guided_ptp)
+# Single LLM call with Python stubs as reasoning scaffolding — highest accuracy
+llm:
+  model: together_ai/deepseek-ai/DeepSeek-V3.1
+
+cachier:
+  cache_dir: llm_cache
+
+evaluate:
+  expt_name: workflow
+  result_dir: results
+  record_details: true
+
+dataset:
+  split: dev1k
+  shuffle_seed: 42
+  n: 100
+
+ptools:
+  tabmwp_solve:
+    method: prompt_llm
+    prompt_template_file: prompt_templates/guided.txt
