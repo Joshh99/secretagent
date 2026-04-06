@@ -65,7 +65,8 @@ class _FitnessTracker:
 
         for key in ['accuracy', 'cost']:
             values = [e[key] for e in self.history]
-            lo, hi = min(values), max(values)
+            lo = 0.0  # fixed floor at 0, not observed min
+            hi = max(values)
             for e in self.history:
                 if hi == lo:
                     e[f'{key}_norm'] = 0.5
