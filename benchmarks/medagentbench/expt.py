@@ -444,6 +444,26 @@ def orchestrate_evolve_run(ctx: typer.Context,
             _apply_variant(target, result['code'], _get_ptool_info(target))
         else:
             print(f'[evolve] no improvement over baseline')
+
+        # Save improvement log
+        import json as json_mod
+        improvements_path = Path(config.require('evaluate.result_dir'))
+        improvements_path.mkdir(parents=True, exist_ok=True)
+        improvement_log = {
+            'ptool_name': target.name,
+            'method': result['method'],
+            'improved': result['improved'],
+            'baseline_fitness': result['all_scores'][-1] if result['all_scores'] else {},
+            'best_fitness': result['fitness'],
+            'original_code': _get_ptool_info(target).get('impl_source', target.doc)[:2000],
+            'improved_code': result['code'][:2000] if result['code'] else None,
+            'all_scores': result['all_scores'],
+            'generations': result['generations'],
+        }
+        log_file = _BENCHMARK_DIR / 'improvements.jsonl'
+        with open(log_file, 'a') as f:
+            f.write(json_mod.dumps(improvement_log, default=str) + '\n')
+        print(f'[evolve] improvement log saved to {log_file}')
     else:
         print(f'[evolve] no improvable ptools found')
 

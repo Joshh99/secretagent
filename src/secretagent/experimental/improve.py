@@ -399,7 +399,7 @@ def improve_ptool_within_workflow(
             population.append((code, entry))
             previous_variants.append(code[:500])
             if verbose:
-                print(f"[improve]   accuracy={acc:.2f} fitness={tracker.get_fitness(entry):.3f}")
+                print(f"[improve]   accuracy={acc:.2f} latency={lat:.1f}s cost={cost:.4f} fitness={tracker.get_fitness(entry):.3f}")
         except Exception as ex:
             if verbose:
                 print(f"[improve]   evaluation failed: {ex}")
@@ -425,7 +425,7 @@ def improve_ptool_within_workflow(
 
         if verbose:
             for i, (_, entry) in enumerate(survivors):
-                print(f"[improve] survivor {i}: fitness={tracker.get_fitness(entry):.3f} accuracy={entry['accuracy']:.2f}")
+                print(f"[improve] survivor {i}: fitness={tracker.get_fitness(entry):.3f} accuracy={entry['accuracy']:.2f} latency={entry['latency']:.1f}s cost={entry['cost']:.4f}")
 
         # Crossover: pair survivors randomly, merge via LLM
         offspring = []
@@ -465,7 +465,7 @@ Return ONLY a ```python``` code block."""
                 entry = tracker.add(acc, lat, cost)
                 offspring.append((code, entry))
                 if verbose:
-                    print(f"[improve] crossover: accuracy={acc:.2f} fitness={tracker.get_fitness(entry):.3f}")
+                    print(f"[improve] crossover: accuracy={acc:.2f} latency={lat:.1f}s cost={cost:.4f} fitness={tracker.get_fitness(entry):.3f}")
             except Exception:
                 pass
             finally:
