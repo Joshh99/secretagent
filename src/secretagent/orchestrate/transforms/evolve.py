@@ -35,11 +35,13 @@ class EvolveTransform(PipelineTransform):
         train_cases: list[Case] | None = None,
         population_size: int = 3,
         n_generations: int = 2,
+        pareto: bool = False,
     ):
         self.workflow_interface = workflow_interface
         self.train_cases = train_cases
         self.population_size = population_size
         self.n_generations = n_generations
+        self.pareto = pareto
         self._profile: PipelineProfile | None = None
 
     def should_apply(self, profile: PipelineProfile) -> bool:
@@ -50,28 +52,29 @@ class EvolveTransform(PipelineTransform):
         # Apply when there's room to improve
         return profile.accuracy < 1.0 and len(profile.ptool_profiles) > 0
 
+    # Utility ptools where docstring evolution rarely helps
+    SKIP_UTILITIES = {'extract_index', 'raw_answer', 'format_answer'}
+
     def propose(
         self, profile: PipelineProfile, catalog: PtoolCatalog,
     ) -> TransformProposal:
         targets = []
         for name, pp in profile.ptool_profiles.items():
-            if pp.n_calls < 3:
+            if pp.n_calls < 3 or name in self.SKIP_UTILITIES:
                 continue
             error_count = sum(e.frequency for e in pp.error_patterns)
             error_rate = error_count / pp.n_calls if pp.n_calls else 0.0
-            # Score: higher = more improvable
-            incorrect_bias = pp.accuracy_when_incorrect - pp.accuracy_when_correct
-            weakness = incorrect_bias + error_rate + pp.cost_fraction * 0.5
+            # Prefer high-cost ptools (where improvement has impact)
+            score = pp.cost_fraction + error_rate * 0.5
             targets.append({
                 'ptool': name,
-                'weakness': weakness,
+                'weakness': score,
                 'accuracy_when_correct': pp.accuracy_when_correct,
                 'accuracy_when_incorrect': pp.accuracy_when_incorrect,
                 'cost_fraction': pp.cost_fraction,
                 'error_count': error_count,
             })
 
-        # Sort by weakness descending, pick top 1
         targets.sort(key=lambda t: t['weakness'], reverse=True)
         targets = targets[:1]
 
@@ -113,6 +116,7 @@ class EvolveTransform(PipelineTransform):
                     population_size=self.population_size,
                     n_generations=self.n_generations,
                     profiling_summary=prof_summary,
+                    pareto=self.pareto,
                 )
             except Exception as e:
                 log.warning('evolve: failed to improve %s: %s', ptool_name, e)
