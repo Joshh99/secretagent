@@ -47,20 +47,29 @@ app = typer.Typer()
 
 
 def _pick_weakest_ptool(profile, exclude=None):
-    """Pick the ptool most worth evolving from profiling data."""
+    """Pick the ptool most worth evolving from profiling data.
+
+    Prefers high-cost ptools (where improvement has impact) and skips
+    trivial utility ptools like extract_index.
+    """
     exclude = exclude or set()
+    # Skip utility ptools that just parse/extract — evolving their
+    # docstrings rarely helps, the real reasoning happens elsewhere
+    skip_utilities = {'extract_index', 'raw_answer', 'format_answer'}
     best_name = None
-    best_weakness = -float('inf')
+    best_score = -float('inf')
 
     for name, pp in profile.ptool_profiles.items():
-        if name in exclude or pp.n_calls < 3:
+        if name in exclude or name in skip_utilities or pp.n_calls < 3:
             continue
+        # Prioritize ptools that consume significant cost (reasoning ptools)
+        # and have room to improve
         error_count = sum(e.frequency for e in pp.error_patterns)
         error_rate = error_count / pp.n_calls if pp.n_calls else 0.0
-        incorrect_bias = pp.accuracy_when_incorrect - pp.accuracy_when_correct
-        weakness = incorrect_bias + error_rate + pp.cost_fraction * 0.5
-        if weakness > best_weakness:
-            best_weakness = weakness
+        # Score = cost_fraction (big is important) + error_rate (buggy)
+        score = pp.cost_fraction + error_rate * 0.5
+        if score > best_score:
+            best_score = score
             best_name = name
     return best_name
 
@@ -179,7 +188,7 @@ def run(
             already_evolved.add(target_ptool)
             continue
 
-        # Apply the improvement
+        # Apply the improvement (save original for rollback)
         from secretagent.core import all_interfaces
         ptool = None
         for iface in all_interfaces():
@@ -190,6 +199,11 @@ def run(
         if ptool is None:
             print(f'Could not find interface {target_ptool}')
             continue
+
+        # Save original state for rollback
+        original_impl = ptool.implementation
+        original_doc = ptool.doc
+        original_src = ptool.src
 
         _apply_variant(ptool, result['code'], _get_ptool_info(ptool))
         print(f'Applied improved {target_ptool}')
@@ -218,8 +232,11 @@ def run(
             })
             print(f'Improvement kept! Best accuracy: {best_accuracy:.1%}')
         else:
-            print(f'Regression or no change. Keeping evolved ptool anyway '
-                  f'(may help in combination with future changes).')
+            # Rollback to original implementation
+            ptool.implementation = original_impl
+            ptool.doc = original_doc
+            ptool.src = original_src
+            print(f'Regression — rolled back {target_ptool}.')
 
         already_evolved.add(target_ptool)
 

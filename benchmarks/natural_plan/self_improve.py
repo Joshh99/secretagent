@@ -41,19 +41,19 @@ app = typer.Typer()
 
 
 def _pick_weakest_ptool(profile, exclude=None):
-    """Pick the ptool most worth evolving."""
+    """Pick the ptool most worth evolving — prefers high-cost reasoning ptools."""
     exclude = exclude or set()
+    skip_utilities = {'extract_index', 'raw_answer', 'format_answer'}
     best_name = None
-    best_weakness = -float('inf')
+    best_score = -float('inf')
     for name, pp in profile.ptool_profiles.items():
-        if name in exclude or pp.n_calls < 3:
+        if name in exclude or name in skip_utilities or pp.n_calls < 3:
             continue
         error_count = sum(e.frequency for e in pp.error_patterns)
         error_rate = error_count / pp.n_calls if pp.n_calls else 0.0
-        incorrect_bias = pp.accuracy_when_incorrect - pp.accuracy_when_correct
-        weakness = incorrect_bias + error_rate + pp.cost_fraction * 0.5
-        if weakness > best_weakness:
-            best_weakness = weakness
+        score = pp.cost_fraction + error_rate * 0.5
+        if score > best_score:
+            best_score = score
             best_name = name
     return best_name
 
@@ -164,14 +164,20 @@ def run(
             already_evolved.add(target_ptool)
             continue
 
-        # Apply improvement
+        # Apply improvement (save original for rollback)
         ptool = None
         for iface in all_interfaces():
             if iface.name == target_ptool:
                 ptool = iface
                 break
-        if ptool:
-            _apply_variant(ptool, result['code'], _get_ptool_info(ptool))
+        if not ptool:
+            already_evolved.add(target_ptool)
+            continue
+
+        original_impl = ptool.implementation
+        original_doc = ptool.doc
+        original_src = ptool.src
+        _apply_variant(ptool, result['code'], _get_ptool_info(ptool))
 
         # Re-evaluate
         csv_path = evaluator.evaluate(eval_dataset, workflow_interface)
@@ -186,6 +192,11 @@ def run(
         if new_accuracy > best_accuracy:
             best_accuracy = new_accuracy
             evolved_ptools.append({'ptool': target_ptool, 'accuracy_after': new_accuracy})
+        else:
+            ptool.implementation = original_impl
+            ptool.doc = original_doc
+            ptool.src = original_src
+            print(f'Regression — rolled back {target_ptool}.')
         already_evolved.add(target_ptool)
 
         if best_accuracy >= target_accuracy:
