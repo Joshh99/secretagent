@@ -12,7 +12,6 @@ from secretagent import config
 from secretagent.orchestrate.catalog import PtoolCatalog
 from secretagent.orchestrate.pipeline import Pipeline
 from secretagent.orchestrate.profiler import PipelineProfile, profile_from_results
-from secretagent.orchestrate.transforms.base import format_profiling_summary
 
 if TYPE_CHECKING:
     from secretagent.orchestrate.transforms.base import PipelineTransform
@@ -89,6 +88,7 @@ def improve_pipeline(
 
     log.info('improvement loop starting: accuracy=%.1f%%, %d cases',
              before.accuracy * 100, before.n_cases)
+    from secretagent.orchestrate.transforms.base import format_profiling_summary
     print(f'\n[improve] === Initial Profile ===')
     print(format_profiling_summary(before))
 
