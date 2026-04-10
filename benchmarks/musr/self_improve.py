@@ -76,6 +76,8 @@ def _save_evolved(ptool_name: str, result: dict, new_accuracy: float, initial_ac
         'generations': result.get('generations', []),
         'timestamp': timestamp,
     }
+    if 'pareto_frontier' in result:
+        meta['pareto_frontier'] = result['pareto_frontier']
     (save_dir / 'metadata.json').write_text(json.dumps(meta, indent=2, default=str))
 
     print(f'  saved evolved prompt to {save_dir}')
@@ -121,6 +123,7 @@ def run(
     train_n: int = typer.Option(25, help='Cases for evolution fitness eval'),
     population_size: int = typer.Option(3, help='Variants per generation'),
     n_generations: int = typer.Option(2, help='Evolutionary generations per ptool'),
+    pareto: bool = typer.Option(False, help='Use Pareto non-dominated sorting instead of linear fitness'),
 ):
     """Run self-improvement loop on MUSR."""
 
@@ -158,7 +161,7 @@ def run(
     print(f'eval set: {len(eval_dataset.cases)} cases, train set: {train_n} cases')
     print(f'target accuracy: {target_accuracy:.0%}')
     print(f'max iterations: {max_iterations}')
-    print(f'evolution: pop={population_size}, gen={n_generations}')
+    print(f'evolution: pop={population_size}, gen={n_generations}, pareto={pareto}')
 
     # --- Initial evaluation ---
     print(f'\n=== Initial Evaluation ===')
@@ -214,6 +217,7 @@ def run(
                 population_size=population_size,
                 n_generations=n_generations,
                 profiling_summary=prof_summary,
+                pareto=pareto,
             )
         except Exception as e:
             print(f'Evolution failed: {e}')
