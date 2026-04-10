@@ -35,6 +35,9 @@ _PROJECT_ROOT = _BENCHMARK_DIR.parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT / 'src'))
 sys.path.insert(0, str(_BENCHMARK_DIR))
 
+import json
+from datetime import datetime
+
 from secretagent import config
 from secretagent.core import implement_via_config
 from secretagent.dataset import Dataset, Case
@@ -48,6 +51,34 @@ from secretagent.orchestrate.transforms.base import format_profiling_summary
 from expt import MUSREvaluator, load_dataset, _resolve_module
 
 app = typer.Typer()
+
+
+def _save_evolved(ptool_name: str, result: dict, new_accuracy: float, initial_accuracy: float):
+    """Save evolved prompt/code to disk for reuse and inspection."""
+    evolved_dir = _BENCHMARK_DIR / 'evolved'
+    evolved_dir.mkdir(exist_ok=True)
+
+    timestamp = datetime.now().strftime('%Y%m%d.%H%M%S')
+    save_dir = evolved_dir / f'{timestamp}.{ptool_name}'
+    save_dir.mkdir(exist_ok=True)
+
+    # Save the evolved code (docstring for simulate, function for direct)
+    (save_dir / 'evolved.py').write_text(result['code'])
+
+    # Save metadata
+    meta = {
+        'ptool_name': ptool_name,
+        'method': result['method'],
+        'accuracy_before': initial_accuracy,
+        'accuracy_after': new_accuracy,
+        'fitness': result['fitness'],
+        'all_scores': result.get('all_scores', []),
+        'generations': result.get('generations', []),
+        'timestamp': timestamp,
+    }
+    (save_dir / 'metadata.json').write_text(json.dumps(meta, indent=2, default=str))
+
+    print(f'  saved evolved prompt to {save_dir}')
 
 
 def _pick_weakest_ptool(profile, exclude=None):
@@ -236,6 +267,8 @@ def run(
                 'accuracy_after': new_accuracy,
                 'code_len': len(result['code']),
             })
+            # Save evolved prompt to disk
+            _save_evolved(target_ptool, result, new_accuracy, initial_accuracy)
             print(f'Improvement kept! Best accuracy: {best_accuracy:.1%}')
         else:
             # Rollback to original implementation
