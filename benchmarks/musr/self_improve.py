@@ -20,8 +20,12 @@ Usage:
 """
 
 import importlib
+import os
 import sys
 from pathlib import Path
+
+# Force unbuffered output so progress is visible in background runs
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 import pandas as pd
 import typer
