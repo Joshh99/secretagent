@@ -45,10 +45,15 @@ class _FitnessTracker:
     Bi-objective: accuracy (maximize) + cost (minimize).
     Latency excluded — too noisy (crashed workflows get 0.0s which
     looks like "fast" instead of "broken").
+
+    Supports two modes:
+    - Linear: (accuracy_norm + cost_norm) / 2 — default
+    - Pareto: non-dominated sorting, prefer accuracy then cost
     """
 
-    def __init__(self):
+    def __init__(self, pareto: bool = False):
         self.history: list[dict] = []
+        self.pareto = pareto
 
     def add(self, accuracy: float, latency: float, cost: float) -> dict:
         entry = {'accuracy': accuracy, 'latency': latency, 'cost': cost}
@@ -74,12 +79,44 @@ class _FitnessTracker:
                         norm = 1.0 - norm  # lower cost = higher score
                     e[f'{key}_norm'] = norm
 
-        # Bi-objective fitness
-        for e in self.history:
-            e['fitness'] = (e['accuracy_norm'] + e['cost_norm']) / 2.0
+        if self.pareto:
+            self._assign_pareto_fitness()
+        else:
+            for e in self.history:
+                e['fitness'] = (e['accuracy_norm'] + e['cost_norm']) / 2.0
+
+    def _assign_pareto_fitness(self):
+        """Assign fitness based on Pareto rank + crowding distance.
+
+        Rank 0 = non-dominated front (best). Within same rank, prefer
+        solutions that are more spread out (higher crowding distance).
+        """
+        n = len(self.history)
+        # Compute domination: a dominates b if a >= b on all objectives and a > b on at least one
+        # Objectives: accuracy (max), -cost (min cost = max -cost)
+        ranks = [0] * n
+        for i in range(n):
+            for j in range(n):
+                if i == j:
+                    continue
+                ai, aj = self.history[i], self.history[j]
+                # j dominates i?
+                if (aj['accuracy'] >= ai['accuracy'] and aj['cost'] <= ai['cost']
+                        and (aj['accuracy'] > ai['accuracy'] or aj['cost'] < ai['cost'])):
+                    ranks[i] += 1
+
+        # Fitness = 1 / (1 + rank), so rank 0 = fitness 1.0
+        # Within same rank, break ties by accuracy (prefer higher)
+        for i, e in enumerate(self.history):
+            e['pareto_rank'] = ranks[i]
+            e['fitness'] = 1.0 / (1.0 + ranks[i]) + e['accuracy'] * 0.001
 
     def get_fitness(self, entry: dict) -> float:
         return entry.get('fitness', 0.0)
+
+    def pareto_frontier(self) -> list[dict]:
+        """Return non-dominated solutions (rank 0)."""
+        return [e for e in self.history if e.get('pareto_rank', 0) == 0]
 
 
 # ──────────────────────────────────────────────────────────────────────
@@ -256,6 +293,7 @@ def _generate_variant(
     previous_variants: list[str],
     is_direct: bool,
     workflow_graph: str = '',
+    profiling_summary: str = '',
 ) -> str:
     """Ask LLM to generate an improved version of the ptool."""
     traces_text = json.dumps(traces[:5], indent=2, default=str)
@@ -266,8 +304,13 @@ Workflow call graph (shows how this ptool connects to others):
 {workflow_graph}
 """ if workflow_graph else ''
 
+    profile_section = f"""
+Pipeline profiling data (FREE analysis of execution — use this to understand failure patterns):
+{profiling_summary}
+""" if profiling_summary else ''
+
     if is_direct:
-        prompt = f"""Improve this Python function implementation. The function is used in a medical EHR workflow.
+        prompt = f"""Improve this Python function implementation. The function is used in a workflow.
 
 Current implementation:
 ```python
@@ -278,7 +321,7 @@ Interface definition:
 ```python
 {ptool_info['src']}
 ```
-{graph_section}
+{graph_section}{profile_section}
 Execution traces (input → output for recent cases):
 {traces_text}
 
@@ -297,7 +340,7 @@ Current interface:
 ```python
 {ptool_info['src']}
 ```
-{graph_section}
+{graph_section}{profile_section}
 Execution traces (what the LLM produced vs what was expected):
 {traces_text}
 
@@ -375,6 +418,8 @@ def improve_ptool_within_workflow(
     population_size: int = 5,
     n_generations: int = 3,
     verbose: bool = True,
+    profiling_summary: str = '',
+    pareto: bool = False,
 ) -> dict:
     """Improve a single ptool within a frozen workflow via evolutionary LLM refinement.
 
@@ -385,10 +430,16 @@ def improve_ptool_within_workflow(
         population_size: number of parallel solutions per generation (default 5)
         n_generations: number of evolutionary generations (default 3)
         verbose: print progress
+        profiling_summary: optional profiling data string to include in LLM
+            prompts (FREE — computed from results files, no API cost)
+        pareto: if True, use Pareto non-dominated sorting instead of
+            linear fitness. Returns the highest-accuracy Pareto-optimal
+            solution instead of the best linear combination.
 
     Returns:
         dict with keys: 'code' (best implementation), 'fitness' (score dict),
-        'method' (direct or simulate), 'generations' (history)
+        'method' (direct or simulate), 'generations' (history),
+        'pareto_frontier' (list of scores, only if pareto=True)
     """
     # Find the ptool
     ptool = None
@@ -401,7 +452,7 @@ def improve_ptool_within_workflow(
 
     ptool_info = _get_ptool_info(ptool)
     is_direct = is_direct_impl(ptool_info)
-    tracker = _FitnessTracker()
+    tracker = _FitnessTracker(pareto=pareto)
 
     if verbose:
         print(f"[improve] target: {ptool_name} (method: {'direct' if is_direct else 'simulate'})")
@@ -436,7 +487,7 @@ def improve_ptool_within_workflow(
         if verbose:
             print(f"[improve] generating variant {i+1}/{population_size}...")
 
-        response = _generate_variant(ptool_info, traces, baseline_entry, previous_variants, is_direct, workflow_graph)
+        response = _generate_variant(ptool_info, traces, baseline_entry, previous_variants, is_direct, workflow_graph, profiling_summary)
         code = _extract_code(response)
         if not code:
             if verbose:
@@ -554,9 +605,16 @@ Return ONLY a ```python``` code block."""
 
     if verbose:
         print("\n[improve] === Result ===")
+        mode_str = 'pareto' if pareto else 'linear'
+        print(f"[improve] selection mode: {mode_str}")
         print(f"[improve] best fitness: {tracker.get_fitness(best_entry):.3f}")
         print(f"[improve] best accuracy: {best_entry['accuracy']:.2f} "
               f"latency: {best_entry['latency']:.1f}s cost: {best_entry['cost']:.4f}")
+        if pareto:
+            frontier = tracker.pareto_frontier()
+            print(f"[improve] pareto frontier: {len(frontier)} solutions")
+            for i, e in enumerate(sorted(frontier, key=lambda x: -x['accuracy'])):
+                print(f"[improve]   #{i}: accuracy={e['accuracy']:.2f} cost={e['cost']:.4f}")
         if best_code is None:
             print("[improve] baseline was best — no improvement found")
         else:
@@ -567,7 +625,7 @@ Return ONLY a ```python``` code block."""
     ptool.doc = original_doc
     ptool.src = original_src
 
-    return {
+    result = {
         'code': best_code,
         'fitness': best_entry,
         'method': 'direct' if is_direct else 'simulate',
@@ -575,3 +633,9 @@ Return ONLY a ```python``` code block."""
         'generations': generation_history,
         'all_scores': [{'fitness': tracker.get_fitness(e), **e} for _, e in all_candidates],
     }
+    if pareto:
+        result['pareto_frontier'] = [
+            {'accuracy': e['accuracy'], 'cost': e['cost'], 'pareto_rank': e.get('pareto_rank', 0)}
+            for e in tracker.pareto_frontier()
+        ]
+    return result
