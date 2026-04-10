@@ -32,7 +32,7 @@ via `implement_via()` and a registry of `Implementation.Factory` classes
 ### Built-in factories (registered in `_FACTORIES`)
 
  * `'direct'` — use the function body as the implementation
- * `'simulate'` — prompt an LLM to predict the function output (uses `llm_util`)
+ * `'simulate'` — prompt an LLM to simulate a function call (NOT react, NOT an agent, just a single LLM call to predict function output)
  * `'prompt_llm'` — use a custom prompt template to predict the function
  * `'program_of_thought'` — generate Python code with an LLM and execute it in a sandboxed executor
  * `'simulate_pydantic'` — like simulate but uses a pydantic-ai Agent (in `implement/pydantic.py`)

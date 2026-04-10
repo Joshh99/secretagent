@@ -11,9 +11,8 @@ evaluate:
   entry_point: answer_question_workflow
 
 dataset:
-  split: murder_mysteries
+  split: murder_mysteries_test
   shuffle_seed: 42
-  n: 75
 
 ptools:
   raw_answer:

@@ -11,14 +11,17 @@ evaluate:
   entry_point: answer_question_workflow
 
 dataset:
-  split: object_placements
+  split: object_placements_test
   shuffle_seed: 42
-  n: 75
 
 ptools:
   raw_answer:
     method: simulate
   extract_index:
+    method: simulate
+  extract_movements:
+    method: simulate
+  extract_discoveries:
     method: simulate
   infer_belief:
     method: simulate

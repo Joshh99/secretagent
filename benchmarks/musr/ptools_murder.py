@@ -6,7 +6,11 @@ away into lossy structured data.
 """
 
 from secretagent.core import interface
-from ptools_common import raw_answer, extract_index
+from ptools_common import (  # noqa: F401  (re-export so the loaded ptools module exposes them)
+    raw_answer,
+    extract_index,
+    react_solve,
+)
 
 
 @interface

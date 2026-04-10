@@ -35,9 +35,12 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
   messages = [dict(role='user', content=prompt)]
   stream = config.get('llm.stream', False)
   max_tokens = config.get('llm.max_tokens', None)
+  temperature = config.get('llm.temperature', None)
   extra_kw = {}
   if max_tokens:
     extra_kw['max_tokens'] = int(max_tokens)
+  if temperature is not None:
+    extra_kw['temperature'] = float(temperature)
   start_time = time.time()
 
   if stream:

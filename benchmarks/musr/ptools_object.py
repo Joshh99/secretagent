@@ -1,7 +1,69 @@
 """Interfaces for MUSR object placement (theory of mind)."""
 
 from secretagent.core import interface
-from ptools_common import raw_answer, extract_index
+from ptools_common import (  # noqa: F401  (re-export so the loaded ptools module exposes them)
+    raw_answer,
+    extract_index,
+    react_solve,
+)
+
+
+@interface
+def extract_movements(narrative: str) -> str:
+    """Extract a chronological list of every object-movement event in the narrative.
+
+    For each move event, record:
+    - object: which object is being moved
+    - from_location: where it was before the move
+    - to_location: where it ends up after the move
+    - actor: who performed the move (the mover)
+    - present: list of OTHER characters who were in the scene and witnessed the move
+    - absent: list of characters who are mentioned in the story but were NOT in the scene
+      when this move happened (and therefore did not witness it)
+
+    Be exhaustive — include EVERY move of EVERY object, in the order they
+    happen in the narrative. Do not paraphrase locations: use the exact
+    place names that appear in the story so they match the answer choices
+    later. Do not infer moves that are not described.
+
+    Format the output as a numbered list:
+        1. object=<X>, from=<L1>, to=<L2>, actor=<A>, present=[...], absent=[...]
+        2. object=<Y>, from=<L1>, to=<L3>, actor=<B>, present=[...], absent=[...]
+        ...
+
+    This list is the load-bearing structure for false-belief reasoning, so
+    accuracy of who-was-present-when matters more than prose quality.
+    """
+
+
+@interface
+def extract_discoveries(narrative: str) -> str:
+    """Extract incidental discoveries from the narrative.
+
+    A "discovery" is a moment where a character notices/sees/learns the
+    location of an object WITHOUT witnessing the move that put it there.
+    These update a character's belief about the object's location even
+    though they were not present when it was moved.
+
+    Examples of discoveries:
+    - "Bob walked past the kitchen and saw the keys on the counter."
+    - "Alice looked into the box and noticed the necklace inside."
+    - "Tom told Sarah that the wrench was in the toolshed."  (verbal report
+      counts as a discovery — Sarah now believes that)
+
+    For each discovery, record:
+    - observer: the character who learned the location
+    - object: which object they learned about
+    - location: where they observed/were-told the object is
+    - mode: 'saw_directly' | 'told_by_<name>' | 'inferred_from_<event>'
+
+    Format as a numbered list:
+        1. observer=<X>, object=<O>, location=<L>, mode=<M>
+        2. ...
+
+    If there are no incidental discoveries, return: "No discoveries."
+    Be conservative — only include events explicitly stated in the narrative.
+    """
 
 
 @interface
@@ -46,6 +108,20 @@ def answer_question(narrative: str, question: str, choices: list) -> int:
 
 @interface
 def answer_question_workflow(narrative: str, question: str, choices: list) -> int:
-    """Infer belief directly from narrative, then match to choices."""
-    text = infer_belief(narrative, "", question, choices)
+    """Solve by extracting movements + discoveries, inferring belief, then matching.
+
+    4-step hand-designed workflow:
+      1. extract_movements — chronological list of who-saw-which-move
+      2. extract_discoveries — incidental observations of object locations
+      3. infer_belief — combine narrative + movements + discoveries to
+         determine the target person's belief about the target object
+      4. extract_index — match the inferred belief to one of the choices
+    """
+    movements = extract_movements(narrative)
+    discoveries = extract_discoveries(narrative)
+    combined = (
+        f"## Object movements\n{movements}\n\n"
+        f"## Incidental discoveries\n{discoveries}"
+    )
+    text = infer_belief(narrative, combined, question, choices)
     return extract_index(text, choices)
