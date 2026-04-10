@@ -16,8 +16,13 @@ Usage:
 """
 
 import importlib
+import json
+import os
 import sys
+from datetime import datetime
 from pathlib import Path
+
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 import pandas as pd
 import typer
@@ -38,6 +43,26 @@ from secretagent.orchestrate.transforms.base import format_profiling_summary
 from expt import NaturalPlanEvaluator, load_dataset, SPLIT_TO_MODULE
 
 app = typer.Typer()
+
+
+def _save_evolved(ptool_name: str, result: dict, new_accuracy: float, initial_accuracy: float):
+    """Save evolved prompt/code to disk."""
+    evolved_dir = _BENCHMARK_DIR / 'evolved'
+    evolved_dir.mkdir(exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d.%H%M%S')
+    save_dir = evolved_dir / f'{timestamp}.{ptool_name}'
+    save_dir.mkdir(exist_ok=True)
+    (save_dir / 'evolved.py').write_text(result['code'])
+    meta = {
+        'ptool_name': ptool_name, 'method': result['method'],
+        'accuracy_before': initial_accuracy, 'accuracy_after': new_accuracy,
+        'fitness': result['fitness'], 'all_scores': result.get('all_scores', []),
+        'timestamp': timestamp,
+    }
+    if 'pareto_frontier' in result:
+        meta['pareto_frontier'] = result['pareto_frontier']
+    (save_dir / 'metadata.json').write_text(json.dumps(meta, indent=2, default=str))
+    print(f'  saved evolved prompt to {save_dir}')
 
 
 def _pick_weakest_ptool(profile, exclude=None):
@@ -70,6 +95,7 @@ def run(
     train_n: int = typer.Option(15, help='Cases for evolution fitness eval'),
     population_size: int = typer.Option(3, help='Variants per generation'),
     n_generations: int = typer.Option(2, help='Evolutionary generations per ptool'),
+    pareto: bool = typer.Option(False, help='Use Pareto non-dominated sorting'),
 ):
     """Run self-improvement loop on NaturalPlan."""
 
@@ -153,6 +179,7 @@ def run(
                 population_size=population_size,
                 n_generations=n_generations,
                 profiling_summary=prof_summary,
+                pareto=pareto,
             )
         except Exception as e:
             print(f'Evolution failed: {e}')
@@ -192,6 +219,7 @@ def run(
         if new_accuracy > best_accuracy:
             best_accuracy = new_accuracy
             evolved_ptools.append({'ptool': target_ptool, 'accuracy_after': new_accuracy})
+            _save_evolved(target_ptool, result, new_accuracy, initial_accuracy)
         else:
             ptool.implementation = original_impl
             ptool.doc = original_doc
