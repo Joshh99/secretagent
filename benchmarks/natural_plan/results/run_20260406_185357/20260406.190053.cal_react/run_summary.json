@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml ptools.calendar_scheduling.method=simulate_pydantic ptools.calendar_scheduling.tools=[ptools_calendar.parse_schedules,ptools_calendar.find_available_slots,ptools_calendar.select_and_format] evaluate.expt_name=cal_react dataset.n=5 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_185357 evaluate.prompt_trace=true",
+  "accuracy": 0.0,
+  "total_cost_usd": 0.0,
+  "total_time_sec": 0.0,
+  "n_samples": 5
+}

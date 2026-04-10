@@ -9,91 +9,136 @@ prepare:
 	uv run python data/prepare.py $(RULEARENA_DIR)
 
 #
-# L0: Oracle baseline (Python calculators with ground-truth parameters, no LLM)
+# Oracle: Python calculators with ground-truth parameters, no LLM
 #
 
-l0_airline:
-	uv run expt.py run evaluate.expt_name=l0_airline dataset.domain=airline \
+oracle_airline:
+	uv run expt.py run evaluate.expt_name=oracle_airline dataset.domain=airline \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0_oracle_workflow
 
-l0_nba:
-	uv run expt.py run evaluate.expt_name=l0_nba dataset.domain=nba \
+oracle_nba:
+	uv run expt.py run evaluate.expt_name=oracle_nba dataset.domain=nba \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0_oracle_workflow
 
-l0_tax:
-	uv run expt.py run evaluate.expt_name=l0_tax dataset.domain=tax \
+oracle_tax:
+	uv run expt.py run evaluate.expt_name=oracle_tax dataset.domain=tax \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0_oracle_workflow
 
 #
-# L0F: Chain-of-thought baseline (single LLM call per instance, no structure)
+# Unstructured baseline: single LLM call per instance, chain-of-thought, no structure
 #
 
-l0f_airline:
-	uv run expt.py run evaluate.expt_name=l0f_airline dataset.domain=airline \
+unstructured_baseline_airline:
+	uv run expt.py run evaluate.expt_name=unstructured_baseline_airline dataset.domain=airline \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow
 
-l0f_nba:
-	uv run expt.py run evaluate.expt_name=l0f_nba dataset.domain=nba \
+unstructured_baseline_nba:
+	uv run expt.py run evaluate.expt_name=unstructured_baseline_nba dataset.domain=nba \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow
 
-l0f_tax:
-	uv run expt.py run evaluate.expt_name=l0f_tax dataset.domain=tax \
+unstructured_baseline_tax:
+	uv run expt.py run evaluate.expt_name=unstructured_baseline_tax dataset.domain=tax \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow
 
 #
-# L1: PTool extraction + Python calculation
+# Structured baseline (workflow): PTool extraction + Python calculation
 #
 
-l1_airline:
-	uv run expt.py run evaluate.expt_name=l1_airline dataset.domain=airline \
+structured_baseline_airline:
+	uv run expt.py run evaluate.expt_name=structured_baseline_airline dataset.domain=airline \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow
 
-l1_nba:
-	uv run expt.py run evaluate.expt_name=l1_nba dataset.domain=nba \
+structured_baseline_nba:
+	uv run expt.py run evaluate.expt_name=structured_baseline_nba dataset.domain=nba \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow
 
-l1_tax:
-	uv run expt.py run evaluate.expt_name=l1_tax dataset.domain=tax \
+structured_baseline_tax:
+	uv run expt.py run evaluate.expt_name=structured_baseline_tax dataset.domain=tax \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow
 
 #
-# L3: ReAct autonomous agent (simulate_pydantic with tools)
+# ReAct: autonomous agent (simulate_pydantic with tools)
 #
 
-l3_airline:
-	uv run expt.py run evaluate.expt_name=l3_airline dataset.domain=airline \
+react_airline:
+	uv run expt.py run evaluate.expt_name=react_airline dataset.domain=airline \
 	  ptools.compute_rulearena_answer.method=simulate_pydantic \
 	  "ptools.compute_rulearena_answer.tools=[ptools.extract_airline_params,ptools.compute_airline_calculator]"
 
-l3_nba:
-	uv run expt.py run evaluate.expt_name=l3_nba dataset.domain=nba \
+react_nba:
+	uv run expt.py run evaluate.expt_name=react_nba dataset.domain=nba \
 	  ptools.compute_rulearena_answer.method=simulate_pydantic \
 	  "ptools.compute_rulearena_answer.tools=[ptools.extract_nba_params]"
 
-l3_tax:
-	uv run expt.py run evaluate.expt_name=l3_tax dataset.domain=tax \
+react_tax:
+	uv run expt.py run evaluate.expt_name=react_tax dataset.domain=tax \
 	  ptools.compute_rulearena_answer.method=simulate_pydantic \
 	  "ptools.compute_rulearena_answer.tools=[ptools.extract_tax_params,ptools.compute_tax_calculator]"
 
 #
-# Learning pipeline (airline domain, l1 extract workflow)
+# PoT: Program of Thought (LLM generates Python code, no tools)
+#
+
+pot_airline:
+	uv run expt.py run evaluate.expt_name=pot_airline dataset.domain=airline \
+	  ptools.pot_airline.method=program_of_thought \
+	  ptools.pot_airline.inject_args=true \
+	  "ptools.pot_airline.tools=[]" \
+	  ptools.compute_rulearena_answer.method=direct \
+	  ptools.compute_rulearena_answer.fn=ptools.pot_workflow
+
+pot_nba:
+	uv run expt.py run evaluate.expt_name=pot_nba dataset.domain=nba \
+	  ptools.pot_nba.method=program_of_thought \
+	  ptools.pot_nba.inject_args=true \
+	  "ptools.pot_nba.tools=[]" \
+	  ptools.compute_rulearena_answer.method=direct \
+	  ptools.compute_rulearena_answer.fn=ptools.pot_workflow
+
+pot_tax:
+	uv run expt.py run evaluate.expt_name=pot_tax dataset.domain=tax \
+	  ptools.pot_tax.method=program_of_thought \
+	  ptools.pot_tax.inject_args=true \
+	  "ptools.pot_tax.tools=[]" \
+	  ptools.compute_rulearena_answer.method=direct \
+	  ptools.compute_rulearena_answer.fn=ptools.pot_workflow
+
+#
+# Legacy aliases (old L-level names → new standardized names)
+#
+
+l0_airline: oracle_airline
+l0_nba: oracle_nba
+l0_tax: oracle_tax
+l0f_airline: unstructured_baseline_airline
+l0f_nba: unstructured_baseline_nba
+l0f_tax: unstructured_baseline_tax
+l1_airline: structured_baseline_airline
+l1_nba: structured_baseline_nba
+l1_tax: structured_baseline_tax
+l3_airline: react_airline
+l3_nba: react_nba
+l3_tax: react_tax
+
+#
+# Learning pipeline (airline domain, structured_baseline extract workflow)
 #
 
 RECORD_OPTS = dataset.split=train evaluate.record_details=true evaluate.result_dir=recordings
 
-learn_pipeline: record_l1_airline learn_extract_airline evaluate_learned_l1_airline avg
+learn_pipeline: record_structured_baseline_airline learn_extract_airline evaluate_learned_structured_baseline_airline avg
 
-record_l1_airline:
-	uv run expt.py run evaluate.expt_name=l1_airline dataset.domain=airline \
+record_structured_baseline_airline:
+	uv run expt.py run evaluate.expt_name=structured_baseline_airline dataset.domain=airline \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow \
 	  $(RECORD_OPTS)
@@ -102,14 +147,18 @@ learn_extract_airline:
 	uv run python -m secretagent.cli.learn rote --interface extract_airline_params \
 	  --learned-dir training recordings/*
 
-evaluate_learned_l1_airline:
-	uv run expt.py run evaluate.expt_name=l1_airline_learned dataset.domain=airline \
+evaluate_learned_structured_baseline_airline:
+	uv run expt.py run evaluate.expt_name=structured_baseline_airline_learned dataset.domain=airline \
 	  learn.train_dir=training \
 	  ptools.extract_airline_params.method=learned_code \
 	  ptools.extract_airline_params.learner=rote \
 	  ptools.extract_airline_params.backoff=True \
 	  ptools.compute_rulearena_answer.method=direct \
 	  ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow
+
+# Legacy aliases for learning pipeline
+record_l1_airline: record_structured_baseline_airline
+evaluate_learned_l1_airline: evaluate_learned_structured_baseline_airline
 
 #
 # View results of past experiments
@@ -129,3 +178,21 @@ compare:
 
 costs:
 	uv run python -m secretagent.cli.costs llm_cache
+
+#
+# Pareto sweep (exhaustive or NSGA-II: workflows x models per domain)
+#
+
+N_PARETO ?= 5
+TIMEOUT_PARETO ?= 600
+
+pareto_airline:
+	uv run python run_pareto.py --domain airline --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_nba:
+	uv run python run_pareto.py --domain nba --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_tax:
+	uv run python run_pareto.py --domain tax --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_all: pareto_airline pareto_nba pareto_tax

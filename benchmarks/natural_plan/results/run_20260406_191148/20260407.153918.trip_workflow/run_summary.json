@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/trip.yaml ptools.trip_planning.method=direct ptools.trip_planning.fn=ptools_trip.trip_workflow evaluate.expt_name=trip_workflow dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_191148 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42 evaluate.prompt_trace=true",
+  "accuracy": 0.041666666666666664,
+  "total_cost_usd": 0.158302,
+  "total_time_sec": 932.34,
+  "n_samples": 48
+}

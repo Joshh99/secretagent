@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml evaluate.expt_name=cal_trace_explore ptools.calendar_scheduling.method=simulate evaluate.prompt_trace=true dataset.n=3 dataset.prompt_mode=0shot",
+  "accuracy": 0.3333333333333333,
+  "total_cost_usd": 0.002255,
+  "total_time_sec": 16.51,
+  "n_samples": 3
+}

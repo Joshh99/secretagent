@@ -466,6 +466,53 @@ def _build_nba_query(problem_text: str, rules_text: str, metadata: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# PoT interfaces (program_of_thought, bound at runtime via config)
+# ---------------------------------------------------------------------------
+
+@interface
+def pot_airline(problem_text: str, rules_text: str) -> float:
+    """Given a passenger's itinerary and baggage details, and the airline's
+    fee rules, compute the total cost (ticket price + baggage fees) in dollars.
+    """
+
+
+@interface
+def pot_nba(problem_text: str, rules_text: str) -> float:
+    """Given NBA team situations, player situations, proposed operations, and
+    CBA salary cap rules, determine if any operation violates the rules.
+    Return 1.0 if any violation exists, 0.0 if all operations are compliant.
+    """
+
+
+@interface
+def pot_tax(forms_text: str) -> float:
+    """Given filled IRS forms with some fields marked [__] for computation,
+    calculate all tax fields step by step and return the total tax owed
+    (positive) or overpaid/refund (negative) as a dollar amount.
+    """
+
+
+# ---------------------------------------------------------------------------
+# PoT workflow dispatcher
+# ---------------------------------------------------------------------------
+
+def pot_workflow(
+    problem_text: str, domain: str, rules_text: str,
+    metadata_json: str, forms_text: str
+) -> float:
+    """PoT workflow: LLM generates Python code, interpreter executes it."""
+    if domain == "airline":
+        return pot_airline(problem_text=problem_text, rules_text=rules_text)
+    if domain == "nba":
+        metadata = json.loads(metadata_json)
+        nba_query = _build_nba_query(problem_text, rules_text, metadata)
+        return pot_nba(problem_text=nba_query, rules_text="")
+    if domain == "tax":
+        return pot_tax(forms_text=forms_text)
+    raise ValueError(f"PoT not yet implemented for domain: {domain!r}")
+
+
+# ---------------------------------------------------------------------------
 # Workflow functions
 # ---------------------------------------------------------------------------
 

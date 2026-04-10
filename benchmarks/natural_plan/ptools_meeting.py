@@ -1,50 +1,73 @@
-"""Interfaces for NaturalPlan meeting planning task."""
+"""Task-specific interfaces for NaturalPlan meeting planning.
+
+Decomposition derived from LLM reasoning traces:
+1. parse_meeting_info — extract locations, friends, travel times, availability
+2. plan_visit_order — determine optimal visit order to maximize meetings
+3. build_meeting_plan — simulate schedule step-by-step and format answer
+"""
 
 from secretagent.core import interface
 
 
 @interface
-def extract_constraints(prompt: str) -> str:
-    """Extract all meeting planning constraints from this problem.
+def parse_meeting_info(prompt: str) -> str:
+    """Extract all meeting planning information from the problem.
 
-    Include: your starting location and time, each friend's name,
-    location, availability window (start and end times),
-    required meeting duration, and travel times between all locations.
+    Return a structured summary with these keys:
+    - my_location: starting location name
+    - my_start_time: start time string e.g. "9:00 AM"
+    - friends: list of dicts, each with:
+        name, location, available_from, available_to, duration_minutes
+    - travel_times: dict mapping "LocationA->LocationB" to minutes (int)
+
+    >>> parse_meeting_info("...starting at Alamo Square at 9:00 AM...")
+    '{"my_location": "Alamo Square", "my_start_time": "9:00 AM", "friends": [{"name": "James", "location": "Nob Hill", "available_from": "9:00 AM", "available_to": "5:30 PM", "duration_minutes": 30}], "travel_times": {"Alamo Square->Nob Hill": 11}}'
     """
 
 
 @interface
-def solve_problem(prompt: str, constraints: str) -> str:
-    """Given a meeting planning prompt and the extracted constraints,
-    find the schedule that maximizes the number of valid meetings.
+def plan_visit_order(prompt: str, info: str) -> str:
+    """Determine the optimal order to visit friends to maximize meetings.
 
-    Consider travel times between locations, availability windows,
-    and meeting durations. Try different orderings to find the optimal one.
+    Consider travel times between locations, each friend's availability
+    window, and required meeting durations. Use greedy or exhaustive
+    search to find the ordering that allows the most meetings.
+
+    Return an ordered list of friend names.
+
+    >>> plan_visit_order("...", '{"friends": [...], ...}')
+    '["James", "Nancy", "William", "Margaret", "Laura", "Sandra", "David"]'
     """
 
 
 @interface
-def format_answer(solution: str) -> str:
-    """Format a meeting planning solution into the standard answer format.
+def build_meeting_plan(prompt: str, info: str, order: str) -> str:
+    """Build a step-by-step meeting schedule and format the answer.
 
-    Output must start with SOLUTION: followed by steps in this exact format:
-    You start at {location} at {time}.
-    You travel to {location} in {N} minutes and arrive at {time}.
-    You wait until {time}.
-    You meet {name} for {N} minutes from {start} to {end}.
+    Simulate the schedule: for each friend in order, compute travel time,
+    wait if needed, meet for the required duration. Skip friends who
+    cannot be met within their availability window.
+
+    Output MUST start with 'SOLUTION:' followed by steps like:
+    'You start at {location} at {time}.'
+    'You travel to {location}. It takes {N} minutes. You arrive at {time}.'
+    'You wait until {time}.'
+    'You meet {name} for {N} minutes from {time} to {time}.'
+
+    >>> build_meeting_plan("...", '{"my_location": "Alamo Square", ...}', '["James", "Nancy"]')
+    'SOLUTION: You start at Alamo Square at 9:00 AM. You travel to Nob Hill. It takes 11 minutes. You arrive at 9:11 AM. You meet James for 30 minutes from 9:11 AM to 9:41 AM. ...'
     """
 
 
 @interface
 def meeting_planning(prompt: str) -> str:
     """Solve a meeting planning problem.
-    Maximize the number of friends you can meet.
-    Return a step-by-step schedule starting with SOLUTION:
+    Return a step-by-step schedule starting with 'SOLUTION:'.
     """
     ...
 
 
 def meeting_workflow(prompt: str) -> str:
-    constraints = extract_constraints(prompt)
-    solution = solve_problem(prompt, constraints)
-    return format_answer(solution)
+    info = parse_meeting_info(prompt)
+    order = plan_visit_order(prompt, info)
+    return build_meeting_plan(prompt, info, order)

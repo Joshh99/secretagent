@@ -1,118 +1,142 @@
-"""Run NSGA-II Pareto optimization on rulearena benchmark domains."""
+"""Run Pareto optimization on RuleArena benchmark across methods and models.
+
+Methods are selected via dotlist overrides (outer loop). Each domain has
+domain-specific method overrides (e.g. react tools differ per domain).
+"""
+
+import math
+import time
 
 import typer
 
-from search_spaces import DOMAIN_SPACES
-from secretagent.optimize.encoder import decode, decode_dict, space_size
-from secretagent.optimize.pareto import run_nsga2
+from search_spaces import DOMAIN_METHODS, DOMAIN_SPACES, MODELS
+from secretagent.optimize.pareto import EvalCache
 from secretagent.optimize.viz import plot_pareto_frontier
 
 app = typer.Typer()
 
-# Short labels for human-readable plot annotations and terminal output
-_WORKFLOW_LABELS = {
-    "ptools.l1_extract_workflow": "L1",
-    "ptools.l0f_cot_workflow": "L0F",
-    "ptools.l0_oracle_workflow": "L0",
-    "ptools.l3_react_workflow": "L3",
-}
-
 _MODEL_LABELS = {
     "together_ai/deepseek-ai/DeepSeek-V3": "DSv3",
     "together_ai/deepseek-ai/DeepSeek-V3.1": "DSv3.1",
-    "claude-haiku-4-5-20251001": "Haiku",
-    "together_ai/Qwen/Qwen3.5-9B": "Qwen9B",
-    "together_ai/google/gemma-3n-E4B-it": "Gemma4B",
     "together_ai/openai/gpt-oss-20b": "GPToss20B",
+    "together_ai/openai/gpt-oss-120b": "GPToss120B",
+    "together_ai/Qwen/Qwen3.5-9B": "Qwen9B",
+    "together_ai/google/gemma-3n-E4B-it": "Gemma3n",
+    "claude-haiku-4-5-20251001": "Haiku",
 }
 
 
-def _short_label(dims, chrom):
-    """Build a short human-readable label from a decoded chromosome."""
-    config = decode_dict(dims, chrom)
-    parts = []
-    for key, val in config.items():
-        if "fn" in key or "method" in key:
-            parts.append(_WORKFLOW_LABELS.get(val, val.split(".")[-1]))
-        elif "model" in key:
-            parts.append(_MODEL_LABELS.get(val, val.split("/")[-1]))
-        else:
-            parts.append(str(val))
-    return " + ".join(parts)
+def _model_label(model: str) -> str:
+    return _MODEL_LABELS.get(model, model.split("/")[-1])
+
+
+def _dominates(a: tuple[float, float], b: tuple[float, float]) -> bool:
+    """True if a dominates b (higher accuracy AND lower cost)."""
+    return (a[0] >= b[0] and a[1] <= b[1]) and (a[0] > b[0] or a[1] < b[1])
 
 
 @app.command()
 def main(
     domain: str = typer.Option("airline", help="Domain: airline, nba, tax"),
-    pop_size: int = typer.Option(10, help="Population size"),
-    n_gen: int = typer.Option(5, help="Number of generations"),
     dataset_n: int = typer.Option(5, help="Instances per evaluation"),
-    seed: int = typer.Option(42, help="Random seed"),
     timeout: int = typer.Option(600, help="Timeout per config (seconds)"),
+    metric: str = typer.Option("correct", help="Metric column to optimize"),
     no_plot: bool = typer.Option(False, help="Skip plot generation"),
 ):
-    """Run NSGA-II multi-objective optimization over rulearena configs."""
-    if domain not in DOMAIN_SPACES:
-        raise typer.BadParameter(f"Unknown domain: {domain}. Choose from {list(DOMAIN_SPACES)}")
+    """Run exhaustive search over RuleArena methods x models."""
+    if domain not in DOMAIN_METHODS:
+        raise typer.BadParameter(
+            f"Unknown domain: {domain}. Choose from {list(DOMAIN_METHODS)}"
+        )
 
+    methods = DOMAIN_METHODS[domain]
     dims, fixed = DOMAIN_SPACES[domain]()
+    total = len(methods) * len(MODELS)
 
-    base_command = "uv run python expt.py run"
-    base_dotlist = [
-        f"dataset.n={dataset_n}",
-        f"dataset.domain={domain}",
-    ]
-
-    frontier, all_evaluated = run_nsga2(
-        dims=dims,
-        fixed_overrides=fixed,
-        base_command=base_command,
-        base_dotlist=base_dotlist,
-        cwd=None,
-        timeout=timeout,
-        metric="correct",
-        expt_prefix=f"nsga_{domain}",
-        pop_size=pop_size,
-        n_gen=n_gen,
-        seed=seed,
-        label_fn=_short_label,
-    )
-
-    total = space_size(dims)
+    print(f"RuleArena Pareto search ({domain}): {len(methods)} methods x {len(MODELS)} models = {total} configs")
+    print(f"  Methods: {list(methods)}")
+    print(f"  Models: {[_model_label(m) for m in MODELS]}")
     print()
-    print("=" * 70)
-    print(f"PARETO FRONTIER ({domain}, {total} total configs in space)")
-    print("=" * 70)
-    print(f"  {'Config':<25} {'Accuracy':>10} {'Cost/q':>10}")
-    for chrom, acc, cost in frontier:
-        label = _short_label(dims, chrom)
-        print(f"  {label:<25} {acc:>9.1%} ${cost:>9.4f}")
 
-    print()
-    if len(all_evaluated) > len(frontier):
-        print(f"Dominated configs:")
-        frontier_keys = {tuple(c) for c, _, _ in frontier}
-        for chrom, acc, cost in all_evaluated:
-            if tuple(chrom) not in frontier_keys:
-                label = _short_label(dims, chrom)
-                print(f"  {label:<25} {acc:>9.1%} ${cost:>9.4f}")
+    t0 = time.time()
+    all_results: list[tuple[str, float, float]] = []
+
+    for method_name, method_overrides in methods.items():
+        print(f"=== {method_name} ===")
+        base_command = "uv run python expt.py run"
+        base_dotlist = [
+            f"dataset.n={dataset_n}",
+            f"dataset.domain={domain}",
+        ] + method_overrides
+
+        eval_cache = EvalCache(
+            dims=dims,
+            fixed_overrides=fixed,
+            base_command=base_command,
+            base_dotlist=base_dotlist,
+            timeout=timeout,
+            metric=metric,
+            expt_prefix=f"pareto_{domain}_{method_name}",
+            label_fn=lambda d, c, _mn=method_name: _mn,
+        )
+
+        for model_idx in range(len(MODELS)):
+            acc, cost = eval_cache([model_idx])
+            label = f"{method_name}/{_model_label(MODELS[model_idx])}"
+            all_results.append((label, acc, cost))
         print()
 
-    print(f"{len(frontier)} Pareto-optimal / {len(all_evaluated)} total evaluated")
+    elapsed = time.time() - t0
 
-    if not no_plot:
-        metric_name = "F1" if domain == "nba" else "Accuracy"
-        plot_results = [
-            (_short_label(dims, chrom), acc, cost)
-            for chrom, acc, cost in all_evaluated
-        ]
+    # Filter out failed configs (inf cost) for frontier and plotting
+    valid_results = [(l, a, c) for l, a, c in all_results if c < math.inf]
+    failed = [(l, a, c) for l, a, c in all_results if c >= math.inf]
 
-        output_path = f"results/pareto_{domain}.png"
+    # Compute Pareto frontier
+    frontier = []
+    for i, (label_i, acc_i, cost_i) in enumerate(valid_results):
+        dominated = False
+        for j, (label_j, acc_j, cost_j) in enumerate(valid_results):
+            if i != j and _dominates((acc_j, cost_j), (acc_i, cost_i)):
+                dominated = True
+                break
+        if not dominated:
+            frontier.append((label_i, acc_i, cost_i))
+
+    frontier.sort(key=lambda x: -x[1])
+
+    print("=" * 70)
+    print(f"PARETO FRONTIER ({domain}, {total} total configs)")
+    print("=" * 70)
+    print(f"  {'Config':<30} {metric:>10} {'Cost/q':>10}")
+    for label, acc, cost in frontier:
+        print(f"  {label:<30} {acc:>9.1%} ${cost:>9.4f}")
+
+    print()
+    if len(valid_results) > len(frontier):
+        frontier_set = {(l, a, c) for l, a, c in frontier}
+        print("Dominated configs:")
+        for label, acc, cost in valid_results:
+            if (label, acc, cost) not in frontier_set:
+                print(f"  {label:<30} {acc:>9.1%} ${cost:>9.4f}")
+        print()
+
+    if failed:
+        print(f"Failed configs ({len(failed)}):")
+        for label, acc, cost in failed:
+            print(f"  {label:<30} (subprocess error)")
+        print()
+
+    print(f"{len(frontier)} Pareto-optimal / {len(valid_results)} valid / {len(all_results)} total")
+    print(f"Wall clock: {elapsed:.0f}s ({elapsed/60:.1f}m)")
+    print(f"Check API costs: uv run python -m secretagent.cli.costs llm_cache")
+
+    if not no_plot and valid_results:
         plot_pareto_frontier(
-            results=plot_results,
-            title=f"Pareto Frontier: rulearena {domain}",
-            output_path=output_path,
-            metric_name=metric_name,
+            results=valid_results,
+            title=f"RuleArena {domain}: cost vs {metric}",
+            output_path=f"results/pareto_{domain}.png",
+            metric_name=metric,
             show=False,
         )
 

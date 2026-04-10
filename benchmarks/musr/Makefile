@@ -47,3 +47,21 @@ compare:
 
 costs:
 	uv run python -m secretagent.cli.costs llm_cache
+
+#
+# Pareto sweep (exhaustive: levels x models per domain)
+#
+
+N_PARETO ?= 5
+TIMEOUT_PARETO ?= 600
+
+pareto_murder:
+	uv run python run_pareto.py --domain murder --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_object:
+	uv run python run_pareto.py --domain object --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_team:
+	uv run python run_pareto.py --domain team --dataset-n $(N_PARETO) --timeout $(TIMEOUT_PARETO)
+
+pareto_all: pareto_murder pareto_object pareto_team

@@ -26,13 +26,11 @@ import inspect
 import json
 import random
 import time
-import uuid
-from typing import Any, Callable
 
 from litellm import completion
 
 from secretagent import config, record
-from secretagent.cache_util import cached, clear_all_caches
+from secretagent.cache_util import cached, clear_all_caches  # noqa: F401
 from secretagent.core import Interface, all_interfaces
 from secretagent.dataset import Case
 
@@ -467,7 +465,7 @@ def improve_ptool_within_workflow(
 
     # Step 1: Baseline evaluation (with cachier warm-up)
     if verbose:
-        print(f"\n[improve] === Baseline ===")
+        print("\n[improve] === Baseline ===")
     acc, lat, cost = _evaluate_workflow(workflow_interface, train_cases)
     baseline_entry = tracker.add(acc, lat, cost)
     if verbose:
@@ -480,7 +478,7 @@ def improve_ptool_within_workflow(
 
     # Step 2: Generate initial population of variants
     if verbose:
-        print(f"\n[improve] === Generation 0: Initial Population ===")
+        print("\n[improve] === Generation 0: Initial Population ===")
 
     population = []  # list of (code_str, fitness_entry)
     previous_variants = []
@@ -493,7 +491,7 @@ def improve_ptool_within_workflow(
         code = _extract_code(response)
         if not code:
             if verbose:
-                print(f"[improve]   no code extracted, skipping")
+                print("[improve]   no code extracted, skipping")
             continue
 
         # Lint check
@@ -606,7 +604,7 @@ Return ONLY a ```python``` code block."""
     best_code, best_entry = all_candidates[0]
 
     if verbose:
-        print(f"\n[improve] === Result ===")
+        print("\n[improve] === Result ===")
         mode_str = 'pareto' if pareto else 'linear'
         print(f"[improve] selection mode: {mode_str}")
         print(f"[improve] best fitness: {tracker.get_fitness(best_entry):.3f}")
@@ -618,7 +616,7 @@ Return ONLY a ```python``` code block."""
             for i, e in enumerate(sorted(frontier, key=lambda x: -x['accuracy'])):
                 print(f"[improve]   #{i}: accuracy={e['accuracy']:.2f} cost={e['cost']:.4f}")
         if best_code is None:
-            print(f"[improve] baseline was best — no improvement found")
+            print("[improve] baseline was best — no improvement found")
         else:
             print(f"[improve] improved implementation found ({len(best_code)} chars)")
 

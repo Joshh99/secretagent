@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/meeting.yaml ptools.meeting_planning.method=simulate dataset.prompt_mode=0shot evaluate.expt_name=meet_zs_struct dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_191148 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42 evaluate.prompt_trace=true",
+  "accuracy": 0.0,
+  "total_cost_usd": 0.057398,
+  "total_time_sec": 281.87,
+  "n_samples": 50
+}

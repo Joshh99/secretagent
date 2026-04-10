@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/meeting.yaml ptools.meeting_planning.method=prompt_llm ptools.meeting_planning.prompt_template_file=prompt_templates/zeroshot.txt dataset.prompt_mode=0shot evaluate.expt_name=meet_zs_unstruct dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_191148 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42 evaluate.prompt_trace=true",
+  "accuracy": 0.0,
+  "total_cost_usd": 0.139044,
+  "total_time_sec": 1145.33,
+  "n_samples": 50
+}

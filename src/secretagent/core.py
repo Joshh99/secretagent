@@ -212,6 +212,7 @@ class Implementation(BaseModel):
                 return self.bound_interface.name
             return self.__class__.__name__
 
+
         def setup(self, **builder_kwargs):
             """Configure per-interface state on self."""
             pass
@@ -231,6 +232,8 @@ class Implementation(BaseModel):
             factory = self.model_copy()
             factory.bound_interface = interface
             factory.model = builder_kwargs.pop('model', None)
+            # pydantic-ai requires __qualname__ on tool callables
+            factory.__qualname__ = interface.name
             factory.setup(**builder_kwargs)
 
             return Implementation(

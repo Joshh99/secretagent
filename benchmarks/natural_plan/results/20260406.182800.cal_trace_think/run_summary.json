@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml evaluate.expt_name=cal_trace_think ptools.calendar_scheduling.method=simulate llm.thinking=true echo.llm_output=true dataset.n=1 dataset.prompt_mode=0shot",
+  "accuracy": 0.0,
+  "total_cost_usd": 0.001405,
+  "total_time_sec": 7.88,
+  "n_samples": 1
+}

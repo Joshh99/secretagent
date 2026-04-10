@@ -30,10 +30,10 @@ RUNS = [
      "ptools.calendar_scheduling.method=direct", "ptools.calendar_scheduling.fn=ptools_calendar.calendar_workflow"),
     ("cal", "pot", "conf/calendar.yaml", "cal_pot",
      "ptools.calendar_scheduling.method=program_of_thought",
-     "ptools.calendar_scheduling.tools=[ptools_calendar.extract_constraints,ptools_calendar.solve_problem,ptools_calendar.format_answer]"),
+     "ptools.calendar_scheduling.tools=[ptools_calendar.parse_schedules,ptools_calendar.find_available_slots,ptools_calendar.select_and_format]"),
     ("cal", "react", "conf/calendar.yaml", "cal_react",
      "ptools.calendar_scheduling.method=simulate_pydantic",
-     "ptools.calendar_scheduling.tools=[ptools_calendar.extract_constraints,ptools_calendar.solve_problem,ptools_calendar.format_answer]"),
+     "ptools.calendar_scheduling.tools=[ptools_calendar.parse_schedules,ptools_calendar.find_available_slots,ptools_calendar.select_and_format]"),
     # Meeting (level 1=unstruct, level 2=struct)
     ("meet", "zeroshot_unstructured", "conf/meeting.yaml", "meet_zs_unstruct",
      "ptools.meeting_planning.method=prompt_llm", "ptools.meeting_planning.prompt_template_file=prompt_templates/zeroshot.txt",
@@ -44,10 +44,10 @@ RUNS = [
      "ptools.meeting_planning.method=direct", "ptools.meeting_planning.fn=ptools_meeting.meeting_workflow"),
     ("meet", "pot", "conf/meeting.yaml", "meet_pot",
      "ptools.meeting_planning.method=program_of_thought",
-     "ptools.meeting_planning.tools=[ptools_meeting.extract_constraints,ptools_meeting.solve_problem,ptools_meeting.format_answer]"),
+     "ptools.meeting_planning.tools=[ptools_meeting.parse_meeting_info,ptools_meeting.plan_visit_order,ptools_meeting.build_meeting_plan]"),
     ("meet", "react", "conf/meeting.yaml", "meet_react",
      "ptools.meeting_planning.method=simulate_pydantic",
-     "ptools.meeting_planning.tools=[ptools_meeting.extract_constraints,ptools_meeting.solve_problem,ptools_meeting.format_answer]"),
+     "ptools.meeting_planning.tools=[ptools_meeting.parse_meeting_info,ptools_meeting.plan_visit_order,ptools_meeting.build_meeting_plan]"),
     # Trip (level 1=unstruct, level 2=struct)
     ("trip", "zeroshot_unstructured", "conf/trip.yaml", "trip_zs_unstruct",
      "ptools.trip_planning.method=prompt_llm", "ptools.trip_planning.prompt_template_file=prompt_templates/zeroshot.txt",
@@ -58,10 +58,10 @@ RUNS = [
      "ptools.trip_planning.method=direct", "ptools.trip_planning.fn=ptools_trip.trip_workflow"),
     ("trip", "pot", "conf/trip.yaml", "trip_pot",
      "ptools.trip_planning.method=program_of_thought",
-     "ptools.trip_planning.tools=[ptools_trip.extract_constraints,ptools_trip.solve_problem,ptools_trip.format_answer]"),
+     "ptools.trip_planning.tools=[ptools_trip.parse_trip_constraints,ptools_trip.find_valid_route,ptools_trip.build_trip_plan]"),
     ("trip", "react", "conf/trip.yaml", "trip_react",
      "ptools.trip_planning.method=simulate_pydantic",
-     "ptools.trip_planning.tools=[ptools_trip.extract_constraints,ptools_trip.solve_problem,ptools_trip.format_answer]"),
+     "ptools.trip_planning.tools=[ptools_trip.parse_trip_constraints,ptools_trip.find_valid_route,ptools_trip.build_trip_plan]"),
 ]
 
 

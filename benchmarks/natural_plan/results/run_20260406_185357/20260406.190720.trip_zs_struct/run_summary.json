@@ -1,0 +1,7 @@
+{
+  "reproduce_cmd": "uv run python expt.py run --config-file conf/trip.yaml ptools.trip_planning.method=simulate dataset.prompt_mode=0shot evaluate.expt_name=trip_zs_struct dataset.n=5 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_185357 evaluate.prompt_trace=true",
+  "accuracy": 0.0,
+  "total_cost_usd": 0.002444,
+  "total_time_sec": 14.53,
+  "n_samples": 5
+}

@@ -25,18 +25,21 @@ TASK_CONFIG = {
         "ptools_module": "ptools_calendar",
         "interface": "calendar_scheduling",
         "workflow_fn": "ptools_calendar.calendar_workflow",
+        "tools": ["parse_schedules", "find_available_slots", "select_and_format"],
     },
     "meeting": {
         "config_file": "conf/meeting.yaml",
         "ptools_module": "ptools_meeting",
         "interface": "meeting_planning",
         "workflow_fn": "ptools_meeting.meeting_workflow",
+        "tools": ["parse_meeting_info", "plan_visit_order", "build_meeting_plan"],
     },
     "trip": {
         "config_file": "conf/trip.yaml",
         "ptools_module": "ptools_trip",
         "interface": "trip_planning",
         "workflow_fn": "ptools_trip.trip_workflow",
+        "tools": ["parse_trip_constraints", "find_valid_route", "build_trip_plan"],
     },
 }
 
@@ -124,22 +127,22 @@ def _workflow_dotlist(task):
 def _pot_dotlist(task):
     tc = TASK_CONFIG[task]
     mod = tc["ptools_module"]
-    tools = f"[{mod}.extract_constraints,{mod}.solve_problem,{mod}.format_answer]"
+    tools = ",".join(f"{mod}.{t}" for t in tc["tools"])
     return [
         f"evaluate.expt_name=test_{task}_pot",
         f"ptools.{tc['interface']}.method=program_of_thought",
-        f"ptools.{tc['interface']}.tools={tools}",
+        f"ptools.{tc['interface']}.tools=[{tools}]",
     ]
 
 
 def _react_dotlist(task):
     tc = TASK_CONFIG[task]
     mod = tc["ptools_module"]
-    tools = f"[{mod}.extract_constraints,{mod}.solve_problem,{mod}.format_answer]"
+    tools = ",".join(f"{mod}.{t}" for t in tc["tools"])
     return [
         f"evaluate.expt_name=test_{task}_react",
         f"ptools.{tc['interface']}.method=simulate_pydantic",
-        f"ptools.{tc['interface']}.tools={tools}",
+        f"ptools.{tc['interface']}.tools=[{tools}]",
     ]
 
 

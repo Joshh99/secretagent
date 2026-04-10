@@ -211,8 +211,22 @@ def load_dataset(
     stratified: bool = False,
     sample_n: int | None = None,
     sample_seed: int = 42,
+    partition: str | None = None,
 ) -> Dataset:
-    """Load NaturalPlan data. Use stratified=True + sample_n=50 for AgentProject-compatible 50 cal, 50 meet, 48 trip."""
+    """Load NaturalPlan data.
+
+    If partition is set (train/valid/test), load from pre-split file
+    (e.g. data/calendar_valid.json) created by data/partition.py.
+    Otherwise load from the monolithic JSON with optional stratified sampling.
+    """
+    if partition:
+        split_path = _DATA_DIR / f'{task}_{partition}.json'
+        if not split_path.exists():
+            raise FileNotFoundError(
+                f'Split file not found: {split_path}\n'
+                f'Run: uv run python data/partition.py')
+        return Dataset.model_validate_json(split_path.read_text())
+
     data_path = _DATA_DIR / DATA_FILES[task]
     if not data_path.exists():
         raise FileNotFoundError(
@@ -261,6 +275,7 @@ def run(
     implement_via_config(ptools, config.require('ptools'))
 
     prompt_mode = config.get('dataset.prompt_mode') or '5shot'
+    partition = config.get('dataset.partition')
     stratified = config.get('dataset.stratified') or False
     sample_n = config.get('dataset.sample_n')
     sample_seed = config.get('dataset.sample_seed') or 42
@@ -270,6 +285,7 @@ def run(
         stratified=stratified,
         sample_n=sample_n,
         sample_seed=sample_seed,
+        partition=partition,
     ).configure(
         shuffle_seed=config.get('dataset.shuffle_seed') if not stratified else None,
         n=config.get('dataset.n'),

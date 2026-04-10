@@ -1,4 +1,3 @@
-# Use Together AI (set TOGETHERAI_API_KEY or TOGETHER_API_KEY)
 llm:
   model: together_ai/deepseek-ai/DeepSeek-V3.1
 
@@ -16,20 +15,16 @@ dataset:
   shuffle_seed: 42
   prompt_mode: 0shot
   n: 4
-  # Stratified sampling (same as AgentProject): 50 cal, 50 meet, 48 trip
   stratified: false
   sample_n: 50
   sample_seed: 42
 
 ptools:
-  extract_constraints:
+  parse_schedules:
     method: simulate
-    example_file: examples/calendar.json
-  solve_problem:
+  find_available_slots:
     method: simulate
-    example_file: examples/calendar.json
-  format_answer:
+  select_and_format:
     method: simulate
-    example_file: examples/calendar.json
   calendar_scheduling:
     method: DEFAULT
