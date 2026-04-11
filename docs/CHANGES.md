@@ -1,3 +1,23 @@
+# Changes - April 11
+
+Added hypervolume computation for a set of experimental results in
+`results.py`. (See https://arxiv.org/abs/2005.00515)
+
+ * Note: the hypervolume computation requires a 'reference point',
+ which for cost-/correctness metrics is an upper bound on cost and a
+ lower bound on correctness. These are computed dynamically from the
+ results, so hypervolumes are NOT comparable across different set of
+ results.  The awkward workaround is
+ * 
+
+Added some comments in CLAUDE.md on architectural goals, briefly:
+
+ * "strategy" means "all interface -> implementation bindings"
+ * strategies should be serializable in yaml
+ * experimental results should be attached to strategy configs and dates
+ * "learning" means "adding a new implementation"
+ * inputs/outputs of learning should be trackable
+
 # Changes - April 3
 
  * **Global results Makefile** — `benchmarks/Makefile` operates on

@@ -118,7 +118,7 @@ def average(
 ):
     """Report mean +/- stderr of a metric and latency, grouped by experiment."""
     if metric is None:
-        metric = ['cost']
+        metric = ['cost-', 'correct']
     names, directions = parse_metrics(metric)
     dirs = _get_dirs(ctx, latest=latest, check=check)
     dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
@@ -247,6 +247,156 @@ def find_pareto_optimal(
     return [x for x in expts if x not in dominated]
 
 
+def compute_hypervolume(
+    points: list[list[float]],
+    ref: list[float],
+) -> float:
+    """Compute hypervolume indicator for a set of points and a reference point.
+
+    All values are assumed to be in "maximize" orientation: higher is better.
+    The reference point should be worse than all points in every dimension.
+
+    For 2D, uses an O(n log n) sweep. For higher dimensions, uses
+    inclusion-exclusion (practical for small point sets).
+    """
+    # Filter to points that dominate the reference
+    pts = [p for p in points if all(p[i] > ref[i] for i in range(len(ref)))]
+    if not pts:
+        return 0.0
+    d = len(ref)
+    if d == 1:
+        return max(p[0] for p in pts) - ref[0]
+    if d == 2:
+        # Sort by first coordinate descending
+        pts.sort(key=lambda p: -p[0])
+        vol = 0.0
+        y_max = ref[1]
+        for p in pts:
+            if p[1] > y_max:
+                vol += (p[0] - ref[0]) * (p[1] - y_max)
+                y_max = p[1]
+        return vol
+    # General case: inclusion-exclusion over dominated boxes
+    # For each subset S of points, the intersection of their dominated boxes
+    # contributes (-1)^(|S|+1) * volume(intersection box bounded by ref).
+    from itertools import combinations
+    n = len(pts)
+    total = 0.0
+    for size in range(1, n + 1):
+        sign = (-1) ** (size + 1)
+        for combo in combinations(pts, size):
+            # Intersection box: max of coords per dimension (since we maximize)
+            corner = [max(c[i] for c in combo) for i in range(d)]
+            vol = 1.0
+            for i in range(d):
+                extent = corner[i] - ref[i]
+                if extent <= 0:
+                    vol = 0.0
+                    break
+                vol *= extent
+            total += sign * vol
+    return total
+
+
+def _build_points(
+    dfs: list[pd.DataFrame],
+    names: list[str],
+    directions: dict[str, bool],
+) -> list[list[float]]:
+    """Build points in maximize orientation from experiment DataFrames."""
+    points = []
+    for df in dfs:
+        pt = []
+        for m in names:
+            val = df[m].mean()
+            if not directions.get(m, True):
+                val = -val
+            pt.append(val)
+        points.append(pt)
+    return points
+
+
+def _worst_ref(points: list[list[float]]) -> list[float]:
+    """Compute worst (minimum) per dimension across points."""
+    return [min(p[i] for p in points) for i in range(len(points[0]))]
+
+
+@app.command(context_settings=_EXTRA_ARGS)
+def refpoint(
+    ctx: typer.Context,
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+    metric: Optional[list[str]] = typer.Option(None, help='Metrics to compute reference for'),
+):
+    """Print the reference point that the hypervolume command would use for these results.
+
+    For each metric, prints the worst observed mean value (in maximize
+    orientation: minimized metrics are negated). Output is in comma-separated
+    format suitable for passing to hypervolume --ref.
+
+    """
+    if not metric:
+        metric = ['cost-', 'correct']
+    names, directions = parse_metrics(metric)
+    dirs = _get_dirs(ctx, latest=latest, check=check)
+    dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
+    if not dfs:
+        print('No experiments found.')
+        return
+    points = _build_points(dfs, names, directions)
+    ref = _worst_ref(points)
+    print(",".join(f"{v:.6f}" for v in ref))
+
+
+@app.command(context_settings=_EXTRA_ARGS)
+def hypervolume(
+    ctx: typer.Context,
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+    metric: Optional[list[str]] = typer.Option(None, help='Metrics for hypervolume'),
+    ref: Optional[str] = typer.Option(None, help='Reference point as comma-separated values (in maximize orientation)'),
+    verbose: int = typer.Option(0, help='Print debug information'),
+):
+    """Compute the hypervolume indicator over experiment mean metrics.
+
+    Each experiment becomes a point (mean of each metric). Minimized metrics
+    (with '-' suffix) are negated so that higher is always better.
+
+    Use --ref to set a fixed reference point (comma-separated). If
+    omitted, uses the worst observed value per metric, which means
+    that hypervolumes over different sets of results are not
+    comparable.
+    """
+    if not metric:
+        metric = ['cost-', 'correct']
+    names, directions = parse_metrics(metric)
+    dirs = _get_dirs(ctx, latest=latest, check=check)
+    dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
+
+    if not dfs:
+        print('No experiments to compute hypervolume.')
+        return
+
+    points = _build_points(dfs, names, directions)
+
+    if ref is not None:
+        ref_point = [float(v) for v in ref.split(',')]
+        if len(ref_point) != len(names):
+            raise ValueError(f'--ref needs {len(names)} values, got {len(ref_point)}')
+    else:
+        ref_point = _worst_ref(points)
+
+    hv = compute_hypervolume(points, ref_point)
+    print(f'Hypervolume: {hv:.6f}')
+    print(f'Metrics: {", ".join(metric)}')
+    print(f'Reference point: {ref_point}')
+    if (verbose):
+        print(f'Points ({len(points)}):')
+        for d, pt in zip(dirs, points):
+            label = savefile.file_under_part(d)
+            print(f'  {label}: {pt}')
+
+
 @app.command(context_settings=_EXTRA_ARGS)
 def pair(
     ctx: typer.Context,
@@ -256,7 +406,7 @@ def pair(
 ):
     """Run paired t-tests across experiments."""
     if not metric:
-        raise ValueError('At least one --metric is required for paired comparison')
+        metric = ['cost-', 'correct']
     names, _directions = parse_metrics(metric)
     dirs = _get_dirs(ctx, latest=latest, check=check)
     dfs = [pd.read_csv(d / 'results.csv') for d in dirs]
@@ -284,7 +434,9 @@ def plot(
     import matplotlib.pyplot as plt
     from matplotlib.patches import Rectangle
 
-    if not metric or len(metric) != 2:
+    if not metric:
+        metric = ['cost-', 'correct']
+    if len(metric) != 2:
         raise ValueError('Exactly two --metric options are required for plot')
     names, directions = parse_metrics(metric)
     mx, my = names

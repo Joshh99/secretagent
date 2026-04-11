@@ -11,6 +11,76 @@ with only a type signature and docstring, and decorate them with
 via `implement_via()` and a registry of `Implementation.Factory` classes
 (each Factory subclass overrides `setup()` and `__call__()`).
 
+## Architectural Principles and Terminology
+
+In a complex ML system with many configuration decisions, it's easy to
+end up with results that cannot be replicated. Agentic systems are
+good examples of this: experimentation is incremental and interactive
+and it's easy to get somewhere and not know how you got there.  To
+avoid this, secretagent adopts some infrastructure principles that
+enable one to **tracks experimentation**, so that one can trace what
+was done retrospectively.  This is *not* intended as a substitute for
+being systematic and careful when you experiment.
+
+### Strategies are serializable
+
+The behavior of the agentic system is determined by *how the current
+set of interfaces are bound to implementations*, which we call the
+**implementation strategy**, or just **strategy** for short.
+
+**Every strategy should be serializable** compactly.  Currently, every
+implementation is created by a factory, and the arguments for creating
+it can be stored in a YAML file.
+
+### Experiments are trackable and reproducible
+
+When running "real" experiments (anything you want to share) **every
+experimental result should be tagged with the complete strategy** used
+to generate it and the **date** it was created.  "Real" experiments
+should be run on a clean copy of the repo's main branch so the date
+determines the result of the code.  
+
+The `savefile.py` package is preferred for saving and tracking
+experimental results, since it handles this automatically and
+consistently.  The `cli.expt.py` and `cli.results.py` tools should
+make this easy.
+
+### Learning creates new implementations
+
+Experimentalists can generate new implementations (by prompt tuning,
+adding new tools, etc). Learning components in secretagent do the
+same.
+
+Learning methods should be in `learn/` and subclass `learn.Learner`.
+Learners optionally consume training data, possibly distilled with
+another strategy, and outputs **the config information needed to
+produce an implementation** of whatever was learned, using an
+appropriate registered Factory.  
+
+To make experiments with learned implementations trackable, **learning
+should just as trackable** as experimental results are.  The
+`learn.Learner` subclass uses `savefile` to store **learned
+implementation configs** - that is the main output of any learner.
+
+Learners should also use the `savefile` directory to store relevant
+debugging/devel information, like data used in learning, the source of
+that data, **the config used in learning**, and so on.  Different
+learners will populate different parts of a single `savefile`
+directory, and that directory **should encode the complete trajectory
+of the learning processes** so it can be reproduced.
+
+### Optimization searches a space of stategies
+
+Optimization methods are used to evaluate existing strategies and
+recommend good ones.  So that optimization decisions can be tracked,
+the **space searched by an optimizer should be serializable**, and the
+**evaluation results produced by an optimizer should be saved for
+tracking.**
+
+Optimization and learning perform different and complementary tasks:
+learning introduces new potential strategies, optimization evaluates
+them.  Optimization and learning could be interleaved.
+
 ## Running code: use uv for running code and installing packages
 
  * Use 'uv run' to run a script.
