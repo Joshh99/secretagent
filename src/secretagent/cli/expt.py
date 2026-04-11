@@ -63,15 +63,17 @@ def run_experiment(
         dotlist: list[str] | None = None,
         evaluator: Evaluator | None = None
 ) -> pd.DataFrame:
-    dataset = setup_and_load_dataset(dotlist or [])
-    evaluator = evaluator or ExactMatchEvaluator()
-    csv_path = evaluator.evaluate(dataset, top_level_interface)
-    # print a summary
-    df = pd.read_csv(csv_path)
-    print(df)
-    print()
-    print(df.select_dtypes(include='number').mean())
-    return df
+    # prevent permanent changes to the config
+    with config.configuration():
+        dataset = setup_and_load_dataset(dotlist or [])
+        evaluator = evaluator or ExactMatchEvaluator()
+        csv_path = evaluator.evaluate(dataset, top_level_interface)
+        # print a summary
+        df = pd.read_csv(csv_path)
+        print(df)
+        print()
+        print(df.select_dtypes(include='number').mean())
+        return df
 
 #
 # machinery to support using this file as a CLI
