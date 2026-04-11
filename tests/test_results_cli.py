@@ -9,6 +9,7 @@ from typer.testing import CliRunner
 from secretagent import config
 from secretagent.cli.results import (
     app, parse_metric, parse_metrics, paired_result_df, find_pareto_optimal,
+    compute_hypervolume,
 )
 
 
@@ -400,3 +401,105 @@ def test_export_as_path(tmp_path, monkeypatch):
     assert result.exit_code == 0
     export_dest = tmp_path / 'benchmarks' / 'results' / 'custom' / 'path'
     assert (export_dest / '20260101.120000.alpha' / 'results.csv').exists()
+
+
+# --- compute_hypervolume unit tests ---
+
+def test_hypervolume_2d_single_point():
+    """Single point above reference."""
+    hv = compute_hypervolume([[3.0, 4.0]], [1.0, 2.0])
+    assert hv == pytest.approx(4.0)  # (3-1) * (4-2)
+
+
+def test_hypervolume_2d_two_points():
+    """Two non-dominated points forming an L-shape."""
+    # Points: (4, 2) and (2, 4), ref: (0, 0)
+    # Area = 4*4 + 2*2 - 2*2 = 16+4-4 = ... let's compute manually
+    # Sort by x desc: (4,2), (2,4)
+    # sweep: x=4,y=2: vol += (4-0)*(2-0) = 8, y_max=2
+    #        x=2,y=4: vol += (2-0)*(4-2) = 4, y_max=4
+    # total = 12
+    hv = compute_hypervolume([[4.0, 2.0], [2.0, 4.0]], [0.0, 0.0])
+    assert hv == pytest.approx(12.0)
+
+
+def test_hypervolume_dominated_point_no_effect():
+    """Adding a dominated point doesn't change hypervolume."""
+    points_without = [[4.0, 4.0]]
+    points_with = [[4.0, 4.0], [2.0, 2.0]]
+    ref = [0.0, 0.0]
+    assert compute_hypervolume(points_without, ref) == compute_hypervolume(points_with, ref)
+
+
+def test_hypervolume_point_at_ref():
+    """A point equal to the reference contributes nothing."""
+    hv = compute_hypervolume([[1.0, 1.0]], [1.0, 1.0])
+    assert hv == pytest.approx(0.0)
+
+
+def test_hypervolume_1d():
+    hv = compute_hypervolume([[5.0], [3.0]], [1.0])
+    assert hv == pytest.approx(4.0)  # max(5,3) - 1
+
+
+def test_hypervolume_3d():
+    """Basic 3D hypervolume with a single point."""
+    hv = compute_hypervolume([[3.0, 4.0, 5.0]], [1.0, 2.0, 3.0])
+    assert hv == pytest.approx(2.0 * 2.0 * 2.0)  # 8.0
+
+
+# --- hypervolume CLI tests ---
+
+def test_hypervolume_cli_runs(two_expts):
+    result = runner.invoke(app, ['hypervolume', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'cost-']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code == 0
+    assert 'Hypervolume:' in result.output
+
+
+def test_hypervolume_cli_with_ref(two_expts):
+    result = runner.invoke(app, ['hypervolume', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'cost-',
+                                  '--ref', '0.0,0.0']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code == 0
+    assert 'Hypervolume:' in result.output
+
+
+def test_hypervolume_cli_bad_ref(two_expts):
+    result = runner.invoke(app, ['hypervolume', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'cost-',
+                                  '--ref', '0.0']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code != 0
+
+
+def test_hypervolume_cli_defaults(two_expts):
+    """Default metrics are cost- and correct."""
+    result = runner.invoke(app, ['hypervolume', '--latest', '0']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code == 0
+    assert 'cost-' in result.output
+    assert 'correct' in result.output
+
+
+# --- refpoint CLI tests ---
+
+def test_refpoint_cli_runs(two_expts):
+    result = runner.invoke(app, ['refpoint', '--latest', '0',
+                                  '--metric', 'correct', '--metric', 'cost-']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code == 0
+    # Output should be comma-separated floats
+    line = result.output.strip().split('\n')[0]
+    parts = line.split(',')
+    assert len(parts) == 2
+    for p in parts:
+        float(p)  # should not raise
+
+
+def test_refpoint_cli_defaults(two_expts):
+    result = runner.invoke(app, ['refpoint', '--latest', '0']
+                           + _dirs_as_args(two_expts))
+    assert result.exit_code == 0
