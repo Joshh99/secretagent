@@ -3,7 +3,7 @@ from typing import Optional
 
 import typer
 
-from secretagent.learn.baselines import RoteLearner
+from secretagent.learn.baselines import EditedPToolLearner, RoteLearner
 from secretagent.learn.examples import extract_examples
 from secretagent.learn.traces import extract_ptp_traces
 
@@ -24,6 +24,28 @@ def rote(
 ):
     """Learn a rote (lookup-based) implementation from recorded calls."""
     learner = RoteLearner(interface_name=interface, train_dir=learned_dir)
+    learner.learn([Path(a) for a in ctx.args], latest=latest, check=check)
+
+
+@app.command(context_settings=_EXTRA_ARGS)
+def edit_ptools(
+    ctx: typer.Context,
+    interface: str = typer.Option(..., help="Top-level interface name"),
+    ptool: list[str] = typer.Option(..., help="Dotted ptool names to edit (repeatable)"),
+    pattern: str = typer.Option(..., help="Pattern string to replace in ptool source"),
+    replacement: str = typer.Option(..., help="Replacement string"),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
+    learned_dir: str = typer.Option('/tmp/edit_ptools_train', help='Directory to store collected data'),
+):
+    """Learn an implementation by editing ptool source code."""
+    learner = EditedPToolLearner(
+        interface_name=interface,
+        train_dir=learned_dir,
+        ptool_list=ptool,
+        pattern=pattern,
+        replacement=replacement,
+    )
     learner.learn([Path(a) for a in ctx.args], latest=latest, check=check)
 
 

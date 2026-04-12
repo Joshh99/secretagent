@@ -6,11 +6,17 @@ import pprint
 import textwrap
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Optional
 
 import yaml
 
 from secretagent.learn.base import Learner
+from secretagent.implement.core import resolve_dotted, Interface
 
+
+#
+# RoteLearner - sample code
+#
 
 def _make_hashable(obj):
     """Convert a JSON-decoded object to a hashable form."""
@@ -89,4 +95,60 @@ class RoteLearner(Learner):
         return textwrap.dedent(f"""\
            inputs:             {len(self.counts)}
            estimated coverage: {total_non_singleton/total:.2f}""")
+
+#
+# PTool learner - a simple example of a Learner that modifies ptools
+#
+
+class EditedPToolLearner(Learner):
+    """Toy Ptool learner that makes a simple edit to all ptools.
+    """
+
+    def __init__(
+            self, interface_name: str, train_dir: str, 
+            ptool_list: list[str],
+            pattern: str,
+            replacement: str,
+    ):
+        self.tag = 'ptool_editer'
+        super().__init__(
+            interface_name=interface_name,
+            train_dir=train_dir,
+            file_under=f'{interface_name}__{self.tag}')
+        self.produce_files(['learned_ptools.py'])
+        self.pattern = pattern
+        self.replacement = replacement
+        self.ptool_list = ptool_list
+
+    def fit(self) -> Learner:
+        return self
+        
+    def learn(self, dirs: list[Path], latest: int = 1, check: Optional[list[str]] = None):
+        # override since we don't need distillation data
+        self.fit()
+        output_file = self.save_implementation()
+        print(self.report())
+        print(f'saved output to {output_file}')
+
+    def save_implementation(self) -> Path:
+        learned_outpath = Path(self.created_files['learned_ptools.py'])
+        parts = []
+        for tool in self.ptool_list:
+            interface = resolve_dotted(tool)
+            if not isinstance(interface, Interface):
+                raise ValueError(f'{tool} is not an interface')
+            parts.append("@interface()\n")
+            parts.append(interface.src.replace(self.pattern, self.replacement))
+            parts.append("\n")
+        learned_outpath.write_text("".join(parts))
+        impl_outpath = Path(self.created_files['implementation.yaml'])
+        impl = {self.interface_name: {
+            'method': 'react_with_learned_ptools',
+            'learner': self.tag}
+        }
+        impl_outpath.write_text(yaml.dump(impl))
+        return impl_outpath
+
+    def report(self) -> str:
+        return f'Replaced "{self.pattern}" with "{self.replacement}" in: {self.ptool_list}'
 
