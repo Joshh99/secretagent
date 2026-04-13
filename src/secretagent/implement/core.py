@@ -17,9 +17,11 @@ from pydantic import Field
 
 from secretagent import config, llm_util, record
 from secretagent.core import Interface, Implementation, register_factory, all_interfaces
-from secretagent.implement.util import resolve_dotted, resolve_tools
+from secretagent.implement.util import (
+    resolve_dotted, resolve_tools, load_tool_module,
+    load_template, format_examples_as_doctests,
+)
 
-PROMPT_TEMPLATE_DIR = pathlib.Path(__file__).parent / 'prompt_templates'
 
 class DirectFactory(Implementation.Factory):
     """Use a Python function as the implementation.
@@ -97,7 +99,7 @@ class SimulateFactory(Implementation.Factory):
     def create_prompt(self, interface, *args, examples=None, **kw):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
-        template = _load_template('simulate.txt')
+        template = load_template('simulate.txt')
         input_args = interface.format_args(*args, **kw)
         if (not input_args.strip()):
             raise ValueError(f'input_args null for {args=} {kw=}')
@@ -107,7 +109,7 @@ class SimulateFactory(Implementation.Factory):
             thoughts = ""
         examples_text = ""
         if examples:
-            examples_text = _format_examples_as_doctests(interface.name, examples)
+            examples_text = format_examples_as_doctests(interface.name, examples)
         prompt = template.substitute(
             dict(stub_src=interface.src,
                  input_args=input_args,
@@ -235,7 +237,35 @@ def _extract_answer(return_type, text, answer_pattern):
         return return_type(final_answer)
     return ast.literal_eval(final_answer)
 
-class PoTFactory(Implementation.Factory):
+class ToolUsingFactory(Implementation.Factory):
+    """Abstract base for factories that use resolved tool lists.
+
+    Subclasses call setup_tools() in their setup() method to get a
+    resolved list of tool callables, with support for tool_module
+    scoping and learned tool loading.
+    """
+    tools: list = Field(default_factory=list)
+
+    def setup_tools(self, tools=None, tool_module=None, learner=None):
+        """Resolve tools and return the list of callables.
+
+        Args:
+            tools: tool specification (None, '__all__', or a list)
+            tool_module: None, a module name string, or '__learned__'
+            learner: learner tag, required when tool_module='__learned__'
+
+        Returns:
+            list of resolved tool callables
+        """
+        mod = load_tool_module(
+            tool_module,
+            interface_name=self.bound_interface.name,
+            learner=learner)
+        resolved = resolve_tools(self.bound_interface, tools, tool_module=mod)
+        return resolved
+
+
+class PoTFactory(ToolUsingFactory):
     """Generate Python code with an LLM and execute it in a sandbox.
 
     Examples:
@@ -251,12 +281,13 @@ class PoTFactory(Implementation.Factory):
     inject_args: bool = False
     prompt_kw: dict = Field(default_factory=dict)
 
-    def setup(self, tools='__all__', additional_imports=None, inject_args=False, **prompt_kw):
+    def setup(self, tools='__all__', additional_imports=None, inject_args=False,
+              tool_module=None, learner=None, **prompt_kw):
         interface = self.bound_interface
         self.prompt_kw = prompt_kw
         self.additional_imports = additional_imports
         self.inject_args = inject_args
-        resolved_tools = resolve_tools(interface, tools)
+        resolved_tools = self.setup_tools(tools, tool_module=tool_module, learner=learner)
         tool_functions = {fn.__name__: fn for fn in resolved_tools}
         self.python_executor = LocalPythonExecutor(
             additional_authorized_imports=(additional_imports or []),
@@ -356,7 +387,7 @@ class PoTFactory(Implementation.Factory):
             thoughts=thoughts
         )
 
-        template = _load_template('program_of_thought.txt')
+        template = load_template('program_of_thought.txt')
         prompt = template.substitute(**template_bindings)
         if inject_args:
             prompt = prompt.replace(
@@ -367,24 +398,6 @@ class PoTFactory(Implementation.Factory):
         return prompt
 
 
-#
-# helpers
-# 
-
-def _load_template(name: str) -> Template:
-    """Load a prompt template from the prompt_templates directory."""
-    return Template((PROMPT_TEMPLATE_DIR / name).read_text())
-
-def _format_examples_as_doctests(interface_name: str, cases: list) -> str:
-    """Format example cases as doctest-style examples for the prompt."""
-    lines = ["Here are some examples:", ""]
-    for case in cases:
-        args = case.get('input_args', []) if isinstance(case, dict) else (case.input_args or [])
-        out = case.get('expected_output') if isinstance(case, dict) else case.expected_output
-        args_str = ', '.join(repr(a) for a in args)
-        lines.append(f">>> {interface_name}({args_str})")
-        lines.append(repr(out))
-    return '\n'.join(lines) + '\n'
 
 
 
