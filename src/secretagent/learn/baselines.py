@@ -11,7 +11,8 @@ from typing import Optional
 import yaml
 
 from secretagent.learn.base import Learner
-from secretagent.implement.core import resolve_dotted, Interface
+from secretagent.implement.util import resolve_dotted
+from secretagent.core import Interface
 
 
 #

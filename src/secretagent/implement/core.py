@@ -4,7 +4,6 @@ Provides DirectFactory, SimulateFactory, PromptLLMFactory, and PoTFactory.
 """
 
 import ast
-import importlib
 import json
 import pathlib
 import re
@@ -18,6 +17,7 @@ from pydantic import Field
 
 from secretagent import config, llm_util, record
 from secretagent.core import Interface, Implementation, register_factory, all_interfaces
+from secretagent.implement.util import resolve_dotted, resolve_tools
 
 PROMPT_TEMPLATE_DIR = pathlib.Path(__file__).parent / 'prompt_templates'
 
@@ -387,42 +387,6 @@ def _format_examples_as_doctests(interface_name: str, cases: list) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def resolve_dotted(name: str) -> Any:
-    """Resolve a dotted name like 'module.func' to the actual object.
-    """
-    parts = name.split('.')
-    obj = importlib.import_module(parts[0])
-    for part in parts[1:]:
-        obj = getattr(obj, part)
-    return obj
-
-
-def resolve_tools(interface: Interface, tools) -> list[Callable]:
-    """Resolve a tools specification into a list of callables.
-
-    The tools parameter can be:
-      - None or [] → no tools (returns [])
-      - '__all__' → all implemented interfaces except the given one
-      - a list where each element is:
-          - a callable (used as-is)
-          - an Interface (resolved to its implementing function)
-          - a string (resolved via resolve_dotted)
-    """
-    if tools == '__all__':
-        tools = [iface for iface in all_interfaces()
-                 if iface is not interface and iface.implementation is not None]
-    tools = tools or []
-    resolved = []
-    for tool in tools:
-        if isinstance(tool, str):
-            tool = resolve_dotted(tool)
-        if isinstance(tool, Interface):
-            if tool.implementation is None:
-                raise ValueError(f'Interface {tool.name!r} has no implementation')
-            resolved.append(tool.implementation.implementing_fn)
-        else:
-            resolved.append(tool)
-    return resolved
 
 
 

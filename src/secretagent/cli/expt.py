@@ -29,7 +29,7 @@ from secretagent import record, config
 from secretagent.core import implement_via_config, Interface
 from secretagent.dataset import Dataset
 from secretagent.evaluate import ExactMatchEvaluator, Evaluator
-from secretagent.implement.core import resolve_dotted
+from secretagent.implement.util import resolve_dotted
 
 #
 # shared setup logic

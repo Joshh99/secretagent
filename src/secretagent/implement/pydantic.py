@@ -5,6 +5,7 @@ to implement an Interface.
 """
 
 import hashlib
+import inspect
 import time
 from pydantic import Field
 from pydantic_ai import Agent
@@ -14,7 +15,8 @@ from litellm import cost_per_token
 from secretagent import config, record
 from secretagent.cache_util import cached
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, resolve_tools, _load_template
+from secretagent.implement.core import SimulateFactory, _load_template
+from secretagent.implement.util import resolve_tools
 from secretagent.llm_util import echo_boxed
 
 def _run_agent_hashkey(_, kwds):
@@ -99,6 +101,11 @@ class SimulatePydanticFactory(SimulateFactory):
 
     def setup(self, tools=None, **prompt_kw):
         self.tools = resolve_tools(self.bound_interface, tools)
+        for tool in self.tools:
+            if not inspect.isfunction(tool):
+                raise ValueError(
+                    f'Tool {tool!r} is not a function; '
+                    f'simulate_pydantic requires plain functions')
         self.prompt_kw = prompt_kw
 
     def __call__(self, *args, **kw):

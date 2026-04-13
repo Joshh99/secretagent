@@ -22,7 +22,8 @@ from pydantic import Field
 
 from secretagent import config, record
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, resolve_tools, _load_template
+from secretagent.implement.core import SimulateFactory, _load_template
+from secretagent.implement.util import resolve_tools
 from secretagent.llm_util import llm as llm_call
 
 
