@@ -133,18 +133,20 @@ class EditedPToolLearner(Learner):
 
     def save_implementation(self) -> Path:
         learned_outpath = Path(self.created_files['learned_ptools.py'])
-        parts = []
+        parts = ['from secretagent.core import interface\n\n']
         for tool in self.ptool_list:
             interface = resolve_dotted(tool)
             if not isinstance(interface, Interface):
                 raise ValueError(f'{tool} is not an interface')
-            parts.append("@interface()\n")
+            parts.append("@interface\n")
             parts.append(interface.src.replace(self.pattern, self.replacement))
             parts.append("\n")
         learned_outpath.write_text("".join(parts))
         impl_outpath = Path(self.created_files['implementation.yaml'])
         impl = {self.interface_name: {
-            'method': 'react_with_learned_ptools',
+            'method': 'simulate_pydantic',
+            'tools': '__all__',
+            'tool_module': '__learned__',
             'learner': self.tag}
         }
         impl_outpath.write_text(yaml.dump(impl))
