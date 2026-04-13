@@ -1,14 +1,6 @@
 # Changes - April 11
 
-Added hypervolume computation for a set of experimental results in
-`results.py`. (See https://arxiv.org/abs/2005.00515)
-
- * Note: the hypervolume computation requires a 'reference point',
- which for cost-/correctness metrics is an upper bound on cost and a
- lower bound on correctness. These are computed dynamically from the
- results, so hypervolumes are NOT comparable across different set of
- results.  The awkward workaround is
- * 
+## Architecture explanations
 
 Added some comments in CLAUDE.md on architectural goals, briefly:
 
@@ -17,6 +9,49 @@ Added some comments in CLAUDE.md on architectural goals, briefly:
  * experimental results should be attached to strategy configs and dates
  * "learning" means "adding a new implementation"
  * inputs/outputs of learning should be trackable
+
+## Hypervolume
+
+Added hypervolume computation for a set of experimental results in
+`results.py`. (See https://arxiv.org/abs/2005.00515)
+
+ * Note: the hypervolume computation requires a 'reference point',
+ which for cost-/correctness metrics is an upper bound on cost and a
+ lower bound on correctness. These are computed dynamically from the
+ results, so hypervolumes are NOT comparable across different set of
+ results.  The awkward workaround is
+ * use the `results.py refpoint results/*` command to find the reference point
+ for all results
+ * pass that into hypervolume as a reference point with the `--ref` option
+
+Here's an example (where `sar` aliases `uv run python -m
+secretagent.cli.results`) of correctly measuring the hypervolume
+increase associated with (1) results from a model sweep for ptools used
+in a fixed workflow (2) using the baseline/pot/workflow/react results
+with a fixed model and (3) combining 1 and 2 
+
+```
+bash-3.2$ sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` model_sweep_results/*
+sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` model_sweep_results/*
+Hypervolume: 0.001562
+Metrics: cost-, correct
+Reference point: [-0.00308, 0.293333]
+
+bash-3.2$ sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` results/*
+sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` results/*
+Hypervolume: 0.001899
+Metrics: cost-, correct
+Reference point: [-0.00308, 0.293333]
+
+bash-3.2$ sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` results/* model_sweep_results/*
+sar hypervolume --ref `sar refpoint results/*  model_sweep_results/*` results/* model_sweep_results/*
+Hypervolume: 0.001904
+Metrics: cost-, correct
+Reference point: [-0.00308, 0.293333]
+```
+
+use the `results.py refpoint results/*` to find the reference point
+ for all results
 
 # Changes - April 3
 
