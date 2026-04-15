@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from omegaconf import OmegaConf
+from smolagents.local_python_executor import LocalPythonExecutor, BASE_PYTHON_TOOLS
 
 from secretagent import config
 from secretagent.core import Implementation, _FACTORIES, register_factory
@@ -17,6 +18,54 @@ def _load_learned_module(learned_path):
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+_FORBIDDEN_NAMES = frozenset([
+    'open', 'exec', 'eval', 'compile', '__import__', 'globals', 'locals',
+    'getattr', 'setattr', 'delattr', 'breakpoint', 'exit', 'quit',
+    'input', 'memoryview', 'type.__subclasses__',
+])
+
+_SAFE_MODULES = ['re', 'json', 'datetime', 'math', 'collections',
+                 'itertools', 'functools', 'string', 'operator',
+                 'copy', 'decimal', 'fractions', 'statistics',
+                 'textwrap', 'unicodedata', 'dataclasses', 'enum',
+                 'abc', 'typing']
+
+
+def _load_learned_sandboxed(learned_path, func_name):
+    """Load a learned.py file in a restricted namespace and return the function.
+
+    Uses exec with restricted builtins: dangerous operations (open, eval,
+    exec, __import__ of non-safe modules) are blocked, but standard library
+    modules (re, json, math, etc.) are allowed. This gives enough freedom
+    for complex code (regex, helper functions, classes) while blocking
+    file I/O and arbitrary imports.
+    """
+    import builtins as _builtins
+
+    code = Path(learned_path).read_text(encoding='utf-8')
+
+    # Build restricted builtins: allow most, block dangerous ones
+    safe_builtins = {k: v for k, v in vars(_builtins).items()
+                     if k not in _FORBIDDEN_NAMES}
+
+    # Replace __import__ with one that only allows safe modules
+    _real_import = _builtins.__import__
+    def _restricted_import(name, *args, **kwargs):
+        top_level = name.split('.')[0]
+        if top_level not in _SAFE_MODULES:
+            raise ImportError(f'import of {name!r} is not allowed in sandboxed code')
+        return _real_import(name, *args, **kwargs)
+    safe_builtins['__import__'] = _restricted_import
+
+    namespace = {'__builtins__': safe_builtins}
+    exec(compile(code, str(learned_path), 'exec'), namespace)
+    fn = namespace.get(func_name)
+    if fn is None or not callable(fn):
+        raise AttributeError(
+            f'{learned_path} does not define a function named {func_name!r}')
+    return fn
 
 
 def _find_learned_path(interface_name, learner):
@@ -81,15 +130,21 @@ class LearnedCodeFactory(Implementation.Factory):
     learned_fn: Any = None
     backoff_impl: Any = None
 
-    def setup(self, learner: str, backoff: bool = False, **_kw):
+    def setup(self, learner: str, backoff: bool = False, sandbox: bool = None, **_kw):
         interface = self.bound_interface
         learned_path = _find_learned_path(interface.name, learner)
-        mod = _load_learned_module(learned_path)
-        fn = getattr(mod, interface.name, None)
-        if fn is None:
-            raise AttributeError(
-                f'{learned_path} does not define a function named {interface.name!r}')
-        self.learned_fn = fn
+        # Default: sandbox for codedistill/e2e_codedistill (LLM-generated code), no sandbox for rote
+        if sandbox is None:
+            sandbox = (learner in ('codedistill', 'e2e_codedistill'))
+        if sandbox:
+            self.learned_fn = _load_learned_sandboxed(learned_path, interface.name)
+        else:
+            mod = _load_learned_module(learned_path)
+            fn = getattr(mod, interface.name, None)
+            if fn is None:
+                raise AttributeError(
+                    f'{learned_path} does not define a function named {interface.name!r}')
+            self.learned_fn = fn
         if backoff:
             self.backoff_impl = _build_backoff_impl(interface, learned_path.parent)
 

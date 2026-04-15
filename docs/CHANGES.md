@@ -18,6 +18,28 @@ Added some comments in CLAUDE.md on architectural goals, briefly:
  * "learning" means "adding a new implementation"
  * inputs/outputs of learning should be trackable
 
+# Changes - April 10
+
+## Code Distillation Learner
+
+Added `CodeDistillLearner` — a new learner that prompts an LLM to
+generate Python code from recorded input/output examples. Uses
+multi-round refinement (generate → validate → feedback errors →
+regenerate) and ensemble (multiple candidates per round, pick best).
+
+ * **Learner base class** — added validation support: after training,
+   learners can automatically evaluate on a holdout split. Also stores
+   workflow trace context in training data so learners can see how an
+   interface is called within the broader pipeline.
+
+ * **Sandbox** — LLM-generated code runs in `LocalPythonExecutor`
+   (same sandbox as PoT). Existing rote learner path is unchanged.
+
+ * **CLI** — `uv run -m secretagent.cli.learn codedistill --interface NAME recordings/*`
+
+ * **Makefile targets** — `codedistill_pipeline` in sports_understanding,
+   `codedistill_cal_pipeline` in natural_plan.
+
 # Changes - April 3
 
  * **Global results Makefile** — `benchmarks/Makefile` operates on
