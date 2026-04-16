@@ -648,6 +648,27 @@ def improve_with_supervisor(
 
         # 1. Build context — pass dataset for input lookup
         prof_summary = format_profiling_summary(profile)
+        # Add explicit guidance about which ptools are actually called
+        called_ptools = [
+            name for name, pp in profile.ptool_profiles.items()
+            if pp.calls_per_case > 0.01
+        ]
+        uncalled_ptools = [
+            iface.name for iface in tool_interfaces
+            if iface.name not in called_ptools
+        ]
+        if called_ptools or uncalled_ptools:
+            prof_summary += '\n\nIMPORTANT CALL ANALYSIS:\n'
+            if called_ptools:
+                prof_summary += f'  Ptools ACTUALLY CALLED via LLM: {called_ptools}\n'
+            if uncalled_ptools:
+                prof_summary += (
+                    f'  Ptools NEVER CALLED (fallback/unused): {uncalled_ptools}\n'
+                    f'  Changing docstrings of uncalled ptools has NO EFFECT.\n'
+                    f'  To improve, change docstrings of CALLED ptools, or fix '
+                    f'the Python code that does extraction/computation.\n'
+                )
+
         failure_traces = _format_failure_traces(
             best_result_dir, dataset=train_dataset,
         )
