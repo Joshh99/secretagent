@@ -140,6 +140,116 @@ def compose_with_retry(
     )
 
 
+def recompose(
+    current_code: str,
+    catalog: PtoolCatalog,
+    entry_signature: str,
+    profiling_summary: str,
+    failure_traces: str,
+    iteration_history: str = '',
+    custom_instructions: str = '',
+    model_choices: str = '',
+    model: str | None = None,
+) -> tuple[str, str, list[str], dict]:
+    """Re-generate pipeline code with performance feedback from a supervisor LLM.
+
+    Like compose() but iterative: the supervisor sees current code, profiling
+    data, and failure traces, and outputs improved code + optional config changes.
+
+    Returns:
+        (new_code, reasoning, config_overrides, llm_stats)
+    """
+    model = model or config.get('orchestrate.supervisor_model',
+                                 'gemini/gemini-3.1-pro-preview')
+    template = Template((PROMPT_TEMPLATE_DIR / 'recompose.txt').read_text())
+
+    # Build optional sections
+    model_section = ''
+    if model_choices:
+        model_section = (
+            '\n## Available models (use sparingly — don\'t upgrade everything)\n'
+            f'{model_choices}\n'
+            'NOTE: Only switch models if profiling shows a specific ptool is '
+            'the bottleneck AND a better model would help. Prefer fixing code '
+            'or prompts over upgrading models. Budget-conscious changes first.\n'
+        )
+    custom_section = ''
+    if custom_instructions:
+        custom_section = (
+            f'\n## Additional instructions\n{custom_instructions}\n'
+        )
+
+    prompt = template.substitute(
+        tool_stubs=catalog.render(),
+        tool_names=', '.join(catalog.names),
+        entry_signature=entry_signature,
+        current_code=textwrap.indent(textwrap.dedent(current_code), '    '),
+        profiling_summary=profiling_summary,
+        failure_traces=failure_traces,
+        iteration_history=iteration_history or 'No previous iterations.',
+        model_choices_section=model_section,
+        custom_instructions_section=custom_section,
+    )
+
+    llm_output, stats = llm(prompt, model)
+
+    if config.get('echo.orchestrate_llm'):
+        from secretagent.llm_util import echo_boxed
+        echo_boxed(llm_output, 'supervisor LLM output')
+
+    # Extract code
+    try:
+        code = _extract_code(llm_output)
+        code = _extract_last_function_body(code, entry_signature)
+        code = _ruff_fix(code, entry_signature)
+    except ValueError:
+        # No code block found — return current code unchanged
+        code = current_code
+
+    # Extract reasoning
+    reasoning_match = re.search(
+        r'<reasoning>(.*?)</reasoning>', llm_output, re.DOTALL,
+    )
+    reasoning = reasoning_match.group(1).strip() if reasoning_match else ''
+
+    # Extract config overrides
+    config_match = re.search(
+        r'<config>(.*?)</config>', llm_output, re.DOTALL,
+    )
+    config_overrides: list[str] = []
+    if config_match:
+        for line in config_match.group(1).strip().splitlines():
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                config_overrides.append(line)
+
+    return code, reasoning, config_overrides, stats
+
+
+def _extract_last_function_body(code: str, entry_signature: str) -> str:
+    """Extract the body of the last function definition from code.
+
+    When the LLM outputs multiple function definitions in one block,
+    this extracts only the last one's body.
+    """
+    lines = code.strip().split('\n')
+
+    # Find all 'def ' lines and their positions
+    def_positions = [
+        i for i, line in enumerate(lines)
+        if line.strip().startswith('def ')
+    ]
+
+    if not def_positions:
+        # No def lines — assume the whole thing is a function body
+        return textwrap.dedent(code).strip()
+
+    # Take the body starting after the LAST def line
+    last_def = def_positions[-1]
+    body_lines = lines[last_def + 1:]
+    return textwrap.dedent('\n'.join(body_lines)).strip()
+
+
 def _extract_code(text: str) -> str:
     """Extract Python code from LLM output.
 

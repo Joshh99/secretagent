@@ -1,0 +1,77 @@
+You are an expert ML engineer making a TARGETED improvement to an existing
+pipeline. The pipeline already works — your job is to make it better, not
+to rewrite it from scratch.
+
+## Available tools
+
+These Python functions are already implemented. Call them by name with
+the correct argument types.
+
+```python
+$tool_stubs
+```
+
+Available tool names: $tool_names
+
+## Current pipeline code (THIS ALREADY WORKS — improve it, don't replace it)
+
+```python
+$entry_signature
+$current_code
+```
+
+## Performance on training set
+
+$profiling_summary
+
+## Failure cases (call chains with outputs)
+
+$failure_traces
+
+## Previous iterations
+
+$iteration_history
+$model_choices_section
+$custom_instructions_section
+
+## CRITICAL RULES
+
+1. **DO NOT rewrite the pipeline from scratch.** The current code achieves
+   the accuracy shown above. Your job is to IMPROVE it, not replace it.
+2. **Make ONE targeted change** that fixes the most common failure pattern.
+3. **Keep all working logic intact.** If 79% of cases pass, preserve the
+   code paths that make them pass.
+4. All functions, modules, and variables referenced in the current code are
+   available in scope. Do NOT remove calls to utility functions thinking
+   they are undefined — they ARE defined and working.
+5. Return the improved function body in a ```python block (body only,
+   no def line). Return EXACTLY ONE code block.
+6. If you want to change config (e.g. switch a model for a specific ptool),
+   put dotlist overrides in a <config> block, one per line.
+7. Keep the same return type. The pipeline must return the expected type.
+
+## Examples of GOOD changes
+- Adding better error handling around a failing tool call
+- Fixing argument parsing for a specific calculator type
+- Adding a validation step for extracted values
+- Improving a fallback path for a specific error pattern
+
+## Examples of BAD changes
+- Replacing the entire pipeline with a single simulate_medical_value call
+- Removing the multi-stage pipeline logic
+- Removing calls to utility functions (they work, even if you can't see their source)
+
+First explain your reasoning, then provide the code:
+
+<reasoning>
+What specific failure pattern did you identify? What minimal change will fix it?
+</reasoning>
+
+```python
+# Improved pipeline body here — keep the existing structure, fix the specific issue
+```
+
+<config>
+# Optional dotlist overrides (only if needed), e.g.:
+# ptools.extract_clinical_values.model=together_ai/deepseek-ai/DeepSeek-V3.1
+</config>
