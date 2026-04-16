@@ -2,10 +2,11 @@
 
 import os
 import json
+import random
 import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 from secretagent import savefile
 from secretagent.dataset import Case, Dataset
@@ -19,10 +20,12 @@ class Learner(ABC):
     Subclasses implement fit(), save_implementation(), and report().
     """
 
-    def __init__(self, interface_name: str, train_dir: str, file_under: str):
+    def __init__(self, interface_name: str, train_dir: str, file_under: str,
+                 only_correct: bool = False):
         self.interface_name = interface_name
         self.train_dir = train_dir
         self.file_under = file_under
+        self.only_correct = only_correct
         # default files to produce
         to_produce = ['data.json', 'sources.txt', 'source_configs', 'implementation.yaml']
         savefile_names = savefile.filename_list(train_dir, to_produce, file_under)
@@ -51,12 +54,63 @@ class Learner(ABC):
         """Return a brief human-readable report on the learner."""
         ...
 
+    def predict(self, input_args, input_kw=None) -> Any:
+        """Predict output for a single input.
+
+        Override in subclasses to enable validation.
+        The default raises NotImplementedError, which causes validate()
+        to be skipped gracefully.
+        """
+        raise NotImplementedError
+
+    def validate(self, holdout_fraction: float = 0.2, seed: int = 42) -> dict:
+        """Hold out some data, fit on the rest, evaluate on holdout, then refit on all.
+
+        Returns a dict with accuracy, holdout_size, and train_size.
+        Raises NotImplementedError if predict() is not overridden.
+        """
+        all_cases = list(self.dataset.cases)
+        rng = random.Random(seed)
+        rng.shuffle(all_cases)
+        split = max(1, int(len(all_cases) * holdout_fraction))
+        holdout = all_cases[:split]
+        train = all_cases[split:]
+
+        # Fit on training portion
+        original_cases = self.dataset.cases
+        self.dataset.cases = train
+        self.fit()
+
+        # Evaluate on holdout
+        correct = 0
+        for case in holdout:
+            predicted = self.predict(case.input_args, case.input_kw)
+            if predicted == case.expected_output:
+                correct += 1
+
+        metrics = {
+            'accuracy': correct / len(holdout) if holdout else 0.0,
+            'holdout_size': len(holdout),
+            'train_size': len(train),
+        }
+
+        # Refit on all data
+        self.dataset.cases = original_cases
+        self.fit()
+
+        return metrics
+
     def learn(self, dirs: list[Path], latest: int = 1, check: Optional[list[str]] = None):
         """Top-level routine to load data, run learner, and save.
         """
         self.collect_distillation_data(dirs, latest, check)
         print(f'collected {len(self.dataset.cases)} examples in working directory {self.out_dir}')
         self.fit()
+        try:
+            metrics = self.validate()
+            print(f'validation: {metrics}')
+        except NotImplementedError:
+            pass
         output_file = self.save_implementation()
         print(self.report())
         print(f'saved output to {output_file}')
@@ -125,12 +179,28 @@ class Learner(ABC):
         return result
 
     def _extract_cases_from_record(self, dx, lx, record):
-        """Yield Cases for the named interface from a single JSONL record."""
-        for sx, step in enumerate(record.get('rollout', [])):
+        """Yield Cases for the named interface from a single JSONL record.
+
+        Stores the rollout context in Case.metadata so learners
+        can see how this interface was called within the workflow.
+
+        When self.only_correct is True, skip rollouts that produced
+        an incorrect final answer (filters out training data where the
+        intermediate steps led to a wrong result).
+        """
+        if self.only_correct and not record.get('correct'):
+            return
+        rollout = record.get('rollout', [])
+        for sx, step in enumerate(rollout):
             if step['func'] == self.interface_name:
                 yield Case(
                     name=f'{self.interface_name}_{dx}.{lx}.{sx}',
                     input_args=step.get('args'),
                     input_kw=step.get('kw') or None,
-                    expected_output=step.get('output')
+                    expected_output=step.get('output'),
+                    metadata={
+                        'rollout_correct': record.get('correct'),
+                        'step_index': sx,
+                        'prior_steps': rollout[:sx],
+                    }
                 )
