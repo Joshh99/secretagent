@@ -1,5 +1,9 @@
 # Tasks/Known bugs
 
+## Tracking extensions
+
+ * What's the use case for llm streaming in llm_util?
+
 ## Cleanups
 
  * move subprocess out of optimizer and use expt
