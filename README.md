@@ -139,22 +139,109 @@ via `config.configuration()` during execution.
 
 ## Benchmarks
 
-Benchmarks live in `benchmarks/` and use a typer CLI with YAML config:
+Benchmarks live in `benchmarks/`. Each benchmark has its own `expt.py`
+runner, YAML configs in `conf/`, and ptools (decomposed sub-tasks) in
+`ptools.py`.
+
+### Universal benchmark runner
+
+The `bench` CLI dispatches to per-benchmark runners as subprocesses:
 
 ```bash
-cd benchmarks/sports_understanding
+# list all registered benchmarks with eval pool and minibatch sizes
+uv run -m secretagent.cli.bench list
 
-# run with defaults from conf/conf.yaml
-uv run python expt.py run
+# run a single benchmark (uses default simulate strategy)
+uv run -m secretagent.cli.bench run sports_understanding --minibatch
 
-# override options
-uv run python expt.py run --model gpt-4o --n 6
+# run with a specific model
+uv run -m secretagent.cli.bench run medcalc --minibatch llm.model=gemini/gemini-3.1-flash-lite-preview
 
-# dot-notation config overrides
-uv run python expt.py run llm.model=gpt-4o cachier.enable_caching=false
+# run all benchmarks
+uv run -m secretagent.cli.bench run-all --minibatch
 ```
+
+### Running a benchmark directly
+
+Each benchmark can also be run directly with full config control:
+
+```bash
+cd benchmarks/bbh/sports_understanding
+
+# simulate strategy (zero-shot LLM)
+uv run python -m secretagent.cli.expt run \
+    --interface ptools.are_sports_in_sentence_consistent \
+    ptools.are_sports_in_sentence_consistent.method=simulate \
+    llm.model=gemini/gemini-3.1-flash-lite-preview dataset.n=20
+
+# workflow strategy (multi-step pipeline)
+uv run python -m secretagent.cli.expt run \
+    --interface ptools.are_sports_in_sentence_consistent \
+    ptools.are_sports_in_sentence_consistent.method=direct \
+    ptools.are_sports_in_sentence_consistent.fn=ptools.sports_understanding_workflow \
+    llm.model=gemini/gemini-3.1-flash-lite-preview dataset.n=20
+```
+
+For benchmarks with their own `expt.py` (medcalc, musr, etc.):
+
+```bash
+cd benchmarks/medcalc
+
+# simulate
+uv run python expt.py run --config-file conf/simulate.yaml \
+    llm.model=gemini/gemini-3.1-flash-lite-preview dataset.n=110
+
+# workflow (multi-stage extraction + Python computation)
+uv run python expt.py run --config-file conf/workflow.yaml \
+    llm.model=gemini/gemini-3.1-flash-lite-preview dataset.n=110
+
+# program of thought (LLM generates code)
+uv run python expt.py run --config-file conf/pot.yaml \
+    llm.model=gemini/gemini-3.1-flash-lite-preview dataset.n=110
+```
+
+### Strategies
+
+Each benchmark supports multiple implementation strategies for the
+top-level interface:
+
+| Strategy | Method | What it does |
+|----------|--------|-------------|
+| **simulate** | `method=simulate` | One LLM call predicts the answer from the function docstring |
+| **unstructured** | `method=direct`, `fn=zeroshot_unstructured_workflow` | One LLM call with custom prompt + output formatting |
+| **workflow** | `method=direct`, `fn=<benchmark>_workflow` | Hand-coded multi-step pipeline calling simulated sub-ptools |
+| **POT** | `method=program_of_thought` | LLM generates Python code which is then executed |
+
+### Viewing results
+
+```bash
+# list experiments
+uv run -m secretagent.cli.results list benchmarks/bbh/sports_understanding/results/*/
+
+# compare accuracy across strategies
+uv run -m secretagent.cli.results average --metric correct --metric cost- \
+    benchmarks/bbh/sports_understanding/results/*/
+
+# plot accuracy vs cost
+uv run -m secretagent.cli.results plot --metric correct --metric cost- \
+    --output plot.png benchmarks/bbh/sports_understanding/results/*/
+```
+
+### Running all strategies
+
+`scripts/run_all_strategies.sh` runs simulate, unstructured, workflow,
+and POT across all benchmarks with consistent minibatch configs:
+
+```bash
+bash scripts/run_all_strategies.sh
+```
+
+See [docs/CLI.md](docs/CLI.md) for full CLI documentation.
 
 ## Requirements
 
 - Python 3.11+
-- An API key for your LLM provider (e.g. `ANTHROPIC_API_KEY`)
+- An API key for your LLM provider (set in `.env`):
+  - `GEMINI_API_KEY` for Gemini models
+  - `TOGETHER_API_KEY` for Together AI models (DeepSeek, Qwen, etc.)
+  - `ANTHROPIC_API_KEY` for Claude models
