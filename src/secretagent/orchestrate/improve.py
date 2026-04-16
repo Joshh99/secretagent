@@ -396,31 +396,63 @@ def _build_namespace(
     return namespace
 
 
-def _describe_namespace_utilities(
+def _describe_namespace_with_source(
     namespace: dict[str, Any],
     tool_interfaces: list,
+    ptools_module: Any = None,
 ) -> str:
-    """Build a description of non-tool items in the namespace."""
+    """Build full context of utility functions with source code.
+
+    This gives the supervisor visibility into the Python logic between
+    LLM calls — crucial for pipelines where most computation is Python.
+    """
+    from secretagent.core import Interface
     tool_names = {iface.name for iface in tool_interfaces}
     skip = {'__builtins__', 'json', 're'}
-    lines = []
+
+    # Collect utility functions with source
+    func_sources = []
+    data_items = []
     for name, obj in sorted(namespace.items()):
         if name in tool_names or name in skip:
             continue
-        if callable(obj):
-            # Try to get a one-line description
-            sig = ''
+        if isinstance(obj, Interface):
+            continue
+        if callable(obj) and not isinstance(obj, type):
             try:
-                sig = f'({", ".join(inspect.signature(obj).parameters.keys())})'
-            except (ValueError, TypeError):
-                pass
-            doc = (getattr(obj, '__doc__', '') or '').split('\n')[0][:80]
-            lines.append(f'- `{name}{sig}`: {doc}' if doc else f'- `{name}{sig}`')
+                src = inspect.getsource(obj)
+                func_sources.append((name, src))
+            except (TypeError, OSError):
+                sig = ''
+                try:
+                    sig = f'({", ".join(inspect.signature(obj).parameters.keys())})'
+                except (ValueError, TypeError):
+                    pass
+                doc = (getattr(obj, '__doc__', '') or '').split('\n')[0][:80]
+                func_sources.append(
+                    (name, f'def {name}{sig}:\n    """{doc}"""\n    ...'))
         elif isinstance(obj, str) and len(obj) > 20:
-            lines.append(f'- `{name}` (str, {len(obj)} chars)')
+            data_items.append(f'- `{name}` (str, {len(obj)} chars)')
         elif isinstance(obj, (list, dict)):
-            lines.append(f'- `{name}` ({type(obj).__name__}, {len(obj)} items)')
-    return '\n'.join(lines) if lines else ''
+            data_items.append(
+                f'- `{name}` ({type(obj).__name__}, {len(obj)} items)')
+
+    if not func_sources and not data_items:
+        return ''
+
+    lines = ['## Utility functions available in scope (FULL SOURCE)',
+             'These helper functions are called by the pipeline. You can modify',
+             'the pipeline code to call them differently or pass different arguments.',
+             '']
+
+    for name, src in func_sources:
+        lines.append(f'```python\n{src.rstrip()}\n```\n')
+
+    if data_items:
+        lines.append('## Data objects in scope')
+        lines.extend(data_items)
+
+    return '\n'.join(lines)
 
 
 def _compile_pipeline(code: str, entry_sig: str, namespace: dict):
@@ -564,14 +596,13 @@ def improve_with_supervisor(
     namespace = _build_namespace(tool_interfaces, ptools_module)
     current_code = _extract_initial_code(entry_interface)
 
-    # Build a description of utility functions available in the namespace
-    utility_desc = _describe_namespace_utilities(namespace, tool_interfaces)
+    # Build full context of utility functions: signatures + source
+    utility_desc = _describe_namespace_with_source(
+        namespace, tool_interfaces, ptools_module,
+    )
     if utility_desc:
         custom_instructions = (
-            f'{custom_instructions}\n\n'
-            f'## Utility functions available in scope\n'
-            f'These helper functions and variables are also available '
-            f'(in addition to the tools listed above):\n{utility_desc}'
+            f'{custom_instructions}\n\n{utility_desc}'
         ).strip()
 
     iterations: list[IterationRecord] = []
