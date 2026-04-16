@@ -150,14 +150,15 @@ def recompose(
     custom_instructions: str = '',
     model_choices: str = '',
     model: str | None = None,
-) -> tuple[str, str, list[str], dict]:
+) -> tuple[str, str, list[str], dict[str, str], dict]:
     """Re-generate pipeline code with performance feedback from a supervisor LLM.
 
     Like compose() but iterative: the supervisor sees current code, profiling
     data, and failure traces, and outputs improved code + optional config changes.
 
     Returns:
-        (new_code, reasoning, config_overrides, llm_stats)
+        (new_code, reasoning, config_overrides, ptool_changes, llm_stats)
+        where ptool_changes is {ptool_name: new_docstring}.
     """
     model = model or config.get('orchestrate.supervisor_model',
                                  'gemini/gemini-3.1-pro-preview')
@@ -223,7 +224,18 @@ def recompose(
             if line and not line.startswith('#') and '=' in line:
                 config_overrides.append(line)
 
-    return code, reasoning, config_overrides, stats
+    # Extract ptool docstring changes
+    ptool_changes: dict[str, str] = {}
+    for match in re.finditer(
+        r'<ptool_change\s+name="([^"]+)">(.*?)</ptool_change>',
+        llm_output, re.DOTALL,
+    ):
+        ptool_name = match.group(1).strip()
+        new_docstring = match.group(2).strip()
+        if ptool_name and new_docstring:
+            ptool_changes[ptool_name] = new_docstring
+
+    return code, reasoning, config_overrides, ptool_changes, stats
 
 
 def _extract_last_function_body(code: str, entry_signature: str) -> str:

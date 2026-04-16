@@ -1,11 +1,11 @@
 You are an expert ML engineer making a TARGETED improvement to an existing
-pipeline. The pipeline already works — your job is to make it better, not
-to rewrite it from scratch.
+pipeline. The pipeline already works at a certain accuracy — your job is to
+make it BETTER, not to rewrite it from scratch.
 
-## Available tools
+## Available tools (ptools)
 
-These Python functions are already implemented. Call them by name with
-the correct argument types.
+These Python functions are already implemented as LLM-backed interfaces.
+Each one has a docstring that serves as the prompt to the LLM when called.
 
 ```python
 $tool_stubs
@@ -24,7 +24,7 @@ $current_code
 
 $profiling_summary
 
-## Failure cases (call chains with outputs)
+## Failure cases with full context
 
 $failure_traces
 
@@ -34,44 +34,74 @@ $iteration_history
 $model_choices_section
 $custom_instructions_section
 
+## WHAT YOU CAN CHANGE (three levers)
+
+### Lever 1: Pipeline code
+Modify the function body to fix control flow, error handling, argument
+preparation, or result parsing. Return improved code in a ```python block.
+
+### Lever 2: Ptool docstrings
+A ptool's docstring IS its LLM prompt. Improving a docstring directly
+improves the LLM's output quality for that tool. To change a ptool's
+docstring, use a <ptool_change> block:
+
+<ptool_change name="tool_name">
+New docstring content here. This becomes the LLM prompt when the tool
+is called via the simulate factory. Include clear instructions, examples,
+edge cases, and expected output format.
+</ptool_change>
+
+### Lever 3: Config overrides
+Switch models per-ptool or change hyperparameters via a <config> block.
+
 ## CRITICAL RULES
 
-1. **DO NOT rewrite the pipeline from scratch.** The current code achieves
-   the accuracy shown above. Your job is to IMPROVE it, not replace it.
-2. **Make ONE targeted change** that fixes the most common failure pattern.
-3. **Keep all working logic intact.** If 79% of cases pass, preserve the
-   code paths that make them pass.
-4. All functions, modules, and variables referenced in the current code are
-   available in scope. Do NOT remove calls to utility functions thinking
-   they are undefined — they ARE defined and working.
-5. Return the improved function body in a ```python block (body only,
-   no def line). Return EXACTLY ONE code block.
-6. If you want to change config (e.g. switch a model for a specific ptool),
-   put dotlist overrides in a <config> block, one per line.
-7. Keep the same return type. The pipeline must return the expected type.
+1. **DO NOT REWARD-HACK.** DO NOT overfit to specific failing cases by adding
+   hard-coded lookups, case-specific patches, or if/else branches that only
+   help the training examples shown above. Your changes MUST generalize to
+   unseen cases. The held-out test set will expose any overfitting.
+
+2. **DO NOT rewrite the pipeline from scratch.** Keep the existing structure.
+   Make ONE targeted change per iteration.
+
+3. **All functions, modules, and variables in the current code are available
+   in scope.** Do not remove calls to utility functions — they work.
+
+4. **Prefer docstring improvements over code changes** when the failure is due
+   to the LLM producing wrong outputs (wrong extraction, wrong identification).
+   Code changes only help with control flow bugs; docstring changes help with
+   LLM output quality.
+
+5. Return EXACTLY ONE ```python code block (body only, no def line).
 
 ## Examples of GOOD changes
-- Adding better error handling around a failing tool call
-- Fixing argument parsing for a specific calculator type
-- Adding a validation step for extracted values
-- Improving a fallback path for a specific error pattern
+- Improving a ptool docstring with better instructions, examples, edge cases
+- Adding validation that catches a category of extraction errors
+- Fixing how extracted values are passed to compute_calculation
+- Adding a general fallback strategy for a class of calculators
 
-## Examples of BAD changes
-- Replacing the entire pipeline with a single simulate_medical_value call
-- Removing the multi-stage pipeline logic
-- Removing calls to utility functions (they work, even if you can't see their source)
+## Examples of BAD changes (REWARD HACKING — will be rolled back)
+- Adding if calculator_name == "CHA2DS2-VASc": return 5
+- Hard-coding expected outputs for specific training cases
+- Special-casing based on specific patient names or case IDs
+- Any change that only helps the exact cases shown in failure traces
 
-First explain your reasoning, then provide the code:
+First explain your reasoning, then provide your changes:
 
 <reasoning>
-What specific failure pattern did you identify? What minimal change will fix it?
+What GENERAL failure pattern did you identify? What principled change will fix
+this class of failures, not just these specific cases?
 </reasoning>
 
 ```python
-# Improved pipeline body here — keep the existing structure, fix the specific issue
+# Improved pipeline body here — keep existing structure
 ```
 
+<ptool_change name="tool_name">
+Improved docstring for tool_name (only if LLM output quality is the issue)
+</ptool_change>
+
 <config>
-# Optional dotlist overrides (only if needed), e.g.:
+# Optional dotlist overrides, e.g.:
 # ptools.extract_clinical_values.model=together_ai/deepseek-ai/DeepSeek-V3.1
 </config>

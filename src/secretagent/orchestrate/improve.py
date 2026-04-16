@@ -207,13 +207,25 @@ class SupervisorReport(BaseModel):
 
 def _format_failure_traces(
     result_dir: Path,
-    max_cases: int = 5,
-    max_output_chars: int = 150,
+    dataset: Dataset | None = None,
+    max_cases: int = 10,
+    max_input_chars: int = 500,
+    max_output_chars: int = 300,
 ) -> str:
-    """Read results.jsonl and format failure cases as compact call chains."""
+    """Read results.jsonl and format failure cases with full context.
+
+    If dataset is provided, looks up input_args (patient_note, question)
+    by case_name so the supervisor can see what the LLM was asked.
+    """
     jsonl_path = Path(result_dir) / 'results.jsonl'
     if not jsonl_path.exists():
         return 'No results.jsonl found.'
+
+    # Build case lookup from dataset
+    case_lookup: dict[str, Any] = {}
+    if dataset is not None:
+        for case in dataset.cases:
+            case_lookup[case.name] = case
 
     failures = []
     with open(jsonl_path) as f:
@@ -225,60 +237,72 @@ def _format_failure_traces(
     if not failures:
         return 'All cases passed!'
 
-    # Select diverse failures: group by error type, pick one per group
-    error_groups: dict[str, list[dict]] = {}
+    # Select diverse failures: group by category/calculator, pick from each
+    cat_groups: dict[str, list[dict]] = {}
     for rec in failures:
-        rollout = rec.get('rollout', [])
-        # Key: first exception or "wrong_answer"
-        key = 'wrong_answer'
-        for step in rollout:
-            out = str(step.get('output', ''))
-            if out.startswith('**exception'):
-                key = out[:60]
-                break
-        error_groups.setdefault(key, []).append(rec)
+        key = rec.get('calculator_name', rec.get('category', 'unknown'))
+        cat_groups.setdefault(key, []).append(rec)
 
     selected: list[dict] = []
-    # One per error group (sorted by frequency)
-    for _key, recs in sorted(error_groups.items(), key=lambda kv: -len(kv[1])):
+    # Round-robin from each category
+    for _key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
         if len(selected) >= max_cases:
             break
         selected.append(recs[0])
 
-    # Fill remaining with highest-cost failures
+    # Fill remaining from largest groups
     if len(selected) < max_cases:
         used = {r.get('case_name') for r in selected}
-        by_cost = sorted(failures, key=lambda r: r.get('cost', 0), reverse=True)
-        for rec in by_cost:
-            if rec.get('case_name') not in used:
-                selected.append(rec)
-                used.add(rec.get('case_name'))
-                if len(selected) >= max_cases:
-                    break
+        for _key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
+            for rec in recs[1:]:
+                if rec.get('case_name') not in used and len(selected) < max_cases:
+                    selected.append(rec)
+                    used.add(rec.get('case_name'))
 
-    lines = []
+    lines = [f'Total failures: {len(failures)} / showing {len(selected)}:\n']
+    # Also show failure counts by category
+    lines.append('Failure counts by category:')
+    for key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
+        lines.append(f'  {key}: {len(recs)} failures')
+    lines.append('')
+
     for rec in selected:
         meta_parts = []
-        for mk in ('calculator_name', 'category', 'ques_type'):
+        for mk in ('calculator_name', 'category', 'output_type'):
             if mk in rec:
                 meta_parts.append(f'{mk}={rec[mk]}')
         meta_str = f' ({", ".join(meta_parts)})' if meta_parts else ''
-        lines.append(f'Case {rec.get("case_name", "?")}:{meta_str}')
+        lines.append(f'--- Case {rec.get("case_name", "?")}:{meta_str} ---')
 
-        # Show input (truncated)
-        inp = rec.get('input_args', rec.get('predicted_output', ''))
-        lines.append(f'  Input: {str(inp)[:200]}')
+        # Show REAL input data from dataset
+        case_name = rec.get('case_name', '')
+        case = case_lookup.get(case_name)
+        if case and case.input_args:
+            for i, arg in enumerate(case.input_args):
+                arg_str = str(arg)[:max_input_chars]
+                lines.append(f'  Input arg {i}: {arg_str}')
+        else:
+            lines.append(f'  Input: (not available)')
 
-        # Show rollout steps
-        for step in rec.get('rollout', []):
-            func = step.get('func', '?')
-            output = str(step.get('output', ''))[:max_output_chars]
-            cost = step.get('stats', {}).get('cost', 0)
-            lines.append(f'  -> {func}() = {output} [${cost:.4f}]')
+        # Show rollout steps (LLM call traces)
+        rollout = rec.get('rollout', [])
+        if rollout:
+            lines.append(f'  Execution trace ({len(rollout)} LLM calls):')
+            for step in rollout:
+                func = step.get('func', '?')
+                args_str = str(step.get('args', ''))[:200]
+                output = str(step.get('output', ''))[:max_output_chars]
+                cost = step.get('stats', {}).get('cost', 0)
+                lines.append(f'    {func}({args_str})')
+                lines.append(f'      -> {output} [${cost:.4f}]')
+        else:
+            lines.append(f'  Execution trace: (no rollout recorded)')
 
         pred = rec.get('predicted_output', '?')
         exp = rec.get('expected_output', '?')
-        lines.append(f'  Predicted: {pred}, Expected: {exp}')
+        abs_err = rec.get('absolute_error', '')
+        err_str = f', absolute_error={abs_err}' if abs_err else ''
+        lines.append(f'  RESULT: predicted={pred}, expected={exp}{err_str}')
         lines.append('')
 
     return '\n'.join(lines)
@@ -445,8 +469,64 @@ def _compile_with_retry(
             retry_kwargs['custom_instructions'] = (
                 retry_kwargs.get('custom_instructions', '') + error_ctx
             )
-            code, _reasoning, _cfg, _stats = recompose_fn(**retry_kwargs)
+            code, _reasoning, _cfg, _ptool, _stats = recompose_fn(**retry_kwargs)
     return None
+
+
+def _apply_ptool_changes(
+    ptool_changes: dict[str, str],
+    tool_interfaces: list,
+) -> dict[str, tuple[str, str]]:
+    """Apply docstring changes to ptool interfaces. Returns rollback info.
+
+    Returns {ptool_name: (old_doc, old_src)} for rollback.
+    """
+    from secretagent.core import Interface
+    rollback: dict[str, tuple[str, str]] = {}
+    all_ifaces = {iface.name: iface for iface in tool_interfaces
+                  if isinstance(iface, Interface)}
+
+    for name, new_doc in ptool_changes.items():
+        iface = all_ifaces.get(name)
+        if iface is None:
+            print(f'[supervisor] ptool_change: unknown ptool {name!r}, skipping')
+            continue
+        rollback[name] = (iface.doc, iface.src)
+        iface.doc = new_doc
+        # Rebuild the src to include the new docstring
+        old_src_lines = iface.src.split('\n')
+        # Find the def line and rebuild
+        new_src_lines = []
+        found_def = False
+        for line in old_src_lines:
+            if not found_def:
+                new_src_lines.append(line)
+                if line.strip().startswith('def '):
+                    found_def = True
+                    # Add new docstring
+                    new_src_lines.append(f'    """{new_doc}"""')
+            # Skip old docstring lines (between def and first code line)
+        if found_def:
+            iface.src = '\n'.join(new_src_lines)
+        print(f'[supervisor] ptool_change: updated docstring for {name} '
+              f'({len(new_doc)} chars)')
+
+    return rollback
+
+
+def _rollback_ptool_changes(
+    rollback: dict[str, tuple[str, str]],
+    tool_interfaces: list,
+):
+    """Restore ptool docstrings from rollback info."""
+    from secretagent.core import Interface
+    all_ifaces = {iface.name: iface for iface in tool_interfaces
+                  if isinstance(iface, Interface)}
+    for name, (old_doc, old_src) in rollback.items():
+        iface = all_ifaces.get(name)
+        if iface:
+            iface.doc = old_doc
+            iface.src = old_src
 
 
 def improve_with_supervisor(
@@ -466,24 +546,12 @@ def improve_with_supervisor(
 ) -> SupervisorReport:
     """Iteratively improve a pipeline using a supervisor LLM.
 
-    The supervisor sees profiling data and failure traces, and outputs
-    improved pipeline code + optional config overrides. Hill climbing:
-    keep improvements, rollback regressions.
+    The supervisor sees profiling data and failure traces, and can:
+    1. Modify the pipeline code (control flow, error handling)
+    2. Change ptool docstrings (improves LLM prompt quality → cache bust)
+    3. Apply config overrides (model switches, hyperparameters)
 
-    Args:
-        entry_interface: the workflow Interface to improve
-        tool_interfaces: ptools available to the pipeline
-        catalog: ptool catalog for the supervisor prompt
-        evaluator: evaluator to measure performance
-        train_dataset: training dataset for evaluation
-        eval_dataset: optional held-out dataset for periodic eval
-        supervisor_model: LLM model for the supervisor
-        max_iterations: max improvement iterations
-        target_accuracy: stop when reached
-        custom_instructions: extra text for the supervisor prompt
-        model_choices: formatted model table for the supervisor
-        output_dir: directory to save iteration artifacts
-        ptools_module: the ptools module for namespace construction
+    Hill climbing: keep improvements, rollback regressions.
     """
     from secretagent.orchestrate.composer import recompose
     from secretagent.orchestrate.transforms.base import format_profiling_summary
@@ -497,7 +565,6 @@ def improve_with_supervisor(
     current_code = _extract_initial_code(entry_interface)
 
     # Build a description of utility functions available in the namespace
-    # so the supervisor knows it can use them
     utility_desc = _describe_namespace_utilities(namespace, tool_interfaces)
     if utility_desc:
         custom_instructions = (
@@ -510,10 +577,8 @@ def improve_with_supervisor(
     iterations: list[IterationRecord] = []
     best_code = current_code
     best_config_overrides: list[str] = []
+    best_ptool_changes: dict[str, str] = {}
     total_supervisor_cost = 0.0
-
-    # Save original state for rollback
-    original_impl = entry_interface.implementation
 
     # --- Initial evaluation ---
     print('\n[supervisor] === Initial Evaluation ===')
@@ -550,14 +615,22 @@ def improve_with_supervisor(
     for i in range(1, max_iterations + 1):
         print(f'\n[supervisor] === Iteration {i}/{max_iterations} ===')
 
-        # 1. Build context
+        # 1. Build context — pass dataset for input lookup
         prof_summary = format_profiling_summary(profile)
-        failure_traces = _format_failure_traces(best_result_dir)
+        failure_traces = _format_failure_traces(
+            best_result_dir, dataset=train_dataset,
+        )
         history_text = _format_iteration_history(iterations)
+
+        # Rebuild catalog to reflect any docstring changes
+        from secretagent.core import all_interfaces as _all_ifaces
+        catalog = PtoolCatalog.from_interfaces(
+            _all_ifaces(), exclude=[entry_interface.name],
+        )
 
         # 2. Call supervisor
         print('[supervisor] calling supervisor LLM...')
-        new_code, reasoning, cfg_overrides, sup_stats = recompose(
+        new_code, reasoning, cfg_overrides, ptool_changes, sup_stats = recompose(
             current_code=current_code,
             catalog=catalog,
             entry_signature=entry_sig,
@@ -572,7 +645,9 @@ def improve_with_supervisor(
         total_supervisor_cost += sup_cost
         print(f'[supervisor] supervisor cost: ${sup_cost:.4f}')
         if reasoning:
-            print(f'[supervisor] reasoning: {reasoning[:200]}')
+            print(f'[supervisor] reasoning: {reasoning[:300]}')
+        if ptool_changes:
+            print(f'[supervisor] ptool docstring changes: {list(ptool_changes.keys())}')
 
         # Save iteration artifacts
         if output_dir:
@@ -589,9 +664,15 @@ def improve_with_supervisor(
                 (iter_dir / 'config_overrides.txt').write_text(
                     '\n'.join(cfg_overrides)
                 )
+            if ptool_changes:
+                (iter_dir / 'ptool_changes.json').write_text(
+                    json.dumps(ptool_changes, indent=2)
+                )
 
-        # 3. Check if code actually changed
-        if new_code.strip() == current_code.strip() and not cfg_overrides:
+        # 3. Check if anything actually changed
+        code_changed = new_code.strip() != current_code.strip()
+        has_changes = code_changed or cfg_overrides or ptool_changes
+        if not has_changes:
             print('[supervisor] no changes proposed, skipping')
             iterations.append(IterationRecord(
                 iteration=i, train_accuracy=profile.accuracy,
@@ -599,33 +680,37 @@ def improve_with_supervisor(
                 reasoning=reasoning, kept=False, code_snapshot=new_code,
             ))
             no_improve_count += 1
-            if no_improve_count >= 3:
-                print('[supervisor] 3 consecutive no-change iterations, stopping')
+            if no_improve_count >= 5:
+                print('[supervisor] 5 consecutive no-change iterations, stopping')
                 break
             continue
 
         # 4. Compile new pipeline (with retry on syntax errors)
-        recompose_kwargs = dict(
-            current_code=current_code, catalog=catalog,
-            entry_signature=entry_sig, profiling_summary=prof_summary,
-            failure_traces=failure_traces, iteration_history=history_text,
-            custom_instructions=custom_instructions,
-            model_choices=model_choices, model=supervisor_model,
-        )
-        pipeline = _compile_with_retry(
-            new_code, entry_sig, namespace,
-            recompose, recompose_kwargs,
-        )
-        if pipeline is None:
-            iterations.append(IterationRecord(
-                iteration=i, train_accuracy=profile.accuracy,
-                train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                reasoning=reasoning, kept=False, code_snapshot=new_code,
-            ))
-            continue
+        if code_changed:
+            recompose_kwargs = dict(
+                current_code=current_code, catalog=catalog,
+                entry_signature=entry_sig, profiling_summary=prof_summary,
+                failure_traces=failure_traces, iteration_history=history_text,
+                custom_instructions=custom_instructions,
+                model_choices=model_choices, model=supervisor_model,
+            )
+            pipeline = _compile_with_retry(
+                new_code, entry_sig, namespace,
+                recompose, recompose_kwargs,
+            )
+            if pipeline is None:
+                iterations.append(IterationRecord(
+                    iteration=i, train_accuracy=profile.accuracy,
+                    train_cost=profile.avg_cost, supervisor_cost=sup_cost,
+                    reasoning=reasoning, kept=False, code_snapshot=new_code,
+                ))
+                continue
 
-        # 5. Apply config overrides
+        # 5. Apply all changes (save state for rollback)
         saved_config = dict(config.GLOBAL_CONFIG) if cfg_overrides else None
+        old_impl = entry_interface.implementation
+        ptool_rollback: dict[str, tuple[str, str]] = {}
+
         if cfg_overrides:
             print(f'[supervisor] applying config: {cfg_overrides}')
             try:
@@ -633,11 +718,13 @@ def improve_with_supervisor(
             except Exception as e:
                 print(f'[supervisor] config override failed: {e}')
 
-        # 6. Rebind entry interface to new pipeline
-        old_impl = entry_interface.implementation
-        entry_interface.implement_via('direct', fn=pipeline)
+        if ptool_changes:
+            ptool_rollback = _apply_ptool_changes(ptool_changes, tool_interfaces)
 
-        # 7. Re-evaluate
+        if code_changed:
+            entry_interface.implement_via('direct', fn=pipeline)
+
+        # 6. Re-evaluate
         print('[supervisor] re-evaluating on train set...')
         with config.configuration(evaluate=dict(
             expt_name=f'rc_iter{i}', record_details=True,
@@ -649,6 +736,8 @@ def improve_with_supervisor(
                 entry_interface.implementation = old_impl
                 if saved_config is not None:
                     config.GLOBAL_CONFIG = saved_config
+                if ptool_rollback:
+                    _rollback_ptool_changes(ptool_rollback, tool_interfaces)
                 iterations.append(IterationRecord(
                     iteration=i, train_accuracy=profile.accuracy,
                     train_cost=profile.avg_cost, supervisor_cost=sup_cost,
@@ -662,7 +751,7 @@ def improve_with_supervisor(
         print(f'[supervisor] accuracy: {profile.accuracy:.1%} -> {new_profile.accuracy:.1%}')
         print(f'[supervisor] cost: ${profile.avg_cost:.4f} -> ${new_profile.avg_cost:.4f}')
 
-        # 8. Keep or rollback
+        # 7. Keep or rollback
         kept = new_profile.accuracy >= best_accuracy
         if kept:
             no_improve_count = 0
@@ -673,12 +762,16 @@ def improve_with_supervisor(
             profile = new_profile
             if cfg_overrides:
                 best_config_overrides = cfg_overrides
+            if ptool_changes:
+                best_ptool_changes.update(ptool_changes)
             print(f'[supervisor] KEPT (best accuracy: {best_accuracy:.1%})')
         else:
             no_improve_count += 1
             entry_interface.implementation = old_impl
             if saved_config is not None:
                 config.GLOBAL_CONFIG = saved_config
+            if ptool_rollback:
+                _rollback_ptool_changes(ptool_rollback, tool_interfaces)
             print(f'[supervisor] ROLLED BACK (accuracy dropped)')
 
         iterations.append(IterationRecord(
@@ -688,12 +781,12 @@ def improve_with_supervisor(
             config_overrides=cfg_overrides,
         ))
 
-        # 9. Check stopping criteria
+        # 8. Check stopping criteria
         if target_accuracy is not None and best_accuracy >= target_accuracy:
             print(f'[supervisor] target accuracy {target_accuracy:.1%} reached!')
             break
-        if no_improve_count >= 3:
-            print('[supervisor] 3 consecutive non-improvements, stopping')
+        if no_improve_count >= 5:
+            print('[supervisor] 5 consecutive non-improvements, stopping')
             break
 
     # --- Final report ---
@@ -712,7 +805,7 @@ def improve_with_supervisor(
         best_config_overrides=best_config_overrides,
     )
 
-    # Save report
+    # Save report and artifacts
     if output_dir:
         (output_dir / 'best_code.py').write_text(
             f'{entry_sig}\n{textwrap.indent(textwrap.dedent(best_code), "    ")}'
@@ -720,10 +813,16 @@ def improve_with_supervisor(
         (output_dir / 'report.json').write_text(
             report.model_dump_json(indent=2)
         )
+        if best_ptool_changes:
+            (output_dir / 'best_ptool_changes.json').write_text(
+                json.dumps(best_ptool_changes, indent=2)
+            )
 
     print(f'\n[supervisor] === Summary ===')
     print(f'Iterations: {len(iterations) - 1}')
     print(f'Best accuracy: {best_accuracy:.1%} (iteration {best_iter.iteration})')
     print(f'Total supervisor cost: ${total_supervisor_cost:.4f}')
+    if best_ptool_changes:
+        print(f'Ptool docstrings changed: {list(best_ptool_changes.keys())}')
 
     return report
