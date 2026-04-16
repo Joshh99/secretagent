@@ -242,7 +242,8 @@ def _extract_last_function_body(code: str, entry_signature: str) -> str:
     """Extract the body of the last function definition from code.
 
     When the LLM outputs multiple function definitions in one block,
-    this extracts only the last one's body.
+    this extracts only the last one's body. Normalizes indentation so
+    the first non-blank line has zero indent.
     """
     lines = code.strip().split('\n')
 
@@ -254,12 +255,35 @@ def _extract_last_function_body(code: str, entry_signature: str) -> str:
 
     if not def_positions:
         # No def lines — assume the whole thing is a function body
-        return textwrap.dedent(code).strip()
+        body = code
+    else:
+        # Take the body starting after the LAST def line
+        last_def = def_positions[-1]
+        body = '\n'.join(lines[last_def + 1:])
 
-    # Take the body starting after the LAST def line
-    last_def = def_positions[-1]
-    body_lines = lines[last_def + 1:]
-    return textwrap.dedent('\n'.join(body_lines)).strip()
+    # Normalize: find the indent of the first non-blank line, strip that
+    # amount from ALL lines. This handles the case where the LLM outputs
+    # the body with extra indentation from being inside the def.
+    body_lines = body.split('\n')
+    first_indent = 0
+    for line in body_lines:
+        if line.strip():
+            first_indent = len(line) - len(line.lstrip())
+            break
+
+    if first_indent > 0:
+        normalized = []
+        for line in body_lines:
+            if line.strip():
+                # Remove exactly first_indent spaces (or all leading if less)
+                normalized.append(line[first_indent:] if len(line) >= first_indent
+                                  and line[:first_indent].isspace()
+                                  else line.lstrip())
+            else:
+                normalized.append('')
+        body = '\n'.join(normalized)
+
+    return body.strip()
 
 
 def _extract_code(text: str) -> str:
