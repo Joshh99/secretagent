@@ -208,9 +208,9 @@ class SupervisorReport(BaseModel):
 def _format_failure_traces(
     result_dir: Path,
     dataset: Dataset | None = None,
-    max_cases: int = 10,
-    max_input_chars: int = 500,
-    max_output_chars: int = 300,
+    max_cases: int = 999,
+    max_input_chars: int = 2000,
+    max_output_chars: int = 1000,
 ) -> str:
     """Read results.jsonl and format failure cases with full context.
 
