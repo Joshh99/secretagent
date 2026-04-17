@@ -332,6 +332,8 @@ def run(
     )
 
     # --- Final eval on held-out set ---
+    # Re-get entry_interface from the (possibly reloaded) ptools module
+    entry_interface = getattr(ptools_module, entry_point_name)
     if eval_dataset:
         print(f'\n=== Final Evaluation on Held-Out Set ({len(eval_dataset.cases)} cases) ===')
         final_dir = output_dir / 'final_eval'
@@ -345,7 +347,7 @@ def run(
         import pandas as pd
         df = pd.read_csv(csv_path)
         eval_acc = df['correct'].mean()
-        eval_cost = df['cost'].mean()
+        eval_cost = df.get('cost', pd.Series([0])).mean()
         report.final_eval_accuracy = eval_acc
         print(f'Final eval accuracy: {eval_acc:.1%}')
         print(f'Final eval avg cost: ${eval_cost:.4f}')
