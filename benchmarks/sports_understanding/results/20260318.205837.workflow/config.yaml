@@ -1,0 +1,21 @@
+llm:
+  model: claude-haiku-4-5-20251001
+cachier:
+  cache_dir: /Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/sports_understanding/llm_cache
+evaluate:
+  result_dir: /Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/sports_understanding/results
+  expt_name: workflow
+dataset:
+  split: valid
+  shuffle_seed: 137
+  'n': 2
+ptools:
+  analyze_sentence:
+    method: simulate
+  sport_for:
+    method: simulate
+  consistent_sports:
+    method: simulate
+  are_sports_in_sentence_consistent:
+    method: direct
+    fn: ptools.sports_understanding_workflow
