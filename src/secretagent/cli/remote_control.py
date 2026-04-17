@@ -211,12 +211,26 @@ def run(
     if config.get('cachier.enable_caching') is None:
         config.configure(cachier=dict(enable_caching=True))
 
-    # --- Import benchmark modules ---
-    import ptools as ptools_module
+    # --- Create/load ptools_evolved.py ---
+    evolved_path = benchmark_dir / 'ptools_evolved.py'
+    if not evolved_path.exists():
+        import shutil
+        base_path = benchmark_dir / 'ptools.py'
+        shutil.copy2(base_path, evolved_path)
+        print(f'Created ptools_evolved.py from ptools.py')
+    else:
+        print(f'Using existing ptools_evolved.py')
+
+    # Import ptools_evolved as the ptools module
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('ptools', str(evolved_path))
+    ptools_module = importlib.util.module_from_spec(spec)
+    sys.modules['ptools'] = ptools_module
+    spec.loader.exec_module(ptools_module)
 
     # Try to import benchmark-specific evaluator and dataset loader
     try:
-        from expt import setup, load_dataset, stratified_sample
+        from expt import load_dataset, stratified_sample
         evaluator_module = __import__('expt')
     except ImportError as e:
         print(f'Error: could not import expt module from {benchmark_dir}: {e}')

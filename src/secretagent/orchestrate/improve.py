@@ -331,234 +331,8 @@ def _format_iteration_history(iterations: list[IterationRecord]) -> str:
     return '\n'.join(lines)
 
 
-def _extract_initial_code(entry_interface: Interface) -> str:
-    """Get the function body of the entry interface's implementation."""
-    impl = entry_interface.implementation
-    if impl is None:
-        return '    pass'
-    fn = impl.implementing_fn
-    # If it's an OrchestrateFactory with a pipeline
-    if hasattr(fn, 'pipeline') and fn.pipeline is not None:
-        return fn.pipeline.code
-    # If it's a DirectFactory, get the actual function
-    actual_fn = getattr(fn, 'direct_fn', None) or getattr(fn, '_fn', None)
-    if actual_fn is None:
-        actual_fn = fn
-    # Try to get source
-    try:
-        src = inspect.getsource(actual_fn)
-        # Strip decorators and def line to get just the body
-        src_lines = src.split('\n')
-        body_start = 0
-        for i, line in enumerate(src_lines):
-            stripped = line.strip()
-            if stripped.startswith('def '):
-                body_start = i + 1
-                break
-        body = '\n'.join(src_lines[body_start:])
-        return textwrap.dedent(body)
-    except (TypeError, OSError):
-        return '    pass'
-
-
-def _build_namespace(
-    tool_interfaces: list,
-    ptools_module: Any = None,
-) -> dict[str, Any]:
-    """Build exec namespace for pipeline compilation."""
-    import builtins
-    import json as json_mod
-    import re as re_mod
-    from secretagent.core import Interface
-
-    namespace: dict[str, Any] = {
-        '__builtins__': builtins,
-        'json': json_mod,
-        're': re_mod,
-    }
-    for iface in tool_interfaces:
-        namespace[iface.name] = iface
-
-    # Add non-Interface objects from ptools module (functions, modules, constants)
-    if ptools_module is not None:
-        import types
-        for name in dir(ptools_module):
-            if name.startswith('__'):
-                continue
-            obj = getattr(ptools_module, name)
-            if isinstance(obj, Interface):
-                continue
-            # Include callables, modules, and data objects
-            if (callable(obj) or isinstance(obj, types.ModuleType)
-                    or isinstance(obj, (str, list, dict, set, tuple, int, float))):
-                namespace[name] = obj
-
-    return namespace
-
-
-def _describe_namespace_with_source(
-    namespace: dict[str, Any],
-    tool_interfaces: list,
-    ptools_module: Any = None,
-) -> str:
-    """Build full context of utility functions with source code.
-
-    This gives the supervisor visibility into the Python logic between
-    LLM calls — crucial for pipelines where most computation is Python.
-    """
-    from secretagent.core import Interface
-    tool_names = {iface.name for iface in tool_interfaces}
-    skip = {'__builtins__', 'json', 're'}
-
-    # Collect utility functions with source
-    func_sources = []
-    data_items = []
-    for name, obj in sorted(namespace.items()):
-        if name in tool_names or name in skip:
-            continue
-        if isinstance(obj, Interface):
-            continue
-        if callable(obj) and not isinstance(obj, type):
-            try:
-                src = inspect.getsource(obj)
-                func_sources.append((name, src))
-            except (TypeError, OSError):
-                sig = ''
-                try:
-                    sig = f'({", ".join(inspect.signature(obj).parameters.keys())})'
-                except (ValueError, TypeError):
-                    pass
-                doc = (getattr(obj, '__doc__', '') or '').split('\n')[0][:80]
-                func_sources.append(
-                    (name, f'def {name}{sig}:\n    """{doc}"""\n    ...'))
-        elif isinstance(obj, str) and len(obj) > 20:
-            data_items.append(f'- `{name}` (str, {len(obj)} chars)')
-        elif isinstance(obj, (list, dict)):
-            data_items.append(
-                f'- `{name}` ({type(obj).__name__}, {len(obj)} items)')
-
-    if not func_sources and not data_items:
-        return ''
-
-    lines = ['## Utility functions available in scope (FULL SOURCE)',
-             'These helper functions are called by the pipeline. You can modify',
-             'the pipeline code to call them differently or pass different arguments.',
-             '']
-
-    for name, src in func_sources:
-        lines.append(f'```python\n{src.rstrip()}\n```\n')
-
-    if data_items:
-        lines.append('## Data objects in scope')
-        lines.extend(data_items)
-
-    return '\n'.join(lines)
-
-
-def _compile_pipeline(code: str, entry_sig: str, namespace: dict):
-    """Compile pipeline code without Pipeline's indentation normalization.
-
-    Pipeline._compile has a first-line normalization that breaks try/except
-    blocks. This function does a clean compile: dedent, re-indent under
-    the entry signature, exec.
-    """
-    func_name = entry_sig.split('(')[0].replace('def ', '').strip()
-    indented_body = textwrap.indent(textwrap.dedent(code), '    ')
-    func_src = f'{entry_sig}\n{indented_body}'
-    exec_ns = dict(namespace)
-    exec(func_src, exec_ns)
-    fn = exec_ns[func_name]
-
-    # Wrap in a Pipeline-like callable for compatibility
-    p = Pipeline.__new__(Pipeline)
-    p.code = code
-    p.entry_signature = entry_sig
-    p._fn = fn
-    return p
-
-
-def _compile_with_retry(
-    code: str, entry_sig: str, namespace: dict,
-    recompose_fn, recompose_kwargs: dict,
-    max_retries: int = 2,
-) -> Pipeline | None:
-    """Try to compile pipeline code, retrying with error feedback."""
-    for attempt in range(1 + max_retries):
-        try:
-            return _compile_pipeline(code, entry_sig, namespace)
-        except Exception as e:
-            if attempt >= max_retries:
-                print(f'[supervisor] compile failed after {attempt + 1} attempts: {e}')
-                return None
-            print(f'[supervisor] compile error (retry {attempt + 1}): {e}')
-            # Append error context to custom instructions for retry
-            error_ctx = (
-                f'\n\nYour previous code had a compile error:\n```\n{e}\n```\n'
-                f'Previous code:\n```python\n{code}\n```\n'
-                f'Fix the syntax error. Return corrected code.'
-            )
-            retry_kwargs = dict(recompose_kwargs)
-            retry_kwargs['custom_instructions'] = (
-                retry_kwargs.get('custom_instructions', '') + error_ctx
-            )
-            code, _reasoning, _cfg, _ptool, _stats = recompose_fn(**retry_kwargs)
-    return None
-
-
-def _apply_ptool_changes(
-    ptool_changes: dict[str, str],
-    tool_interfaces: list,
-) -> dict[str, tuple[str, str]]:
-    """Apply docstring changes to ptool interfaces. Returns rollback info.
-
-    Returns {ptool_name: (old_doc, old_src)} for rollback.
-    """
-    from secretagent.core import Interface
-    rollback: dict[str, tuple[str, str]] = {}
-    all_ifaces = {iface.name: iface for iface in tool_interfaces
-                  if isinstance(iface, Interface)}
-
-    for name, new_doc in ptool_changes.items():
-        iface = all_ifaces.get(name)
-        if iface is None:
-            print(f'[supervisor] ptool_change: unknown ptool {name!r}, skipping')
-            continue
-        rollback[name] = (iface.doc, iface.src)
-        iface.doc = new_doc
-        # Rebuild the src to include the new docstring
-        old_src_lines = iface.src.split('\n')
-        # Find the def line and rebuild
-        new_src_lines = []
-        found_def = False
-        for line in old_src_lines:
-            if not found_def:
-                new_src_lines.append(line)
-                if line.strip().startswith('def '):
-                    found_def = True
-                    # Add new docstring
-                    new_src_lines.append(f'    """{new_doc}"""')
-            # Skip old docstring lines (between def and first code line)
-        if found_def:
-            iface.src = '\n'.join(new_src_lines)
-        print(f'[supervisor] ptool_change: updated docstring for {name} '
-              f'({len(new_doc)} chars)')
-
-    return rollback
-
-
-def _rollback_ptool_changes(
-    rollback: dict[str, tuple[str, str]],
-    tool_interfaces: list,
-):
-    """Restore ptool docstrings from rollback info."""
-    from secretagent.core import Interface
-    all_ifaces = {iface.name: iface for iface in tool_interfaces
-                  if isinstance(iface, Interface)}
-    for name, (old_doc, old_src) in rollback.items():
-        iface = all_ifaces.get(name)
-        if iface:
-            iface.doc = old_doc
-            iface.src = old_src
+    # These helpers are kept for backward compatibility with improve_pipeline
+    # but are not used by improve_with_supervisor (which uses file-based approach)
 
 
 def improve_with_supervisor(
@@ -578,37 +352,38 @@ def improve_with_supervisor(
 ) -> SupervisorReport:
     """Iteratively improve a pipeline using a supervisor LLM.
 
-    The supervisor sees profiling data and failure traces, and can:
-    1. Modify the pipeline code (control flow, error handling)
-    2. Change ptool docstrings (improves LLM prompt quality → cache bust)
-    3. Apply config overrides (model switches, hyperparameters)
+    The supervisor sees the FULL ptools source file and can modify anything:
+    workflow code, utility functions, docstrings, extraction logic, etc.
+    Changes are written to ptools_evolved.py and the module is reloaded.
 
     Hill climbing: keep improvements, rollback regressions.
     """
     from secretagent.orchestrate.composer import recompose
     from secretagent.orchestrate.transforms.base import format_profiling_summary
+    from secretagent.core import implement_via_config
 
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / 'iterations').mkdir(exist_ok=True)
 
-    entry_sig = _entry_signature_from_interface(entry_interface)
-    namespace = _build_namespace(tool_interfaces, ptools_module)
-    current_code = _extract_initial_code(entry_interface)
+    # --- Setup evolved ptools file ---
+    benchmark_dir = Path(ptools_module.__file__).parent if ptools_module else Path('.')
+    evolved_path = benchmark_dir / 'ptools_evolved.py'
+    base_path = benchmark_dir / 'ptools.py'
 
-    # Build full context of utility functions: signatures + source
-    utility_desc = _describe_namespace_with_source(
-        namespace, tool_interfaces, ptools_module,
-    )
-    if utility_desc:
-        custom_instructions = (
-            f'{custom_instructions}\n\n{utility_desc}'
-        ).strip()
+    # If no evolved file exists, copy from base
+    if not evolved_path.exists():
+        print(f'[supervisor] creating ptools_evolved.py from ptools.py')
+        evolved_path.write_text(base_path.read_text())
+    else:
+        print(f'[supervisor] resuming from existing ptools_evolved.py')
+
+    current_source = evolved_path.read_text()
+    entry_point_name = entry_interface.name
 
     iterations: list[IterationRecord] = []
-    best_code = current_code
+    best_source = current_source
     best_config_overrides: list[str] = []
-    best_ptool_changes: dict[str, str] = {}
     total_supervisor_cost = 0.0
 
     # --- Initial evaluation ---
@@ -624,21 +399,19 @@ def improve_with_supervisor(
 
     rec0 = IterationRecord(
         iteration=0, train_accuracy=profile.accuracy,
-        train_cost=profile.avg_cost, kept=True, code_snapshot=current_code,
+        train_cost=profile.avg_cost, kept=True,
+        code_snapshot=f'# ptools_evolved.py ({len(current_source)} chars)',
     )
     iterations.append(rec0)
 
     print(f'[supervisor] baseline: accuracy={profile.accuracy:.1%}, '
           f'avg_cost=${profile.avg_cost:.4f}')
-    prof_summary = format_profiling_summary(profile)
-    print(prof_summary)
+    print(format_profiling_summary(profile))
 
     if output_dir:
         iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
         iter_dir.mkdir(exist_ok=True)
-        (iter_dir / 'code.py').write_text(
-            f'{entry_sig}\n{textwrap.indent(textwrap.dedent(current_code), "    ")}'
-        )
+        (iter_dir / 'ptools_evolved.py').write_text(current_source)
 
     # --- Improvement loop ---
     no_improve_count = 0
@@ -646,46 +419,23 @@ def improve_with_supervisor(
     for i in range(1, max_iterations + 1):
         print(f'\n[supervisor] === Iteration {i}/{max_iterations} ===')
 
-        # 1. Build context — pass dataset for input lookup
+        # 1. Build context
         prof_summary = format_profiling_summary(profile)
-        # Add explicit guidance about which ptools are actually called
-        called_ptools = [
-            name for name, pp in profile.ptool_profiles.items()
-            if pp.calls_per_case > 0.01
-        ]
-        uncalled_ptools = [
-            iface.name for iface in tool_interfaces
-            if iface.name not in called_ptools
-        ]
-        if called_ptools or uncalled_ptools:
-            prof_summary += '\n\nIMPORTANT CALL ANALYSIS:\n'
-            if called_ptools:
-                prof_summary += f'  Ptools ACTUALLY CALLED via LLM: {called_ptools}\n'
-            if uncalled_ptools:
-                prof_summary += (
-                    f'  Ptools NEVER CALLED (fallback/unused): {uncalled_ptools}\n'
-                    f'  Changing docstrings of uncalled ptools has NO EFFECT.\n'
-                    f'  To improve, change docstrings of CALLED ptools, or fix '
-                    f'the Python code that does extraction/computation.\n'
-                )
+        # Add call analysis
+        called = [n for n, pp in profile.ptool_profiles.items()
+                  if pp.calls_per_case > 0.01]
+        if called:
+            prof_summary += f'\n\nPtools called via LLM: {called}'
 
         failure_traces = _format_failure_traces(
             best_result_dir, dataset=train_dataset,
         )
         history_text = _format_iteration_history(iterations)
 
-        # Rebuild catalog to reflect any docstring changes
-        from secretagent.core import all_interfaces as _all_ifaces
-        catalog = PtoolCatalog.from_interfaces(
-            _all_ifaces(), exclude=[entry_interface.name],
-        )
-
-        # 2. Call supervisor
+        # 2. Call supervisor with FULL ptools source
         print('[supervisor] calling supervisor LLM...')
-        new_code, reasoning, cfg_overrides, ptool_changes, sup_stats = recompose(
-            current_code=current_code,
-            catalog=catalog,
-            entry_signature=entry_sig,
+        new_source, reasoning, cfg_overrides, sup_stats = recompose(
+            ptools_source=current_source,
             profiling_summary=prof_summary,
             failure_traces=failure_traces,
             iteration_history=history_text,
@@ -698,38 +448,26 @@ def improve_with_supervisor(
         print(f'[supervisor] supervisor cost: ${sup_cost:.4f}')
         if reasoning:
             print(f'[supervisor] reasoning: {reasoning[:300]}')
-        if ptool_changes:
-            print(f'[supervisor] ptool docstring changes: {list(ptool_changes.keys())}')
 
         # Save iteration artifacts
         if output_dir:
             iter_dir = output_dir / 'iterations' / f'iter_{i:03d}'
             iter_dir.mkdir(exist_ok=True)
-            (iter_dir / 'code_before.py').write_text(
-                f'{entry_sig}\n{textwrap.indent(textwrap.dedent(current_code), "    ")}'
-            )
-            (iter_dir / 'code_after.py').write_text(
-                f'{entry_sig}\n{textwrap.indent(textwrap.dedent(new_code), "    ")}'
-            )
+            (iter_dir / 'ptools_before.py').write_text(current_source)
+            (iter_dir / 'ptools_after.py').write_text(new_source)
             (iter_dir / 'reasoning.txt').write_text(reasoning)
             if cfg_overrides:
                 (iter_dir / 'config_overrides.txt').write_text(
                     '\n'.join(cfg_overrides)
                 )
-            if ptool_changes:
-                (iter_dir / 'ptool_changes.json').write_text(
-                    json.dumps(ptool_changes, indent=2)
-                )
 
-        # 3. Check if anything actually changed
-        code_changed = new_code.strip() != current_code.strip()
-        has_changes = code_changed or cfg_overrides or ptool_changes
-        if not has_changes:
+        # 3. Check if anything changed
+        if new_source.strip() == current_source.strip() and not cfg_overrides:
             print('[supervisor] no changes proposed, skipping')
             iterations.append(IterationRecord(
                 iteration=i, train_accuracy=profile.accuracy,
                 train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                reasoning=reasoning, kept=False, code_snapshot=new_code,
+                reasoning=reasoning, kept=False,
             ))
             no_improve_count += 1
             if no_improve_count >= 5:
@@ -737,44 +475,53 @@ def improve_with_supervisor(
                 break
             continue
 
-        # 4. Compile new pipeline (with retry on syntax errors)
-        if code_changed:
-            recompose_kwargs = dict(
-                current_code=current_code, catalog=catalog,
-                entry_signature=entry_sig, profiling_summary=prof_summary,
-                failure_traces=failure_traces, iteration_history=history_text,
-                custom_instructions=custom_instructions,
-                model_choices=model_choices, model=supervisor_model,
-            )
-            pipeline = _compile_with_retry(
-                new_code, entry_sig, namespace,
-                recompose, recompose_kwargs,
-            )
-            if pipeline is None:
-                iterations.append(IterationRecord(
-                    iteration=i, train_accuracy=profile.accuracy,
-                    train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                    reasoning=reasoning, kept=False, code_snapshot=new_code,
-                ))
-                continue
+        # 4. Validate syntax of new source
+        import ast
+        try:
+            ast.parse(new_source)
+        except SyntaxError as e:
+            print(f'[supervisor] syntax error in ptools_evolved.py: {e}')
+            iterations.append(IterationRecord(
+                iteration=i, train_accuracy=profile.accuracy,
+                train_cost=profile.avg_cost, supervisor_cost=sup_cost,
+                reasoning=reasoning, kept=False,
+            ))
+            continue
 
-        # 5. Apply all changes (save state for rollback)
+        # 5. Write evolved file and reload module
+        saved_source = current_source
         saved_config = dict(config.GLOBAL_CONFIG) if cfg_overrides else None
-        old_impl = entry_interface.implementation
-        ptool_rollback: dict[str, tuple[str, str]] = {}
 
-        if cfg_overrides:
-            print(f'[supervisor] applying config: {cfg_overrides}')
-            try:
+        evolved_path.write_text(new_source)
+
+        try:
+            # Reload the ptools module to pick up changes
+            import importlib
+            importlib.reload(ptools_module)
+            # Re-bind interfaces from config
+            implement_via_config(ptools_module, config.require('ptools'))
+            # Get the fresh entry interface
+            entry_interface = getattr(ptools_module, entry_point_name)
+
+            if cfg_overrides:
+                print(f'[supervisor] applying config: {cfg_overrides}')
                 config.configure(dotlist=cfg_overrides)
-            except Exception as e:
-                print(f'[supervisor] config override failed: {e}')
 
-        if ptool_changes:
-            ptool_rollback = _apply_ptool_changes(ptool_changes, tool_interfaces)
-
-        if code_changed:
-            entry_interface.implement_via('direct', fn=pipeline)
+        except Exception as e:
+            print(f'[supervisor] reload failed: {e}')
+            # Rollback: restore old source
+            evolved_path.write_text(saved_source)
+            importlib.reload(ptools_module)
+            implement_via_config(ptools_module, config.require('ptools'))
+            entry_interface = getattr(ptools_module, entry_point_name)
+            if saved_config is not None:
+                config.GLOBAL_CONFIG = saved_config
+            iterations.append(IterationRecord(
+                iteration=i, train_accuracy=profile.accuracy,
+                train_cost=profile.avg_cost, supervisor_cost=sup_cost,
+                reasoning=reasoning, kept=False,
+            ))
+            continue
 
         # 6. Re-evaluate
         print('[supervisor] re-evaluating on train set...')
@@ -785,15 +532,17 @@ def improve_with_supervisor(
                 csv_path = evaluator.evaluate(train_dataset, entry_interface)
             except Exception as e:
                 print(f'[supervisor] evaluation failed: {e}')
-                entry_interface.implementation = old_impl
+                # Rollback
+                evolved_path.write_text(saved_source)
+                importlib.reload(ptools_module)
+                implement_via_config(ptools_module, config.require('ptools'))
+                entry_interface = getattr(ptools_module, entry_point_name)
                 if saved_config is not None:
                     config.GLOBAL_CONFIG = saved_config
-                if ptool_rollback:
-                    _rollback_ptool_changes(ptool_rollback, tool_interfaces)
                 iterations.append(IterationRecord(
                     iteration=i, train_accuracy=profile.accuracy,
                     train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                    reasoning=reasoning, kept=False, code_snapshot=new_code,
+                    reasoning=reasoning, kept=False,
                 ))
                 continue
 
@@ -808,28 +557,28 @@ def improve_with_supervisor(
         if kept:
             no_improve_count = 0
             best_accuracy = new_profile.accuracy
-            best_code = new_code
+            best_source = new_source
             best_result_dir = new_result_dir
-            current_code = new_code
+            current_source = new_source
             profile = new_profile
             if cfg_overrides:
                 best_config_overrides = cfg_overrides
-            if ptool_changes:
-                best_ptool_changes.update(ptool_changes)
             print(f'[supervisor] KEPT (best accuracy: {best_accuracy:.1%})')
         else:
             no_improve_count += 1
-            entry_interface.implementation = old_impl
+            # Rollback
+            evolved_path.write_text(current_source)
+            importlib.reload(ptools_module)
+            implement_via_config(ptools_module, config.require('ptools'))
+            entry_interface = getattr(ptools_module, entry_point_name)
             if saved_config is not None:
                 config.GLOBAL_CONFIG = saved_config
-            if ptool_rollback:
-                _rollback_ptool_changes(ptool_rollback, tool_interfaces)
             print(f'[supervisor] ROLLED BACK (accuracy dropped)')
 
         iterations.append(IterationRecord(
             iteration=i, train_accuracy=new_profile.accuracy,
             train_cost=new_profile.avg_cost, supervisor_cost=sup_cost,
-            reasoning=reasoning, kept=kept, code_snapshot=new_code,
+            reasoning=reasoning, kept=kept,
             config_overrides=cfg_overrides,
         ))
 
@@ -853,28 +602,21 @@ def improve_with_supervisor(
         best_iteration=best_iter.iteration,
         best_train_accuracy=best_accuracy,
         total_supervisor_cost=total_supervisor_cost,
-        best_code=best_code,
+        best_code=f'# See ptools_evolved.py ({len(best_source)} chars)',
         best_config_overrides=best_config_overrides,
     )
 
-    # Save report and artifacts
+    # Save report and best evolved file
     if output_dir:
-        (output_dir / 'best_code.py').write_text(
-            f'{entry_sig}\n{textwrap.indent(textwrap.dedent(best_code), "    ")}'
-        )
+        (output_dir / 'ptools_evolved.py').write_text(best_source)
         (output_dir / 'report.json').write_text(
             report.model_dump_json(indent=2)
         )
-        if best_ptool_changes:
-            (output_dir / 'best_ptool_changes.json').write_text(
-                json.dumps(best_ptool_changes, indent=2)
-            )
 
     print(f'\n[supervisor] === Summary ===')
     print(f'Iterations: {len(iterations) - 1}')
     print(f'Best accuracy: {best_accuracy:.1%} (iteration {best_iter.iteration})')
     print(f'Total supervisor cost: ${total_supervisor_cost:.4f}')
-    if best_ptool_changes:
-        print(f'Ptool docstrings changed: {list(best_ptool_changes.keys())}')
+    print(f'Evolved ptools saved to: {evolved_path}')
 
     return report

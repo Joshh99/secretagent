@@ -141,50 +141,40 @@ def compose_with_retry(
 
 
 def recompose(
-    current_code: str,
-    catalog: PtoolCatalog,
-    entry_signature: str,
+    ptools_source: str,
     profiling_summary: str,
     failure_traces: str,
     iteration_history: str = '',
     custom_instructions: str = '',
     model_choices: str = '',
     model: str | None = None,
-) -> tuple[str, str, list[str], dict[str, str], dict]:
-    """Re-generate pipeline code with performance feedback from a supervisor LLM.
+) -> tuple[str, str, list[str], dict]:
+    """Ask supervisor LLM to improve ptools_evolved.py.
 
-    Like compose() but iterative: the supervisor sees current code, profiling
-    data, and failure traces, and outputs improved code + optional config changes.
+    The supervisor sees the full ptools source, profiling, and failure traces,
+    and outputs the complete modified file.
 
     Returns:
-        (new_code, reasoning, config_overrides, ptool_changes, llm_stats)
-        where ptool_changes is {ptool_name: new_docstring}.
+        (new_ptools_source, reasoning, config_overrides, llm_stats)
     """
     model = model or config.get('orchestrate.supervisor_model',
                                  'gemini/gemini-3.1-pro-preview')
     template = Template((PROMPT_TEMPLATE_DIR / 'recompose.txt').read_text())
 
-    # Build optional sections
     model_section = ''
     if model_choices:
         model_section = (
-            '\n## Available models (use sparingly — don\'t upgrade everything)\n'
+            '\n## Available models (use sparingly)\n'
             f'{model_choices}\n'
-            'NOTE: Only switch models if profiling shows a specific ptool is '
-            'the bottleneck AND a better model would help. Prefer fixing code '
-            'or prompts over upgrading models. Budget-conscious changes first.\n'
+            'Only switch models if profiling shows a specific ptool is the '
+            'bottleneck AND a better model would help.\n'
         )
     custom_section = ''
     if custom_instructions:
-        custom_section = (
-            f'\n## Additional instructions\n{custom_instructions}\n'
-        )
+        custom_section = f'\n## Additional instructions\n{custom_instructions}\n'
 
     prompt = template.substitute(
-        tool_stubs=catalog.render(),
-        tool_names=', '.join(catalog.names),
-        entry_signature=entry_signature,
-        current_code=textwrap.indent(textwrap.dedent(current_code), '    '),
+        ptools_source=ptools_source,
         profiling_summary=profiling_summary,
         failure_traces=failure_traces,
         iteration_history=iteration_history or 'No previous iterations.',
@@ -198,14 +188,11 @@ def recompose(
         from secretagent.llm_util import echo_boxed
         echo_boxed(llm_output, 'supervisor LLM output')
 
-    # Extract code
-    try:
-        code = _extract_code(llm_output)
-        code = _extract_last_function_body(code, entry_signature)
-        code = _ruff_fix(code, entry_signature)
-    except ValueError:
-        # No code block found — return current code unchanged
-        code = current_code
+    # Extract the full ptools file
+    ptools_match = re.search(
+        r'<ptools_file>(.*?)</ptools_file>', llm_output, re.DOTALL,
+    )
+    new_source = ptools_match.group(1).strip() if ptools_match else ptools_source
 
     # Extract reasoning
     reasoning_match = re.search(
@@ -224,18 +211,7 @@ def recompose(
             if line and not line.startswith('#') and '=' in line:
                 config_overrides.append(line)
 
-    # Extract ptool docstring changes
-    ptool_changes: dict[str, str] = {}
-    for match in re.finditer(
-        r'<ptool_change\s+name="([^"]+)">(.*?)</ptool_change>',
-        llm_output, re.DOTALL,
-    ):
-        ptool_name = match.group(1).strip()
-        new_docstring = match.group(2).strip()
-        if ptool_name and new_docstring:
-            ptool_changes[ptool_name] = new_docstring
-
-    return code, reasoning, config_overrides, ptool_changes, stats
+    return new_source, reasoning, config_overrides, stats
 
 
 def _extract_last_function_body(code: str, entry_signature: str) -> str:
