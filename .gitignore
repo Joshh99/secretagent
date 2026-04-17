@@ -229,5 +229,6 @@ __marimo__/
 
 strategy_comparison.png
 
-# Dataset specific
+# Benchmark specific
 benchmarks/designbench/data/
+benchmarks/designbench/results/

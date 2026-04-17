@@ -8,6 +8,7 @@ import importlib
 import json
 import pathlib
 import re
+import types
 
 from string import Template
 from textwrap import dedent
