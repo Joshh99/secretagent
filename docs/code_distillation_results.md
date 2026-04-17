@@ -83,30 +83,19 @@ Accuracy roughly preserved, cost reduced 47%. Four interfaces
 (decompose_path, extract_path_and_options, describe_command,
 select_option) achieved 96-100% train accuracy with <2% wrong rate.
 
-### MedCalc-Bench (50 cases)
+### MedCalc-Bench (test split, n=100, Qwen3.5-9B)
 
 | Method | Accuracy | Infer Cost |
 |--------|----------|-----------|
-| baseline (prompt_llm) | 78% | $0.105 |
-| pipeline (simulate) | 76% | $0.075 |
-| **pipeline + ptool codedistill** | **76%** | **$0.008** |
-| e2e codedistill (50 cases, 1 calculator) | 0% | $0.000 |
-| e2e codedistill (100 cases, 35 calculators) | 42% | $0.000 |
+| baseline (prompt_llm) | 38% | $0.134 |
+| **pipeline + ptool codedistill** | **44%** | **$0.014** |
+| e2e codedistill (100 shuffled cases) | 42% | $0.000 |
 
-**Ptool codedistill**: replaces `identify_calculator` (100% train acc, 0% wrong rate)
-in the pipeline. Accuracy preserved, cost reduced 92%.
+**Ptool codedistill**: replaces `identify_calculator` (100% val acc, 0% wrong
+rate) in the pipeline. Accuracy **+6%** over baseline, cost **-89%**.
 
-**E2E codedistill — data diversity matters**: The first attempt trained on
-50 unshuffled cases — all happened to be "Creatinine Clearance" because
-the dataset is sorted by calculator type. LLM generated code that only
-handled one calculator and abstained on all others → 0% val.
-
-With 100 **shuffled** cases (covering 35 of the 55+ calculator types),
-LLM generated 1951 lines implementing multiple calculators and reached
-**42% val accuracy**. Still below baseline because:
-- 55+ calculator types can't all be covered by 100 training examples
-- Medical formulas are complex enough that LLM gets some wrong
-- But $0 inference cost makes it attractive if you can tolerate lower accuracy
+Note: earlier results (78%/76%) were on the **train split** — data leakage.
+Test split numbers (38%/44%) are the honest results.
 
 ### RuleArena Airline (30 cases)
 
@@ -156,16 +145,20 @@ and enables those with wrong_rate <= 5%:
 
 ## Cross-Benchmark Summary
 
-| Benchmark | Baseline | Ptool Codedistill | E2E Codedistill | Winner |
-|-----------|----------|-------------------|-----------------|--------|
-| NatPlan Calendar | 54% / $0.19 | 84% / $0.09 | **90% / $0** | e2e |
-| NatPlan Meeting | 0% / $0.17 | — | 0% / $0 | evaluator broken |
-| Sports | 97% / $0.10 | 97% / $0.09 | 63% / $0 | rote (99%) |
-| MuSR Murder | 70% / $0.81 | 70% / $0.79 | 0% / $0 | baseline |
-| Penguins | **70% / $0.04** | 53% / $0.03 | 58% / $0 | baseline |
-| Geometric | 75% / $1.64 | **73% / $0.87** | — | ptool (-47% cost) |
-| MedCalc | 78% / $0.11 | **76% / $0.008** | 42% / $0 | ptool (-92% cost) |
-| RuleArena Airline | 90% / $0.46 | skipped | — | oracle 100%/$0 |
+All results use held-out val or test splits with no overlap to training data.
+
+| Benchmark | Split | Baseline | Ptool CD | E2E CD | Winner |
+|-----------|-------|----------|----------|--------|--------|
+| NatPlan Calendar | val 50 | 54% / $0.19 | 84% / $0.09 | **90% / $0** | e2e |
+| Date Understanding | val 75 | 39% / $0.29 | — | **59% / $0** | **e2e (+20%)** |
+| MedCalc | test 100 | 38% / $0.13 | **44% / $0.01** | 42% / $0 | **ptool (+6%, -89% cost)** |
+| FinQA | val 100 | 62% / $0.12 | 61% / $0.10 | 35% / $0 | ptool (-17% cost) |
+| Geometric | val 75 | 75% / $1.64 | **73% / $0.87** | — | ptool (-47% cost) |
+| Sports | val 75 | 97% / $0.10 | 97% / $0.09 | 63% / $0 | rote (99%) |
+| RuleArena Airline | val 30 | 90% / $0.46 | skipped | — | oracle 100%/$0 |
+| MuSR Murder | val 50 | 70% / $0.81 | 70% / $0.79 | 0% / $0 | baseline |
+| Penguins | val 43 | 70% / $0.04 | 53% / $0.03 | 58% / $0 | baseline |
+| NatPlan Meeting | val 50 | 0% / $0.17 | — | 0% / $0 | evaluator broken |
 
 ## Key Findings
 
