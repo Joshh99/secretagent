@@ -228,7 +228,5 @@ __marimo__/
 .codex/benchmarks/natural_plan/llm_cache/
 
 strategy_comparison.png
-
-# Benchmark specific
 benchmarks/designbench/data/
 benchmarks/designbench/results/
