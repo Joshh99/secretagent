@@ -8,6 +8,7 @@ import importlib
 import json
 import pathlib
 import re
+import types
 
 from string import Template
 from textwrap import dedent
@@ -423,8 +424,6 @@ def resolve_tools(interface: Interface, tools) -> list[Callable]:
         else:
             resolved.append(tool)
     return resolved
-
-
 
 
 register_factory('direct', DirectFactory())

@@ -15,6 +15,7 @@ Usage in config:
 """
 
 import inspect
+import json
 import re
 import time
 
@@ -23,6 +24,7 @@ from pydantic import Field
 from secretagent import config, record
 from secretagent.core import register_factory
 from secretagent.implement.core import SimulateFactory, resolve_tools, _load_template
+from secretagent.implement.vlm import call_vlm, create_vlm_messages
 from secretagent.llm_util import llm as llm_call
 
 
@@ -99,24 +101,28 @@ def _tool_names(tools: dict[str, callable]) -> str:
 # Tool dispatch
 # ---------------------------------------------------------------------------
 
-def _coerce_arg(fn, arg_str: str):
+def _coerce_arg(fn, arg_str: str, react_images: dict | None = None):
     """Call fn with arg_str, coercing to the declared parameter type."""
     sig = inspect.signature(fn)
     params = list(sig.parameters.values())
-    if not params:
-        return fn()
-    if len(params) == 1:
-        ann = params[0].annotation
+    accepts_react_images = 'react_images' in sig.parameters
+    call_kw = {'react_images': react_images} if accepts_react_images else {}
+    typed_params = [p for p in params if p.name != 'react_images']
+
+    if not typed_params:
+        return fn(**call_kw)
+    if len(typed_params) == 1:
+        ann = typed_params[0].annotation
         if ann is inspect.Parameter.empty or ann is str:
-            return fn(arg_str)
+            return fn(arg_str, **call_kw)
         try:
-            return fn(ann(arg_str))
+            return fn(ann(arg_str), **call_kw)
         except (ValueError, TypeError):
-            return fn(arg_str)
+            return fn(arg_str, **call_kw)
     # Multi-arg: split on '|' or ',' and coerce each
     parts = [p.strip() for p in re.split(r'[|,]', arg_str)]
     coerced = []
-    for part, param in zip(parts, params):
+    for part, param in zip(parts, typed_params):
         ann = param.annotation
         if ann is inspect.Parameter.empty or ann is str:
             coerced.append(part)
@@ -125,7 +131,7 @@ def _coerce_arg(fn, arg_str: str):
                 coerced.append(ann(part))
             except (ValueError, TypeError):
                 coerced.append(part)
-    return fn(*coerced)
+    return fn(*coerced, **call_kw)
 
 
 # ---------------------------------------------------------------------------
@@ -141,6 +147,9 @@ class ReactFactory(SimulateFactory):
     Config keys (passed as builder kwargs in the YAML ``ptools:`` block):
         tools:     list of dotted-path references to tool functions
         max_steps: maximum number of Thought/Action rounds (default 8)
+
+    Runtime config:
+        vlm.enabled or react.use_vlm: when truthy, use VLM calls for each ReAct step
     """
 
     tools: dict = Field(default_factory=dict)
@@ -157,11 +166,15 @@ class ReactFactory(SimulateFactory):
     def __call__(self, *args, **kw):
         interface = self.bound_interface
         model_name = self.llm_model
+        call_kw = dict(kw)
+        call_images = call_kw.pop('images', None)
+        working_images = dict(call_images or {})
+        use_vlm = bool(config.get('vlm.enabled', config.get('react.use_vlm', False)))
 
         with config.configuration(**self.prompt_kw):
             # Build the initial prompt
             template = _load_template('react.txt')
-            input_args = interface.format_args(*args, **kw)
+            input_args = interface.format_args(*args, **call_kw)
             tool_descs = _all_tool_descriptions(self.tools)
             tool_name_list = _tool_names(self.tools)
 
@@ -182,7 +195,15 @@ class ReactFactory(SimulateFactory):
                 for step_num in range(1, self.max_steps + 1):
                     # Prompt ends with "Thought:" — LLM continues from there
                     full_prompt = prompt + scratchpad
-                    response, stats = llm_call(full_prompt, model_name)
+                    if use_vlm:
+                        messages = create_vlm_messages(
+                            prompt=full_prompt,
+                            images=(working_images or None),
+                            system_prompt=config.get('vlm.system_prompt') or '',
+                        )
+                        response, stats = call_vlm(messages=messages, output_mode='freeform')
+                    else:
+                        response, stats = llm_call(full_prompt, model_name)
                     for k in total_stats:
                         total_stats[k] += stats.get(k, 0)
 
@@ -230,7 +251,21 @@ class ReactFactory(SimulateFactory):
 
                     if resolved_name in self.tools:
                         try:
-                            observation = str(_coerce_arg(self.tools[resolved_name], tool_input))
+                            tool_result = _coerce_arg(
+                                self.tools[resolved_name],
+                                tool_input,
+                                react_images=working_images,
+                            )
+                            if isinstance(tool_result, dict):
+                                returned_images = tool_result.get('react_images')
+                                if isinstance(returned_images, dict):
+                                    working_images.update({
+                                        k: v for k, v in returned_images.items()
+                                        if isinstance(k, str) and isinstance(v, str)
+                                    })
+                                observation = json.dumps(tool_result)
+                            else:
+                                observation = str(tool_result)
                         except Exception as e:
                             observation = f'Error calling {resolved_name}: {e}'
                     else:
@@ -245,7 +280,7 @@ class ReactFactory(SimulateFactory):
             except Exception as ex:
                 total_stats['latency'] = time.time() - start_time
                 record.record(
-                    func=interface.name, args=args, kw=kw,
+                    func=interface.name, args=args, kw=call_kw,
                     output=f'**exception**: {ex}', step_info=steps,
                     stats=total_stats)
                 raise
@@ -261,7 +296,7 @@ class ReactFactory(SimulateFactory):
                 answer = self.parse_output(return_type, f'<answer>{answer}</answer>')
 
             record.record(
-                func=interface.name, args=args, kw=kw,
+                func=interface.name, args=args, kw=call_kw,
                 output=answer, step_info=steps, stats=total_stats,
             )
             return answer
