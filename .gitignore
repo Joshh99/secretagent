@@ -2,8 +2,7 @@
 
 orchestrate_cache/
 results_plot.png
-benchmarks/**/results/
-benchmarks/**/llm_cache/
+benchmarks/**/results/*DEFAULT
 benchmarks/**/training/
 docs/orchestrator_demo.html
 docs/presentation.md
