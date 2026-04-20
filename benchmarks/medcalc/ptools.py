@@ -18,7 +18,6 @@ from typing import Any, Dict, List, Optional
 
 from secretagent.core import interface
 from secretagent import config
-from secretagent.llm_util import llm
 
 
 # =============================================================================
@@ -77,19 +76,23 @@ from pathlib import Path as _Path
 
 _CALCULATE_DOCSTRING = f"""Calculate a medical value from a patient note.
 
-Given a patient note and a calculation question:
+Given a patient note and a calculation question, reason step by step:
 1. Carefully read the patient note to extract all relevant clinical values
 2. Identify what medical calculation/score is needed
 3. Apply the appropriate formula from the reference below
-4. Show your calculation step by step
+4. Show your calculation step by step, checking your arithmetic
 
 {FORMULA_REFERENCE}
 
-Important: Be precise with extracted values. Double-check your arithmetic.
-For sex/gender: "man"/"male"/"he" → male, "woman"/"female"/"she" → female.
-Convert units as needed (lbs→kg: ×0.453592, feet/inches→cm: (ft×12+in)×2.54).
+Important:
+- Be precise with extracted values. Double-check your arithmetic.
+- For sex/gender: "man"/"male"/"he" → male, "woman"/"female"/"she" → female.
+- Convert units as needed (lbs→kg: ×0.453592, feet/inches→cm: (ft×12+in)×2.54).
+- For scoring systems: carefully check each criterion against the patient note.
+  Look for conditions implied by medications or clinical findings, not just
+  explicitly named conditions.
 
-Return ONLY the final numeric answer.
+Return the final numeric answer.
 
 Examples:
 >>> calculate_medical_value("A 70-year-old male weighing 80 kg, height 175 cm.", "What is the patient's BMI?")
@@ -202,39 +205,103 @@ def compute_calculation(calculator_name: str, values: dict) -> dict:
 
 
 # =============================================================================
-# Chain-of-thought reasoning fallback (reusable by any workflow)
+# L4 sub-interfaces: extraction pipeline
 # =============================================================================
 
-def _reasoning_fallback(patient_note: str, question: str) -> float:
-    """Ask the LLM to reason step-by-step, then extract the numeric answer.
+@interface
+def analyze_scoring_conditions(patient_note: str, calculator_name: str) -> dict:
+    """Analyze a patient note to identify conditions relevant to a scoring calculator.
 
-    Uses the same formula-rich prompt as the L0 baseline.  Unlike
-    ``simulate`` (which predicts a bare number), this lets the LLM show
-    its work — critical for complex scoring systems where holistic
-    reasoning outperforms structured extraction.
+    You are a medical expert. Carefully read the patient note and identify ALL
+    conditions/criteria relevant to the named scoring calculator.
+
+    Look for:
+    - Conditions EXPLICITLY mentioned (e.g., "history of heart failure")
+    - Conditions IMPLIED by medications (e.g., warfarin implies anticoagulation,
+      metformin implies diabetes, ACE inhibitors imply hypertension)
+    - Conditions IMPLIED by clinical findings (e.g., elevated JVP implies heart failure)
+    - Demographics: age, sex (infer from pronouns if not stated)
+
+    Be thorough — missing a condition leads to wrong scores.
+
+    Return a dict with:
+    - "reasoning": step-by-step analysis of how you identified each condition
+    - "conditions_present": list of conditions found present
+    - "conditions_absent": list of conditions found absent
+    - "demographics": {"age": number, "sex": "male" or "female"}
+
+    Examples:
+    >>> analyze_scoring_conditions("A 72-year-old man with atrial fibrillation, hypertension, and diabetes on warfarin.", "CHA2DS2-VASc Score")
+    {'reasoning': 'Age 72 (≥75=2pts). Male. AF present. HTN=1pt. DM=1pt. No CHF/stroke/vascular disease mentioned.', 'conditions_present': ['age_65_74', 'hypertension', 'diabetes'], 'conditions_absent': ['chf', 'stroke_tia', 'vascular_disease'], 'demographics': {'age': 72, 'sex': 'male'}}
     """
-    from string import Template
+    ...
 
-    model = config.require("llm.model")
-    prompt = Template(_BASELINE_TEMPLATE).safe_substitute(
-        patient_note=patient_note, question=question)
-    response, _ = llm(prompt, model)
 
-    # Extract number: try ANSWER: pattern first, then last number
-    match = re.search(r'(?:ANSWER|answer|Answer)[:\s]*([-\d.eE+]+)', response)
-    if match:
-        try:
-            return float(match.group(1))
-        except ValueError:
-            pass
-    numbers = re.findall(r'-?\d+\.?\d*', response)
-    if numbers:
-        try:
-            return float(numbers[-1])
-        except ValueError:
-            pass
-    # Final fallback to simulate
-    return simulate_medical_value(patient_note, question)
+@interface
+def extract_calculator_values(
+    patient_note: str,
+    calculator_name: str,
+    field_descriptions: str,
+    reasoning_context: str,
+) -> dict:
+    """Extract specific clinical values from a patient note for a medical calculator.
+
+    You are given:
+    - A patient note with clinical information
+    - The name of the calculator to extract values for
+    - A description of each field to extract (with units and expected ranges)
+    - Optional reasoning context from a prior analysis stage
+
+    Instructions:
+    - Use the EXACT parameter names from the field descriptions as JSON keys
+    - Read field descriptions carefully for what each parameter means
+    - For score/grade parameters (e.g. "temperature_score", "ascites_grade"):
+      map clinical findings to the numeric score described in the field description
+    - Extract numeric values with proper units (age in years, weight in kg, height in cm)
+    - Convert units as needed (lbs→kg: ×0.453592, feet/inches→cm, g/L→g/dL: ÷10)
+    - For sex: "man"/"male"/"he" → "male", "woman"/"female"/"she" → "female"
+    - For boolean conditions: True if present, False if absent
+    - If a condition is not mentioned, assume it is absent (False or 0)
+    - Include ALL fields, even if the value is False/0/absent
+
+    Return a dict with:
+    - "extracted": {"param_name": value, ...} for each field
+    - "missing": ["list of values truly not determinable from the note"]
+
+    Examples:
+    >>> extract_calculator_values("A 70yo male, 80kg, 175cm, Cr 1.2", "Creatinine Clearance (Cockcroft-Gault)", "age: years, sex: male/female, weight_kg: kg, creatinine_mg_dl: mg/dL", "")
+    {'extracted': {'age': 70, 'sex': 'male', 'weight_kg': 80, 'creatinine_mg_dl': 1.2}, 'missing': []}
+    """
+    ...
+
+
+@interface
+def repair_missing_values(
+    patient_note: str,
+    calculator_name: str,
+    current_values: str,
+    missing_values: str,
+) -> dict:
+    """Re-extract missing clinical values from a patient note.
+
+    A previous extraction attempt was incomplete. Some required values are missing.
+    Look more carefully at the patient note to find them.
+
+    Tips for finding missing values:
+    - Sex/gender: infer from pronouns (he/his → male, she/her → female)
+    - Age: look for "X-year-old" or "age X" or date of birth
+    - Lab values: may appear in different formats (e.g., "Cr 1.2" = creatinine 1.2 mg/dL)
+    - Boolean conditions: if not mentioned, they are likely absent (False/0)
+    - Scoring criteria: check medications and clinical findings for implied conditions
+
+    Return a dict with:
+    - "extracted": {"value_name": value, ...} for each previously missing value found
+
+    Examples:
+    >>> repair_missing_values("A 70-year-old man on metoprolol...", "CHA2DS2-VASc", "{'age': 70}", "sex, hypertension")
+    {'extracted': {'sex': 'male', 'hypertension': False}}
+    """
+    ...
 
 
 # =============================================================================
@@ -292,7 +359,7 @@ def pot_workflow(patient_note: str, question: str) -> float:
     except Exception:
         pass
 
-    return _reasoning_fallback(patient_note, question)
+    return simulate_medical_value(patient_note, question)
 
 
 # =============================================================================
@@ -397,7 +464,7 @@ def workflow(patient_note: str, question: str) -> float:
                         break
 
     if not calc_name:
-        return _reasoning_fallback(patient_note, question)
+        return simulate_medical_value(patient_note, question)
 
     # ---- Stage 2: Extract values (LLM with calculator-specific context) ----
     sig = signatures.get(calc_name, {})
@@ -424,7 +491,7 @@ def workflow(patient_note: str, question: str) -> float:
             pass
 
     # Fallback: chain-of-thought reasoning
-    return _reasoning_fallback(patient_note, question)
+    return simulate_medical_value(patient_note, question)
 
 # backward compat alias
 pipeline_workflow = workflow
@@ -440,92 +507,47 @@ def _extract_values_two_stage(
     required_values: list[str],
     optional_values: list[str],
 ) -> dict:
-    """Two-stage extraction: medical reasoning → structured extraction."""
-    import calculator_simple
+    """Two-stage extraction: medical reasoning → structured extraction.
 
-    docstring = calculator_simple.get_calculator_docstring(calculator_name)
-    model = config.require("llm.model")
-
+    All LLM calls go through @interface ptools.
+    """
     # Check if scoring system (needs medical reasoning first)
     is_scoring = any(kw in calculator_name.lower() for kw in [
-        'score', 'criteria', 'index', 'risk', 'cha2ds2', 'heart', 'wells',
+        'score', 'criteria', 'cha2ds2', 'heart', 'wells',
         'curb', 'sofa', 'apache', 'child-pugh', 'meld', 'centor', 'fever',
         'has-bled', 'rcri', 'charlson', 'caprini', 'blatchford', 'perc'
     ])
 
+    # Stage 1 (scoring only): analyze conditions via interface
     reasoning_context = ""
     if is_scoring:
-        reasoning_prompt = f"""You are a medical expert analyzing a patient note for the {calculator_name}.
-
-PATIENT NOTE:
-{patient_note}
-
-TASK: Identify ALL conditions/criteria relevant to this calculator.
-Look for both explicit mentions AND clinical findings that imply conditions.
-
-Return JSON:
-{{"reasoning": "step-by-step analysis", "conditions_present": ["list"], "conditions_absent": ["list"], "demographics": {{"age": number, "sex": "male/female"}}}}
-"""
         try:
-            reasoning_response, _ = llm(reasoning_prompt, model)
-            try:
-                reasoning_result = json.loads(reasoning_response)
-            except json.JSONDecodeError:
-                match = re.search(r'\{[\s\S]*\}', reasoning_response, re.DOTALL)
-                reasoning_result = json.loads(match.group()) if match else {}
-
-            conditions_present = reasoning_result.get("conditions_present", [])
-            conditions_absent = reasoning_result.get("conditions_absent", [])
-            demographics = reasoning_result.get("demographics", {})
-
-            reasoning_context = f"""
-MEDICAL ANALYSIS (from reasoning stage):
-- Conditions PRESENT: {', '.join(conditions_present) if conditions_present else 'None'}
-- Conditions ABSENT: {', '.join(conditions_absent) if conditions_absent else 'None'}
-- Demographics: Age={demographics.get('age', 'unknown')}, Sex={demographics.get('sex', 'unknown')}
-"""
+            reasoning_result = analyze_scoring_conditions(patient_note, calculator_name)
+            if isinstance(reasoning_result, dict):
+                conditions_present = reasoning_result.get("conditions_present", [])
+                conditions_absent = reasoning_result.get("conditions_absent", [])
+                demographics = reasoning_result.get("demographics", {})
+                reasoning_context = (
+                    f"MEDICAL ANALYSIS (from reasoning stage):\n"
+                    f"- Conditions PRESENT: {', '.join(conditions_present) if conditions_present else 'None'}\n"
+                    f"- Conditions ABSENT: {', '.join(conditions_absent) if conditions_absent else 'None'}\n"
+                    f"- Demographics: Age={demographics.get('age', 'unknown')}, Sex={demographics.get('sex', 'unknown')}"
+                )
         except Exception:
             pass
 
-    # Build explicit field list so the LLM knows exactly what to return
-    all_fields = required_values + optional_values
-    field_list = ', '.join(f'"{f}"' for f in all_fields) if all_fields else '(see calculator description)'
+    # Build field descriptions for the extraction interface
+    field_descriptions = '\n'.join(_build_descriptive_fields(calculator_name))
 
-    # Stage 2: Structured extraction
-    extraction_prompt = f"""Extract values from the patient note for the {calculator_name} calculator.
-{reasoning_context}
-CALCULATOR DESCRIPTION:
-{docstring or 'No description available.'}
-
-PATIENT NOTE:
-{patient_note}
-
-You MUST return values for these exact parameter names: [{field_list}]
-
-INSTRUCTIONS:
-- Use the EXACT parameter names listed above as JSON keys
-- Read the calculator description carefully for what each parameter means
-- For score/grade parameters (e.g. "temperature_score", "ascites_grade"):
-  map clinical findings to the numeric score described in the calculator description
-- Extract numeric values with proper units (age in years, weight in kg, height in cm)
-- Convert units as needed (lbs→kg: ×0.453592, feet/inches→cm)
-- For sex: "man"/"male"/"he" → "male", "woman"/"female"/"she" → "female"
-- For boolean conditions: True if present, False if absent
-- If a condition is not mentioned, assume it is absent (False or 0)
-
-Return ONLY valid JSON:
-{{"extracted": {{"param_name": value, ...}}, "missing": ["values truly not determinable from note"]}}
-"""
+    # Stage 2: Structured extraction via interface
     try:
-        response, _ = llm(extraction_prompt, model)
-        try:
-            result = json.loads(response)
-        except json.JSONDecodeError:
-            match = re.search(r'\{[\s\S]*\}', response, re.DOTALL)
-            result = json.loads(match.group()) if match else {"extracted": {}, "missing": required_values}
-        return result.get("extracted", {})
+        result = extract_calculator_values(
+            patient_note, calculator_name, field_descriptions, reasoning_context)
+        if isinstance(result, dict):
+            return result.get("extracted", result)
     except Exception:
-        return {}
+        pass
+    return {}
 
 
 def _validate_extracted_values(
@@ -556,7 +578,7 @@ def _validate_extracted_values(
                 try:
                     cleaned[key] = float(value)
                 except ValueError:
-                    cleaned[key] = value.lower().strip()
+                    cleaned[key] = value.strip()
         elif value is not None:
             cleaned[key] = value
 
@@ -583,33 +605,14 @@ def _repair_extraction(
     patient_note: str, calculator_name: str,
     current_values: dict, missing: list[str],
 ) -> dict:
-    """Re-prompt LLM for missing values."""
-    import calculator_simple
-    model = config.require("llm.model")
-    docstring = calculator_simple.get_calculator_docstring(calculator_name)
-
-    repair_prompt = f"""Previous extraction was incomplete for {calculator_name}.
-
-MISSING REQUIRED VALUES: {', '.join(missing)}
-ALREADY EXTRACTED: {current_values}
-
-CALCULATOR DESCRIPTION:
-{docstring or 'No description available.'}
-
-PATIENT NOTE:
-{patient_note}
-
-Find the missing values. For sex: infer from pronouns (he→male, she→female).
-Return ONLY JSON: {{"extracted": {{"value_name": value, ...}}}}
-"""
+    """Re-extract missing values via interface."""
     try:
-        response, _ = llm(repair_prompt, model)
-        try:
-            parsed = json.loads(response)
-        except json.JSONDecodeError:
-            match = re.search(r'\{[\s\S]*\}', response, re.DOTALL)
-            parsed = json.loads(match.group()) if match else {"extracted": {}}
-        new_extracted = parsed.get("extracted", {})
-        return {**current_values, **new_extracted}
+        result = repair_missing_values(
+            patient_note, calculator_name,
+            str(current_values), ', '.join(missing))
+        if isinstance(result, dict):
+            new_extracted = result.get("extracted", result)
+            return {**current_values, **new_extracted}
     except Exception:
-        return current_values
+        pass
+    return current_values
