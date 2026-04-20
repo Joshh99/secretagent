@@ -3,6 +3,25 @@
 
 Usage:
     uv run scripts/benchmark_status.py [--task TASK] [--subtask SUBTASK]
+
+For every TASK/SUBTASK this code checks that there is a subdirectory D
+in the main branch of the repo called benchmarks/results/TASK/SUBTASK
+(eg benchmarks/results/musr/team). That subdirectory D should contain
+a valid "results directory" for the expt_name S, for each S in
+'workflow', 'pot', 'react', 'structured_baseline', and 'unstructured_baseline'.
+
+If there is no such directory print TASK/SUBTASK that subtask gets a
+score of 0, with a message saying that the expected result directory
+is not found.
+
+For each valid S, the score for TASK/SUBTASK should be computed as
+as follows: 
+ - 5 points if S contains config.yaml 
+ - 5 points if S contains results.csv 
+ - 5 points if the local copy of the results directory is checked in: i.e.,
+   if benchmarks/TASK/results or benchmarks/TASK/SUBTASK/results contains a copy of S 
+ - 5 points if the local copy of llm_cache is checked in
+
 """
 
 import argparse
