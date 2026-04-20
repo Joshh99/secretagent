@@ -23,6 +23,12 @@ ptools:
     method: simulate
   extract_clinical_values:
     method: simulate
+  analyze_scoring_conditions:
+    method: simulate
+  extract_calculator_values:
+    method: simulate
+  repair_missing_values:
+    method: simulate
   compute_calculation:
     method: direct
     fn: ptools.compute_calculation_impl
