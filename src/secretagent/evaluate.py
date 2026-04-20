@@ -83,14 +83,60 @@ class Evaluator(ABC):
                 yield row
         else:
             from concurrent.futures import ThreadPoolExecutor, as_completed
-            def _run(ex):
-                row = self.measure(ex, interface)
-                row['case_name'] = ex.name
-                return row
-            with ThreadPoolExecutor(max_workers=max_workers) as pool:
-                futures = {pool.submit(_run, ex): ex for ex in dataset.cases}
-                for fut in tqdm(as_completed(futures), total=len(futures)):
-                    yield fut.result()
+            import signal
+            max_retries = int(config.get('evaluate.max_retries', 2))
+            case_timeout = float(config.get('evaluate.case_timeout', 300))
+
+            def _run_with_retry(ex, attempt=0):
+                try:
+                    row = self.measure(ex, interface)
+                    row['case_name'] = ex.name
+                    return row
+                except Exception as e:
+                    if attempt < max_retries:
+                        return _run_with_retry(ex, attempt + 1)
+                    return {'case_name': ex.name, 'predicted_output': None,
+                            'correct': 0, '_error': str(e)}
+
+            # Process cases in batches to avoid hung-thread accumulation.
+            # Each batch runs in a fresh ThreadPoolExecutor so hung threads
+            # from a previous batch don't block future work.
+            batch_size = max_workers * 3
+            cases = list(dataset.cases)
+            completed = 0
+            pbar = tqdm(total=len(cases))
+
+            for batch_start in range(0, len(cases), batch_size):
+                batch = cases[batch_start:batch_start + batch_size]
+                pool = ThreadPoolExecutor(max_workers=max_workers)
+                futures = {pool.submit(_run_with_retry, ex): ex
+                           for ex in batch}
+                done = set()
+                try:
+                    for fut in as_completed(futures,
+                                            timeout=case_timeout):
+                        done.add(fut)
+                        pbar.update(1)
+                        yield fut.result()
+                except TimeoutError:
+                    pass
+                # Don't wait for hung threads — shut down without blocking
+                pool.shutdown(wait=False, cancel_futures=True)
+                # Retry timed-out cases sequentially (fresh connection)
+                timed_out = [ex for fut, ex in futures.items()
+                             if fut not in done]
+                for ex in timed_out:
+                    pbar.update(1)
+                    try:
+                        row = self.measure(ex, interface)
+                        row['case_name'] = ex.name
+                        yield row
+                    except Exception:
+                        yield {'case_name': ex.name,
+                               'predicted_output': None,
+                               'correct': 0, '_timeout': True}
+
+            pbar.close()
             
 
     def evaluate(self, dataset: Dataset, interface: Interface) -> Path:
