@@ -1,0 +1,3 @@
+are_sports_in_sentence_consistent:
+  learner: ptool_editer
+  method: react_with_learned_ptools

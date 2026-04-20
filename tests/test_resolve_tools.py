@@ -5,7 +5,7 @@ from omegaconf import OmegaConf
 
 from secretagent import config
 from secretagent.core import interface, _INTERFACES
-from secretagent.implement.core import resolve_dotted, resolve_tools
+from secretagent.implement.util import resolve_dotted, resolve_tools
 
 
 @pytest.fixture(autouse=True)
@@ -214,4 +214,32 @@ def test_resolve_tools_string_bad_name():
 
     with pytest.raises((ModuleNotFoundError, AttributeError)):
         resolve_tools(main_fn, ['nonexistent_module_xyz.foo'])
+    _INTERFACES.remove(main_fn)
+
+
+def test_resolve_tools_rejects_non_callable():
+    """A non-callable value (e.g. an int) raises ValueError."""
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    with pytest.raises(ValueError, match='not callable'):
+        resolve_tools(main_fn, [42])
+    _INTERFACES.remove(main_fn)
+
+
+def test_simulate_pydantic_rejects_factory_as_tool():
+    """SimulatePydanticFactory.setup rejects non-function callables like Factory instances."""
+    from secretagent.core import Implementation
+    from secretagent.implement.pydantic import SimulatePydanticFactory
+
+    @interface
+    def main_fn(x: int) -> int:
+        """Main."""
+
+    # A Factory instance is callable but not a function
+    non_fn = Implementation.Factory()
+    with pytest.raises(ValueError, match='not a function'):
+        main_fn.implement_via('simulate_pydantic', tools=[non_fn])
+
     _INTERFACES.remove(main_fn)

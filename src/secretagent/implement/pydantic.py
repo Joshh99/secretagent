@@ -5,6 +5,7 @@ to implement an Interface.
 """
 
 import hashlib
+import inspect
 import time
 from pydantic import Field
 from pydantic_ai import Agent
@@ -14,7 +15,8 @@ from litellm import cost_per_token
 from secretagent import config, record
 from secretagent.cache_util import cached
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, resolve_tools, _load_template
+from secretagent.implement.core import SimulateFactory, ToolUsingFactory
+from secretagent.implement.util import load_template
 from secretagent.llm_util import echo_boxed
 
 def _run_agent_hashkey(_, kwds):
@@ -75,7 +77,7 @@ def _run_agent(interface, model_name, return_type, prompt, tools):
     return cached(_run_agent_impl, hash_func=_run_agent_hashkey)(
         interface, model_name, return_type, prompt, tools)
 
-class SimulatePydanticFactory(SimulateFactory):
+class SimulatePydanticFactory(SimulateFactory, ToolUsingFactory):
     """Simulate a function call using a pydantic-ai Agent.
 
     Reuses SimulateFactory.create_prompt() for the prompt, but strips
@@ -97,8 +99,13 @@ class SimulatePydanticFactory(SimulateFactory):
     tools: list = Field(default_factory=list)
     prompt_kw: dict = Field(default_factory=dict)
 
-    def setup(self, tools=None, **prompt_kw):
-        self.tools = resolve_tools(self.bound_interface, tools)
+    def setup(self, tools=None, tool_module=None, learner=None, **prompt_kw):
+        self.tools = self.setup_tools(tools, tool_module=tool_module, learner=learner)
+        for tool in self.tools:
+            if not inspect.isfunction(tool):
+                raise ValueError(
+                    f'Tool {tool!r} is not a function; '
+                    f'simulate_pydantic requires plain functions')
         self.prompt_kw = prompt_kw
 
     def __call__(self, *args, **kw):
@@ -130,7 +137,7 @@ class SimulatePydanticFactory(SimulateFactory):
     def create_prompt(self, interface, *args, **kw):
         """Construct a prompt that calls an LLM to predict the output of the function.
         """
-        template = _load_template('simulate_pydantic.txt')
+        template = load_template('simulate_pydantic.txt')
         input_args = interface.format_args(*args, **kw)
         if config.get('llm.thinking'):
             thoughts = "<thought>\nANY THOUGHTS\n</thought>\n"

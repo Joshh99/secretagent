@@ -24,7 +24,8 @@ import pathlib
 
 from secretagent import config
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, _load_template
+from secretagent.implement.core import SimulateFactory
+from secretagent.implement.util import load_template
 
 
 class PTPFactory(SimulateFactory):
@@ -50,7 +51,7 @@ class PTPFactory(SimulateFactory):
 
     def create_prompt(self, interface, *args, examples=None, **kw):
         """Build simulate prompt with PTP traces as examples."""
-        template = _load_template('simulate.txt')
+        template = load_template('simulate.txt')
         input_args = interface.format_args(*args, **kw)
         if not input_args.strip():
             raise ValueError(f'input_args null for {args=} {kw=}')
