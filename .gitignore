@@ -68,6 +68,8 @@ cover/
 # Translations
 *.mo
 *.pot
+# but do not ignore experiment result dirs ending in .pot (expt_name=pot)
+!benchmarks/**/*.pot/
 
 # Django stuff:
 *.log
