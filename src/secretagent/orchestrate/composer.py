@@ -182,7 +182,13 @@ def recompose(
         custom_instructions_section=custom_section,
     )
 
-    llm_output, stats = llm(prompt, model)
+    # Supervisor gets highest reasoning effort + generous timeout
+    # record_details=True so we capture reasoning_content (thinking trace)
+    with config.configuration(
+        llm=dict(reasoning_effort='high', timeout=600),
+        evaluate=dict(record_details=True),
+    ):
+        llm_output, stats = llm(prompt, model)
 
     if config.get('echo.orchestrate_llm'):
         from secretagent.llm_util import echo_boxed
@@ -211,6 +217,11 @@ def recompose(
             if line and not line.startswith('#') and '=' in line:
                 config_overrides.append(line)
 
+    stats['_prompt'] = prompt
+    stats['_raw_output'] = llm_output
+    # Capture reasoning_content (thinking trace) if available
+    if stats.get('trace', {}).get('reasoning_content'):
+        stats['_reasoning_trace'] = stats['trace']['reasoning_content']
     return new_source, reasoning, config_overrides, stats
 
 
