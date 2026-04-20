@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from secretagent.core import Interface, all_interfaces
 from secretagent.dataset import Case

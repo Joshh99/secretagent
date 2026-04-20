@@ -2,13 +2,13 @@ import os
 import pathlib
 import time
 
-from typing import Any, Callable
+from typing import Any
 
 from pydantic import Field
 from together import Together
 
 from secretagent import config, record
-from secretagent.core import Interface, register_factory
+from secretagent.core import register_factory
 from secretagent.implement.core import SimulateFactory
 
 # Together pricing in USD per 1M tokens: (input, output)

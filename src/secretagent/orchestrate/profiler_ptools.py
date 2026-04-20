@@ -6,7 +6,7 @@ and return human-readable summaries.
 """
 
 from secretagent.core import interface
-from secretagent.orchestrate.profiler import profile_from_results, PipelineProfile
+from secretagent.orchestrate.profiler import profile_from_results
 from secretagent.orchestrate.transforms.base import format_profiling_summary
 
 

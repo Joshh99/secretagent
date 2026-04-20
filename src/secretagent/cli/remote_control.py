@@ -196,7 +196,7 @@ def run(
         project_root = project_root.parent
 
     from secretagent import config
-    from secretagent.core import Interface, all_interfaces, implement_via_config
+    from secretagent.core import all_interfaces, implement_via_config
     from secretagent.orchestrate.catalog import PtoolCatalog
     from secretagent.orchestrate.improve import improve_with_supervisor
 
@@ -244,7 +244,7 @@ def run(
     entry_interface = getattr(ptools_module, entry_point_name)
 
     # --- Load datasets ---
-    print(f'\n=== Loading datasets ===')
+    print('\n=== Loading datasets ===')
     train_dataset = load_dataset(train_split)
     if hasattr(evaluator_module, 'stratified_sample'):
         train_dataset.cases = stratified_sample(
@@ -285,7 +285,7 @@ def run(
     output_dir = benchmark_dir / 'results' / f'{timestamp}.remote_control'
 
     # --- Print setup summary ---
-    print(f'\n=== Remote Control ===')
+    print('\n=== Remote Control ===')
     print(f'Benchmark: {benchmark_dir.name}')
     print(f'Config: {cfg_path.name}')
     print(f'Entry point: {entry_point_name}')
@@ -297,7 +297,7 @@ def run(
     if instructions:
         print(f'Custom instructions: {instructions[:100]}...')
     if model_choices_text:
-        print(f'Model choices loaded')
+        print('Model choices loaded')
     print(f'Output: {output_dir}')
 
     # --- Run improvement loop ---
@@ -342,12 +342,12 @@ def run(
         )
 
     # --- Generate plots ---
-    print(f'\n=== Generating Plots ===')
+    print('\n=== Generating Plots ===')
     _generate_plots(report, output_dir)
 
     # --- Final summary ---
     print(f'\n{"=" * 60}')
-    print(f'=== Remote Control Complete ===')
+    print('=== Remote Control Complete ===')
     print(f'{"=" * 60}')
     print(f'Best train accuracy: {report.best_train_accuracy:.1%} '
           f'(iteration {report.best_iteration})')
@@ -357,7 +357,7 @@ def run(
     print(f'Output saved to: {output_dir}')
 
     # Print iteration summary table
-    print(f'\nIteration log:')
+    print('\nIteration log:')
     print(f'  {"Iter":>4}  {"Train Acc":>9}  {"Cost/case":>9}  {"Sup $":>7}  {"Status":>10}')
     for r in report.iterations:
         status = 'KEPT' if r.kept else ('BASELINE' if r.iteration == 0 else 'ROLLBACK')
