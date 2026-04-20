@@ -6,7 +6,12 @@ test:
 	uv run pytest tests/ -v
 
 benchmark_tests:
-	uv run pytest benchmarks/tests/ -v	
+	uv run pytest benchmarks/tests/test_sports_understanding.py -v
+	uv run pytest benchmarks/tests/test_designbench.py -v
+	uv run pytest benchmarks/tests/test_finqa.py -v
+	uv run pytest benchmarks/tests/test_natural_plan.py -v
+	uv run pytest benchmarks/tests/test_rulearena.py -v
+	uv run pytest benchmarks/tests/test_tabmwp.py -v
 
 lint:
 	uv run ruff check src 
