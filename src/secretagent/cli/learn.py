@@ -5,6 +5,7 @@ import typer
 
 from secretagent.learn.baselines import EditedPToolLearner, RoteLearner
 from secretagent.learn.examples import extract_examples
+from secretagent.learn.ptool_inducer import PtoolInducer
 from secretagent.learn.traces import extract_ptp_traces
 
 app = typer.Typer()
@@ -45,6 +46,54 @@ def edit_ptools(
         ptool_list=ptool,
         pattern=pattern,
         replacement=replacement,
+    )
+    learner.learn([Path(a) for a in ctx.args], latest=latest, check=check)
+
+
+@app.command(context_settings=_EXTRA_ARGS)
+def induce_ptools(
+    ctx: typer.Context,
+    interface: str = typer.Option(..., help="Top-level interface name"),
+    task_desc: str = typer.Option(..., help="Natural-language task description"),
+    trace_mode: str = typer.Option('react', help="'react' or 'cot'"),
+    state_module: Optional[str] = typer.Option(None, help="Module to import state from, e.g. ptools_common"),
+    state_expr: Optional[str] = typer.Option(None, help='Expression at call time, e.g. _REACT_STATE["narrative"]'),
+    only_correct: bool = typer.Option(False, help='Only use correct rollouts'),
+    max_ptools: int = typer.Option(5, help='Max ptools to synthesize'),
+    min_count: int = typer.Option(3, help='Min category count'),
+    model: Optional[str] = typer.Option(None, help='LLM model'),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag'),
+    check: Optional[list[str]] = typer.Option(None, help='Config filter'),
+    learned_dir: str = typer.Option('learned', help='Directory to store learned ptools'),
+):
+    """Induce ptool specs from recorded agent thoughts.
+
+    Pipeline: load thoughts → categorize → merge synonyms → synthesize
+    ptool specs. Writes learned_ptools.py + implementation.yaml suitable
+    for loading via tool_module='__learned__'.
+
+    Example::
+
+        uv run -m secretagent.cli.learn induce-ptools \\
+          --interface react_solve \\
+          --task-desc "Murder mystery reasoning" \\
+          --trace-mode react --only-correct \\
+          --state-module ptools_common \\
+          --state-expr '_REACT_STATE["narrative"]' \\
+          --learned-dir learned \\
+          results/*.react_train_seed42
+    """
+    learner = PtoolInducer(
+        interface_name=interface,
+        train_dir=learned_dir,
+        task_desc=task_desc,
+        trace_mode=trace_mode,
+        state_module=state_module,
+        state_expr=state_expr,
+        only_correct=only_correct,
+        max_ptools=max_ptools,
+        min_count=min_count,
+        model=model,
     )
     learner.learn([Path(a) for a in ctx.args], latest=latest, check=check)
 

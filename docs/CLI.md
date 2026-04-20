@@ -189,6 +189,39 @@ uv run -m secretagent.cli.optimize summary SWEEP_RESULTS.csv [--top-n N]
 
 Learn implementations from recorded interface calls.
 
+### induce-ptools
+
+Induce ptool specs from recorded agent thoughts via a 4-stage LLM pipeline: load thoughts → LLM-categorize → merge synonyms → LLM-synthesize ptool specs. Produces `learned_ptools.py` with `@implement_via('simulate')` stubs + `implementation.yaml` with `method=simulate_pydantic, tool_module=__learned__`.
+
+```
+uv run -m secretagent.cli.learn induce-ptools \
+  --interface NAME --task-desc TEXT [--trace-mode react|cot] \
+  [--state-injection EXPR] [--only-correct] [--max-ptools N] \
+  [--min-count N] [--model MODEL] [--latest K] [--check KEY=VALUE] \
+  [--learned-dir DIR] DIRS...
+```
+
+| Option | Description |
+|---|---|
+| `--interface` | Top-level interface whose traces are being induced from |
+| `--task-desc` | Natural-language task description (goes into categorize/synthesize prompts) |
+| `--trace-mode` | `react` extracts `step_info[].thought`; `cot` chunks `rollout[0].output` |
+| `--state-module` | Python module to import state dict from, e.g. `ptools_common` |
+| `--state-expr` | Expression evaluated at call time, e.g. `_REACT_STATE["narrative"]`. Both `--state-module` and `--state-expr` must be set together. |
+| `--only-correct` | Only use correct rollouts (success-only induction) |
+| `--max-ptools` | Max ptools to synthesize (default 5) |
+| `--min-count` | Min category count to synthesize (default 3) |
+| `--model` | LLM model (default `together_ai/deepseek-ai/DeepSeek-V3`) |
+| `--learned-dir` | Where to save outputs (default `learned`) |
+
+Once induced, eval via::
+
+    ptools.NAME.method=simulate_pydantic \
+    ptools.NAME.tool_module=__learned__ \
+    ptools.NAME.learner=ptool_inducer \
+    ptools.NAME.tools=__all__ \
+    learn.train_dir=learned
+
 ### rote
 
 Collect training data for a rote (lookup-based) learner from recorded interface calls.
