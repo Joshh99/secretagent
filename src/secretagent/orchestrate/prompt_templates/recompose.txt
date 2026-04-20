@@ -1,6 +1,6 @@
 You are an expert ML engineer making a TARGETED improvement to an existing
-medical calculation pipeline. The pipeline already works at a certain
-accuracy — your job is to make it BETTER.
+pipeline. The pipeline already works at a certain accuracy — your job is to
+make it BETTER, not blow it up.
 
 You have FULL CONTROL over the ptools module. You can modify ANY function,
 ANY docstring, ANY logic. Your changes will be written to ptools_evolved.py
@@ -35,6 +35,35 @@ $custom_instructions_section
   computation, docstrings, everything.
 - The entire file is reloaded after your changes, so all modifications take effect.
 
+## STRATEGY — READ THIS CAREFULLY
+
+Your changes are evaluated on ALL cases, not just the failures shown above.
+A change that fixes 5 failures but breaks 15 working cases is a NET REGRESSION.
+This has happened in previous iterations — learn from it.
+
+**CONSERVATIVE APPROACH REQUIRED:**
+- Changes to docstrings/prompts affect ALL cases that go through that code path.
+  If you add instructions that help edge cases but confuse the LLM on common
+  cases, accuracy drops. Be surgical.
+- Changes to Python logic (extraction, validation, computation) are SAFER because
+  they only fire when their conditions are met.
+- Prefer adding NEW conditional branches or fallback logic over modifying
+  existing working code paths.
+- If a previous iteration was rolled back, DO NOT try a more aggressive version
+  of the same idea. Try a completely different approach or a much smaller change.
+
+**PRIORITIZE THESE CHANGE TYPES (safest to riskiest):**
+1. Fix a bug in Python computation logic (zero risk to other cases)
+2. Add a new fallback/recovery path for a specific failure pattern
+3. Improve validation to catch and fix a category of extraction errors
+4. Add a small, specific instruction to a docstring (low risk if well-scoped)
+5. Rewrite extraction/prompt logic (HIGH RISK — only if you are very confident)
+
+**AVOID:**
+- Rewriting the extraction prompt wholesale — this breaks working cases
+- Adding many instructions at once — impossible to know what helped vs hurt
+- Changing unit conversion logic broadly — most values are already correct
+
 ## CRITICAL RULES
 
 1. **DO NOT REWARD-HACK.** DO NOT overfit to specific failing cases by adding
@@ -52,20 +81,22 @@ $custom_instructions_section
    or function signatures that are referenced by the config.
 
 ## Examples of GOOD changes
-- Improving an @interface docstring with better instructions and examples
-- Fixing extraction logic to handle edge cases (dates, units, scoring systems)
-- Improving validation to catch a category of errors
-- Fixing computation logic for specific calculator types
-- Adding better fallback strategies
+- Fixing a specific computation bug (e.g. wrong formula for a calculator type)
+- Adding a validation check that catches a common extraction error pattern
+- Adding a small, specific docstring instruction scoped to a failure class
+- Adding a new fallback path for cases where extraction fails
 
-## Examples of BAD changes (REWARD HACKING)
+## Examples of BAD changes (cause regressions)
+- Rewriting the extraction prompt with many new instructions
+- Adding unit conversion logic that fires on all cases
+- Changing the workflow control flow
 - if calculator_name == "CHA2DS2-VASc": return 5
-- Hard-coding expected outputs for specific training cases
-- Special-casing based on specific patient names or case IDs
 
 <reasoning>
-What GENERAL failure pattern did you identify? What principled change will fix
-this class of failures, not just these specific cases?
+1. What SPECIFIC failure pattern did you identify?
+2. How many of the shown failures share this pattern?
+3. What is the MINIMAL change that fixes this pattern?
+4. Why will this change NOT break currently working cases?
 </reasoning>
 
 <ptools_file>
