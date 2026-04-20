@@ -6,6 +6,9 @@
 
 ## Cleanups
 
+ * fix ptools.py loading dependencies in benchmarks/tests
+   * tests run independently but running all together in one pytest
+	 call causes problems.
  * move subprocess out of optimizer and use expt
  * cleanup learn/examples.py, and traces.py
    - It should be a Learner
