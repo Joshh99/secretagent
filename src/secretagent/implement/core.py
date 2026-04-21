@@ -48,7 +48,7 @@ class SimulateFactory(Implementation.Factory):
       foo.implement_via('simulate')
       foo.implement_via('simulate', llm.model=..., example_file='foo_demonstrations.json')
 
-    The json files look like this:
+    The example_files are in json and look like this:
     {
       "sport_for": [
         {"input_args": ["Bam Adebayo"], "expected_output": "basketball"},
@@ -68,7 +68,6 @@ class SimulateFactory(Implementation.Factory):
       analyze_sentence:
         method: simulate
         example_file: examples/examples.json
-
     """
     examples_cases: list | None = None
     prompt_kw: dict = Field(default_factory=dict)

@@ -151,6 +151,7 @@ This project is heavily configuration-driven, like most ML systems.
    * `gemini/gemini-3.1-flash-lite-preview` - ultra-cheap Gemini preview ($0.25/$1.50 per 1M tokens, 65K output)
  * `llm.thinking` — if truthy, include `<thought>` scaffolding in simulate prompts
  * `llm.reasoning_effort` — for Gemini thinking models: low/medium/high
+ * `simulate.full_src` — if truthy, keep the full function body in Interface.src; otherwise strip to signature + docstring
  * `echo.model` — print which model is being called
  * `echo.llm_input` — print the prompt sent to the LLM in a box
  * `echo.llm_output` — print the LLM response in a box
