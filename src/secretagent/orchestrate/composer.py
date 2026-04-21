@@ -200,11 +200,16 @@ def recompose(
     )
     new_source = ptools_match.group(1).strip() if ptools_match else ptools_source
 
-    # Extract reasoning
+    # Extract reasoning: try <reasoning> tags first, then everything before <ptools_file>
     reasoning_match = re.search(
         r'<reasoning>(.*?)</reasoning>', llm_output, re.DOTALL,
     )
-    reasoning = reasoning_match.group(1).strip() if reasoning_match else ''
+    if reasoning_match:
+        reasoning = reasoning_match.group(1).strip()
+    elif ptools_match:
+        reasoning = llm_output[:ptools_match.start()].strip()
+    else:
+        reasoning = ''
 
     # Extract config overrides
     config_match = re.search(
