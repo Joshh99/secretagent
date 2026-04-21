@@ -507,6 +507,7 @@ def run(
     train_split: str = typer.Option('train', help='HF split for training'),
     eval_split: str = typer.Option('test', help='HF split for evaluation'),
     debug: bool = typer.Option(False, help='Full transparency: echo supervisor I/O'),
+    resume: str = typer.Option('', help='Resume from a previous .orch_learner run directory'),
 ):
     """Run supervisor-driven pipeline improvement on a benchmark.
 
@@ -643,6 +644,48 @@ def run(
     instructions = _load_custom_instructions(custom_instructions)
     model_choices_text = _load_model_choices(model_change)
 
+    # --- Resume state (loaded before output_dir so we can log it) ---
+    resume_iterations = None
+    resume_best_accuracy = None
+    resume_best_eval_accuracy = None
+    resume_supervisor_cost = 0.0
+
+    if resume:
+        from secretagent.orchestrate.improve import SupervisorReport, IterationRecord
+        resume_dir = Path(resume)
+        prev_report_path = resume_dir / 'report.json'
+        if not prev_report_path.exists():
+            print(f'Error: {prev_report_path} not found')
+            raise typer.Exit(1)
+        prev_report = SupervisorReport.model_validate_json(prev_report_path.read_text())
+        resume_iterations = prev_report.iterations
+        resume_best_accuracy = prev_report.best_train_accuracy
+        # Best eval from final eval or from per-iteration evals
+        resume_best_eval_accuracy = prev_report.final_eval_accuracy
+        if resume_best_eval_accuracy is None:
+            kept_evals = [r.eval_accuracy for r in prev_report.iterations
+                          if r.kept and r.eval_accuracy is not None]
+            if kept_evals:
+                resume_best_eval_accuracy = max(kept_evals)
+        resume_supervisor_cost = prev_report.total_supervisor_cost
+
+        # Copy best ptools_evolved.py from previous run as starting point
+        prev_evolved = resume_dir / 'ptools_evolved.py'
+        if prev_evolved.exists():
+            evolved_path.write_text(prev_evolved.read_text())
+            # Reload the module so it picks up the resumed code
+            import importlib.util
+            spec = importlib.util.spec_from_file_location('ptools', str(evolved_path))
+            spec.loader.exec_module(ptools_module)
+            implement_via_config(ptools_module, config.require('ptools'))
+            entry_interface = getattr(ptools_module, entry_point_name)
+            print(f'Loaded ptools_evolved.py from {resume_dir.name}')
+
+        last_iter = resume_iterations[-1].iteration if resume_iterations else 0
+        print(f'Resuming from iteration {last_iter} '
+              f'(best train: {resume_best_accuracy:.1%}, '
+              f'supervisor cost: ${resume_supervisor_cost:.4f})')
+
     # --- Output directory (results/orchestration_learner/TIMESTAMP) ---
     timestamp = datetime.now().strftime('%Y%m%d.%H%M%S')
     results_base = benchmark_dir / 'results' / 'orchestration_learner'
@@ -665,6 +708,8 @@ def run(
         print(f'Custom instructions: {instructions[:100]}...')
     if model_choices_text:
         print(f'Model choices loaded')
+    if resume:
+        print(f'Resuming from: {resume}')
     print(f'Output: {output_dir}')
 
     # --- Run improvement loop ---
@@ -682,6 +727,10 @@ def run(
         model_choices=model_choices_text,
         output_dir=output_dir,
         ptools_module=ptools_module,
+        resume_iterations=resume_iterations,
+        resume_best_accuracy=resume_best_accuracy,
+        resume_best_eval_accuracy=resume_best_eval_accuracy,
+        resume_supervisor_cost=resume_supervisor_cost,
     )
 
     # --- Final eval on held-out set ---

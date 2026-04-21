@@ -389,6 +389,10 @@ def improve_with_supervisor(
     model_choices: str = '',
     output_dir: Path | None = None,
     ptools_module: Any = None,
+    resume_iterations: list[IterationRecord] | None = None,
+    resume_best_accuracy: float | None = None,
+    resume_best_eval_accuracy: float | None = None,
+    resume_supervisor_cost: float = 0.0,
 ) -> SupervisorReport:
     """Iteratively improve a pipeline using a supervisor LLM.
 
@@ -397,6 +401,9 @@ def improve_with_supervisor(
     Changes are written to ptools_evolved.py and the module is reloaded.
 
     Hill climbing: keep improvements, rollback regressions.
+
+    When resume_iterations is provided, skip the initial evaluation and
+    continue the improvement loop from where the previous run left off.
     """
     from secretagent.orchestrate.composer import recompose
     from secretagent.orchestrate.transforms.base import format_profiling_summary
@@ -436,68 +443,108 @@ def improve_with_supervisor(
     best_eval_accuracy: float | None = None
     total_supervisor_cost = 0.0
 
-    # --- Initial evaluation ---
-    print('\n[supervisor] === Initial Evaluation ===')
-    with config.configuration(evaluate=dict(
-        expt_name='rc_iter0', record_details=True,
-    )):
-        csv_path = evaluator.evaluate(train_dataset, entry_interface)
-    result_dir = csv_path.parent
-    profile = profile_from_results([result_dir])
-    best_accuracy = profile.accuracy
-    best_result_dir = result_dir
+    # --- Resume from previous run or do initial evaluation ---
+    resuming = resume_iterations is not None and len(resume_iterations) > 0
 
-    # Eval baseline on held-out set
-    baseline_eval_acc = None
-    baseline_eval_cost = None
-    if eval_dataset is not None:
-        import pandas as pd
-        print('[supervisor] evaluating baseline on held-out set...')
+    if resuming:
+        # Carry forward state from the previous run
+        iterations = list(resume_iterations)
+        best_accuracy = resume_best_accuracy if resume_best_accuracy is not None else max(
+            r.train_accuracy for r in iterations if r.kept
+        )
+        best_eval_accuracy = resume_best_eval_accuracy
+        total_supervisor_cost = resume_supervisor_cost
+        start_iter = iterations[-1].iteration + 1
+
+        # The current source on disk IS our best source (loaded from prev run)
+        best_source = current_source
+
+        # We need a profile for the improvement loop — do a quick eval
+        print(f'\n[supervisor] === Resuming from iteration {start_iter - 1} ===')
+        print(f'[supervisor] previous best accuracy: {best_accuracy:.1%}')
+        if best_eval_accuracy is not None:
+            print(f'[supervisor] previous best eval accuracy: {best_eval_accuracy:.1%}')
+        print(f'[supervisor] accumulated supervisor cost: ${total_supervisor_cost:.4f}')
+        print(f'[supervisor] re-evaluating current code to get fresh profile...')
+
         with config.configuration(evaluate=dict(
-            expt_name='rc_iter0_eval', record_details=False,
+            expt_name=f'rc_resume_baseline', record_details=True,
         )):
-            try:
-                eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
-                eval_df = pd.read_csv(eval_csv)
-                baseline_eval_acc = float(eval_df['correct'].mean())
-                baseline_eval_cost = float(eval_df.get('cost', pd.Series([0])).mean())
-                print(f'[supervisor] baseline eval accuracy: {baseline_eval_acc:.1%}')
-            except Exception as e:
-                print(f'[supervisor] baseline eval failed: {e}')
+            csv_path = evaluator.evaluate(train_dataset, entry_interface)
+        result_dir = csv_path.parent
+        profile = profile_from_results([result_dir])
+        best_result_dir = result_dir
 
-    best_eval_accuracy = baseline_eval_acc
+        print(f'[supervisor] current accuracy: {profile.accuracy:.1%}, '
+              f'avg_cost=${profile.avg_cost:.4f}')
+        print(format_profiling_summary(profile))
 
-    train_fail, train_to = _count_failures(result_dir)
-    eval_fail, eval_to = (None, None)
-    if baseline_eval_acc is not None:
-        eval_fail, eval_to = _count_failures(eval_csv.parent) if eval_csv else (None, None)
+    else:
+        start_iter = 1
 
-    rec0 = IterationRecord(
-        iteration=0, train_accuracy=profile.accuracy,
-        train_cost=profile.avg_cost, kept=True,
-        train_failures=train_fail, train_timeouts=train_to,
-        eval_accuracy=baseline_eval_acc, eval_cost=baseline_eval_cost,
-        eval_failures=eval_fail, eval_timeouts=eval_to,
-        code_snapshot=f'# ptools_evolved.py ({len(current_source)} chars)',
-    )
-    iterations.append(rec0)
+        # --- Initial evaluation ---
+        print('\n[supervisor] === Initial Evaluation ===')
+        with config.configuration(evaluate=dict(
+            expt_name='rc_iter0', record_details=True,
+        )):
+            csv_path = evaluator.evaluate(train_dataset, entry_interface)
+        result_dir = csv_path.parent
+        profile = profile_from_results([result_dir])
+        best_accuracy = profile.accuracy
+        best_result_dir = result_dir
 
-    print(f'[supervisor] baseline: accuracy={profile.accuracy:.1%}, '
-          f'avg_cost=${profile.avg_cost:.4f}')
-    if baseline_eval_acc is not None:
-        print(f'[supervisor] baseline eval: {baseline_eval_acc:.1%}')
-    print(format_profiling_summary(profile))
+        # Eval baseline on held-out set
+        baseline_eval_acc = None
+        baseline_eval_cost = None
+        if eval_dataset is not None:
+            import pandas as pd
+            print('[supervisor] evaluating baseline on held-out set...')
+            with config.configuration(evaluate=dict(
+                expt_name='rc_iter0_eval', record_details=False,
+            )):
+                try:
+                    eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
+                    eval_df = pd.read_csv(eval_csv)
+                    baseline_eval_acc = float(eval_df['correct'].mean())
+                    baseline_eval_cost = float(eval_df.get('cost', pd.Series([0])).mean())
+                    print(f'[supervisor] baseline eval accuracy: {baseline_eval_acc:.1%}')
+                except Exception as e:
+                    print(f'[supervisor] baseline eval failed: {e}')
 
-    if output_dir:
-        iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
-        iter_dir.mkdir(exist_ok=True)
-        (iter_dir / 'ptools_evolved.py').write_text(current_source)
+        best_eval_accuracy = baseline_eval_acc
+
+        train_fail, train_to = _count_failures(result_dir)
+        eval_fail, eval_to = (None, None)
+        if baseline_eval_acc is not None:
+            eval_fail, eval_to = _count_failures(eval_csv.parent) if eval_csv else (None, None)
+
+        rec0 = IterationRecord(
+            iteration=0, train_accuracy=profile.accuracy,
+            train_cost=profile.avg_cost, kept=True,
+            train_failures=train_fail, train_timeouts=train_to,
+            eval_accuracy=baseline_eval_acc, eval_cost=baseline_eval_cost,
+            eval_failures=eval_fail, eval_timeouts=eval_to,
+            code_snapshot=f'# ptools_evolved.py ({len(current_source)} chars)',
+        )
+        iterations.append(rec0)
+
+        print(f'[supervisor] baseline: accuracy={profile.accuracy:.1%}, '
+              f'avg_cost=${profile.avg_cost:.4f}')
+        if baseline_eval_acc is not None:
+            print(f'[supervisor] baseline eval: {baseline_eval_acc:.1%}')
+        print(format_profiling_summary(profile))
+
+        if output_dir:
+            iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
+            iter_dir.mkdir(exist_ok=True)
+            (iter_dir / 'ptools_evolved.py').write_text(current_source)
 
     # --- Improvement loop ---
     no_improve_count = 0
+    end_iter = start_iter + max_iterations
 
-    for i in range(1, max_iterations + 1):
-        print(f'\n[supervisor] === Iteration {i}/{max_iterations} ===')
+    for i in range(start_iter, end_iter):
+        print(f'\n[supervisor] === Iteration {i}/{end_iter - 1} ===')
 
         # 1. Build context
         prof_summary = format_profiling_summary(profile)
