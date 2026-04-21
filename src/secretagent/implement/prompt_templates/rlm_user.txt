@@ -1,0 +1,6 @@
+$iteration_prompt
+
+Query: Implement the function described above for these inputs:
+$input_args
+
+Your next action:
