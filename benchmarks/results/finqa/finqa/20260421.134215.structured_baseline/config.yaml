@@ -1,18 +1,14 @@
 llm:
   model: together_ai/deepseek-ai/DeepSeek-V3.1
-
 cachier:
-  cache_dir: llm_cache
-
+  cache_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/llm_cache
 evaluate:
-  result_dir: results
-  expt_name: DEFAULT
-
+  result_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/results
+  expt_name: structured_baseline
 dataset:
   split: valid
   shuffle_seed: null
-  n: null
-
+  'n': 300
 ptools:
   parse_table:
     method: direct
