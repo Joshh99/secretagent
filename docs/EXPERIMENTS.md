@@ -151,3 +151,24 @@ YOUR ANSWER
 
 The sentence is: $sentence
 ```
+
+## Round 1: Status
+
+* bbh/penguins_in_a_table: 100/100
+  * Bunch of different models available: oss-20b, deepseek, haiku
+  * Baselines are strong even with oss-20b
+  * React is < 30% and cheap - probably broken
+* bbh/sports_understanding: 100/100
+
+* musr/murder: 75/100
+ * just local results missing
+* musr/object: 60/100
+ * just local results and pot
+* musr/team: 75/100
+ * just local results missing
+
+* tabwmp/tabwmp: 50/100
+ * no local results or llm_cache
+
+tau_bench/retail: 40/100
+ * results but no pot, local results, llm_cache
