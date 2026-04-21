@@ -159,16 +159,31 @@ The sentence is: $sentence
   * Baselines are strong even with oss-20b
   * React is < 30% and cheap - probably broken
 * bbh/sports_understanding: 100/100
+  * Added oss-20b
 
 * musr/murder: 75/100
  * just local results missing
+ * sensible results with deepseek (pot is weak)
 * musr/object: 60/100
- * just local results and pot
+ * just missing local results and pot
+ * sensible results with deepseek
 * musr/team: 75/100
  * just local results missing
+ * baselines are very strong
+
+* natural_plan/cal: from local plots
+ * baselines are strong, especially structured baseline
+* natural_plan/meeting: from local plots
+ * results look sensible
+* natural_plan/trip: from local plots
+ * standard baselines all fail with 0% accuracy
+ * the 5shot stuff is promising
 
 * tabwmp/tabwmp: 50/100
  * no local results or llm_cache
+ * sensible results with deepseek
 
 tau_bench/retail: 40/100
  * results but no pot, local results, llm_cache
+ * sensible results but workflow is surprisingly expensive and weak -
+   react is best!
