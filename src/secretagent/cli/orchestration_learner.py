@@ -312,16 +312,18 @@ function drawChart() {{
 
   const n = DATA.length;
   if (n < 2) return;
-  const maxAcc = 1.0;
-  const minAcc = Math.min(...DATA.map(d => d.train_accuracy),
-                          ...DATA.filter(d=>d.eval_accuracy!==null).map(d=>d.eval_accuracy)) - 0.05;
+  const allAcc = [...DATA.map(d => d.train_accuracy),
+                   ...DATA.filter(d=>d.eval_accuracy!==null).map(d=>d.eval_accuracy)];
+  const maxAcc = Math.min(1.0, Math.max(...allAcc) + 0.05);
+  const minAcc = Math.max(0, Math.min(...allAcc) - 0.05);
 
   function x(i) {{ return pad.l + (i / (n - 1)) * cw; }}
   function y(v) {{ return pad.t + (1 - (v - minAcc) / (maxAcc - minAcc)) * ch; }}
 
   // Grid
   ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1;
-  for (let v = Math.ceil(minAcc*10)/10; v <= 1.0; v += 0.1) {{
+  const step = (maxAcc - minAcc) > 0.3 ? 0.1 : 0.05;
+  for (let v = Math.ceil(minAcc/step)*step; v <= maxAcc; v += step) {{
     ctx.beginPath(); ctx.moveTo(pad.l, y(v)); ctx.lineTo(W-pad.r, y(v)); ctx.stroke();
     ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
     ctx.fillText((v*100).toFixed(0)+'%', pad.l-8, y(v)+4);
@@ -485,6 +487,18 @@ def _generate_plots(report, output_dir: Path):
     fig.savefig(plots_dir / 'accuracy_vs_cost.png', dpi=150)
     plt.close(fig)
     print(f'[plots] saved {plots_dir / "accuracy_vs_cost.png"}')
+
+
+def _on_iteration(output_dir: Path):
+    """Regenerate HTML report after each iteration (auto-refresh in browser)."""
+    from secretagent.orchestrate.improve import SupervisorReport
+    report_path = output_dir / 'report.json'
+    if report_path.exists():
+        try:
+            report = SupervisorReport.model_validate_json(report_path.read_text())
+            _generate_html_report(report, output_dir)
+        except Exception:
+            pass
 
 
 @app.command('run', context_settings=_EXTRA_ARGS)
@@ -731,6 +745,7 @@ def run(
         resume_best_accuracy=resume_best_accuracy,
         resume_best_eval_accuracy=resume_best_eval_accuracy,
         resume_supervisor_cost=resume_supervisor_cost,
+        on_iteration_complete=_on_iteration,
     )
 
     # --- Final eval on held-out set ---

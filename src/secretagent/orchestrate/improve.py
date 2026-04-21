@@ -393,6 +393,7 @@ def improve_with_supervisor(
     resume_best_accuracy: float | None = None,
     resume_best_eval_accuracy: float | None = None,
     resume_supervisor_cost: float = 0.0,
+    on_iteration_complete: Callable[[Path], None] | None = None,
 ) -> SupervisorReport:
     """Iteratively improve a pipeline using a supervisor LLM.
 
@@ -797,6 +798,9 @@ def improve_with_supervisor(
             _save_running_report(output_dir, iterations, best_accuracy,
                                  best_source, best_config_overrides,
                                  total_supervisor_cost)
+            # Auto-regenerate HTML report (refresh browser to see updates)
+            if on_iteration_complete:
+                on_iteration_complete(output_dir)
 
         # 8. Check stopping criteria
         if target_accuracy is not None and best_accuracy >= target_accuracy:
