@@ -5,7 +5,7 @@ Test groups:
   TestSchema    — valid.json parses, cases have expected fields (no LLM)
   TestEvaluator — FinQAEvaluator scoring logic on known pairs (no LLM)
   TestBasics    — integration tests matching Makefile targets, 4 examples each:
-                  structured baseline, zeroshot prompt, pot, react, workflow
+                  structured_baseline, unstructured_baseline, pot, react, workflow
 """
 
 import os
@@ -197,25 +197,27 @@ class TestEvaluator:
 # TestBasics — integration tests matching Makefile targets, 4 examples
 # ===================================================================
 
-# Dotlist overrides for each Makefile condition
+# Dotlist overrides mirror the Makefile commands
 
 _STRUCTURED_BASELINE = [
-    "evaluate.expt_name=test_simulate",
+    "evaluate.expt_name=test_structured_baseline",
     "ptools.answer_finqa.method=simulate",
 ]
 
-_ZEROSHOT_PROMPT = [
-    "evaluate.expt_name=test_zeroshot_prompt",
-    "ptools.answer_finqa.method=prompt_llm",
-    "ptools.answer_finqa.prompt_template_file=prompt_templates/zeroshot.txt",
-    "ptools.answer_finqa.answer_pattern=null",
+_UNSTRUCTURED_BASELINE = [
+    "evaluate.expt_name=test_unstructured_baseline",
+    "ptools.answer_finqa.method=direct",
+    "ptools.answer_finqa.fn=ptools.unstructured_baseline_workflow",
 ]
 
 _POT = [
     "evaluate.expt_name=test_pot",
+    "ptools.parse_table.method=direct",
+    "ptools.compute.method=direct",
     "ptools.answer_finqa.method=program_of_thought",
-    "ptools.answer_finqa.tools=[]",
+    "ptools.answer_finqa.tools=[ptools.parse_table,ptools.compute]",
     "ptools.answer_finqa.inject_args=true",
+    "ptools.answer_finqa.additional_imports=[re]",
 ]
 
 _REACT = [
@@ -248,8 +250,8 @@ class TestBasics:
         df = _run_eval(tmp_path, _STRUCTURED_BASELINE)
         assert "correct" in df.columns
 
-    def test_zeroshot_prompt(self, tmp_path):
-        df = _run_eval(tmp_path, _ZEROSHOT_PROMPT)
+    def test_unstructured_baseline(self, tmp_path):
+        df = _run_eval(tmp_path, _UNSTRUCTURED_BASELINE)
         assert "correct" in df.columns
 
     def test_pot(self, tmp_path):

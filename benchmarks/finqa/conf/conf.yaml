@@ -14,5 +14,15 @@ dataset:
   n: null
 
 ptools:
+  parse_table:
+    method: direct
+  lookup_cell:
+    method: direct
+  compute:
+    method: direct
+  extract_reasoning_plan:
+    method: simulate
+  extract_final_number:
+    method: simulate
   answer_finqa:
     method: simulate

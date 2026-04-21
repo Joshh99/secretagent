@@ -5,6 +5,9 @@
 test:
 	uv run pytest tests/ -v
 
+benchmark_status:
+	uv run scripts/benchmark_status.py --full
+
 benchmark_tests:
 	uv run pytest benchmarks/tests/test_sports_understanding.py -v
 	uv run pytest benchmarks/tests/test_designbench.py -v
