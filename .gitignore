@@ -5,6 +5,8 @@ results_plot.png
 benchmarks/**/results/
 benchmarks/**/llm_cache/
 benchmarks/**/training/
+benchmarks/**/ptools_evolved.py
+benchmarks/**/tmp*.py
 docs/orchestrator_demo.html
 docs/presentation.md
 docs/handoff_population_optimizer.md
