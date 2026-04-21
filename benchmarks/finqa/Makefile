@@ -9,10 +9,8 @@ MODEL ?= together_ai/deepseek-ai/DeepSeek-V3.1
 N ?= 300
 
 DOT_N := $(if $(N),dataset.n=$(N),)
-
-PYTHON = ../../.venv/bin/python
 IFACE  = ptools.answer_finqa
-CLI    = $(PYTHON) -m secretagent.cli.expt run --interface $(IFACE) --evaluator evaluator.FinQAEvaluator
+CLI    = uv run python -m secretagent.cli.expt run --interface $(IFACE) --evaluator evaluator.FinQAEvaluator
 
 .PHONY: download build build-small help \
 	structured_baseline unstructured_baseline pot react workflow quick-test \
@@ -96,26 +94,26 @@ unstructured_baseline:
 # --- Utilities ---
 
 quick-test:
-	$(PYTHON) expt.py quick-test --config-file conf/conf.yaml \
+	uv run python expt.py quick-test --config-file conf/conf.yaml \
 	  dataset.n=1 llm.model=$(MODEL)
 
 test:
-	cd ../tests && $(PYTHON) -m pytest test_finqa.py -v
+	cd ../tests && uv run python -m pytest test_finqa.py -v
 
 export:
-	$(PYTHON) -m secretagent.cli.results export --latest 1 --as finqa/finqa results/*
+	uv run python -m secretagent.cli.results export --as finqa results/*
 
 plot:
-	$(PYTHON) -m secretagent.cli.results plot --latest 1 --metric cost- --metric correct --output results_plot.png results/*/
+	uv run python -m secretagent.cli.results plot --latest 1 --metric cost- --metric correct --output results_plot.png results/*/
 
 list:
-	$(PYTHON) -m secretagent.cli.results list results/*
+	uv run python -m secretagent.cli.results list results/*
 
 avg:
-	$(PYTHON) -m secretagent.cli.results average --metric correct --metric cost- results/*
+	uv run python -m secretagent.cli.results average --metric correct --metric cost results/*
 
 compare:
-	$(PYTHON) -m secretagent.cli.results compare-configs results/*
+	uv run python -m secretagent.cli.results compare-configs results/*
 
 costs:
-	$(PYTHON) -m secretagent.cli.costs llm_cache
+	uv run python -m secretagent.cli.costs llm_cache
