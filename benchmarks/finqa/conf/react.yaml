@@ -1,5 +1,4 @@
-# ReAct-style: pydantic-ai agent with grounded tools (table parsing,
-# cell lookup, arithmetic) plus an LLM reasoning-plan tool.
+# Ablation: drop workflow, keep ptools (ReAct via pydantic-ai agent).
 llm:
   model: together_ai/deepseek-ai/DeepSeek-V3.1
 

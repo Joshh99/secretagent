@@ -4,13 +4,15 @@ cachier:
   cache_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/llm_cache
 evaluate:
   result_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/results
-  expt_name: workflow
+  expt_name: unstructured_baseline
 dataset:
   split: valid
   shuffle_seed: null
   'n': 300
 ptools:
   parse_table:
+    method: direct
+  lookup_cell:
     method: direct
   compute:
     method: direct
@@ -20,4 +22,4 @@ ptools:
     method: simulate
   answer_finqa:
     method: direct
-    fn: ptools.answer_finqa_workflow
+    fn: ptools.unstructured_baseline_workflow

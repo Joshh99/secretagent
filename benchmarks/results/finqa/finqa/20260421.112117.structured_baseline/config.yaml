@@ -4,13 +4,11 @@ cachier:
   cache_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/llm_cache
 evaluate:
   result_dir: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/results
-  expt_name: zeroshot_prompt
+  expt_name: structured_baseline
 dataset:
   split: valid
   shuffle_seed: null
   'n': 300
 ptools:
   answer_finqa:
-    method: prompt_llm
-    prompt_template_file: /Users/arthurkajiyama/Documents/CMU/Research/secret_agents/secretagent/benchmarks/finqa/prompt_templates/zeroshot.txt
-    answer_pattern: null
+    method: simulate

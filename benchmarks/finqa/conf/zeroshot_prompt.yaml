@@ -1,5 +1,6 @@
-# Single-shot prompt_llm (full raw model response as answer).
-# Run: uv run python expt.py run --config-file conf/zeroshot_prompt.yaml evaluate.expt_name=zeroshot_prompt
+# Unstructured baseline: zero-shot prompt_llm + LLM type coercion.
+# Follows the project convention: prompt_llm produces raw text,
+# then a simulate-based coercion step cleans it up.
 
 llm:
   model: together_ai/deepseek-ai/DeepSeek-V3.1
@@ -18,6 +19,5 @@ dataset:
 
 ptools:
   answer_finqa:
-    method: prompt_llm
-    prompt_template_file: prompt_templates/zeroshot.txt
-    answer_pattern: null
+    method: direct
+    fn: ptools.unstructured_baseline_workflow
