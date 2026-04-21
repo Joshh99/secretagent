@@ -260,6 +260,50 @@ def _type_cast(value, interface):
         return value
 
 
+_STDOUT_FULL_THRESHOLD = 500
+_METADATA_PREFIX_LEN = 200
+
+
+def _build_context_metadata(context_val) -> str:
+    """Build metadata string describing context without revealing full content.
+
+    Per RLM paper (Algorithm 1), the model only sees Metadata(state),
+    never the raw input.  It must write code to access `context`.
+    """
+    lines = [f"type: {type(context_val).__name__}"]
+    if isinstance(context_val, str):
+        lines.append(f"length: {len(context_val)} chars")
+        if context_val:
+            lines.append(f"prefix: {repr(context_val[:_METADATA_PREFIX_LEN])}")
+    elif isinstance(context_val, dict):
+        lines.append(f"keys: {list(context_val.keys())}")
+        for k, v in context_val.items():
+            if isinstance(v, str):
+                lines.append(f"  context[{k!r}]: str, {len(v)} chars")
+            elif isinstance(v, (list, tuple)):
+                lines.append(f"  context[{k!r}]: {type(v).__name__}, {len(v)} items")
+            else:
+                lines.append(f"  context[{k!r}]: {type(v).__name__}")
+    elif isinstance(context_val, (list, tuple)):
+        lines.append(f"length: {len(context_val)} items")
+    return "\n".join(lines)
+
+
+def _build_stdout_metadata(output: str) -> str:
+    """Build metadata for stdout — full text if short, else prefix + length.
+
+    Per RLM paper (Algorithm 1), hist appends Metadata(stdout), not
+    the raw output.  Short outputs are shown in full since they *are*
+    effectively metadata-sized.
+    """
+    if not output.strip():
+        return "(no output)"
+    if len(output) <= _STDOUT_FULL_THRESHOLD:
+        return output.rstrip()
+    prefix = output[:_METADATA_PREFIX_LEN]
+    return f"[{len(output)} chars] {repr(prefix)} ..."
+
+
 def _aggregate_stats(all_stats: list[dict]) -> dict:
     """Aggregate LLM stats from multiple calls."""
     return dict(
