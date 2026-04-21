@@ -1,6 +1,5 @@
 $iteration_prompt
 
-Query: Implement the function described above for these inputs:
-$input_args
+$context_section
 
 Your next action:

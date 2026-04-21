@@ -11,7 +11,6 @@ import re
 import traceback
 
 from string import Template
-from typing import Any
 
 from pydantic import Field
 
@@ -99,6 +98,7 @@ class RLMFactory(Implementation.Factory):
             'FINAL': FINAL,
             'FINAL_VAR': FINAL_VAR,
             'print': print,  # will be redirected per-block
+            '_stdout': '',   # last code block's stdout
         }
 
         # --- build prompts ---
@@ -116,15 +116,19 @@ class RLMFactory(Implementation.Factory):
             thoughts=thoughts,
         )
 
-        input_args = interface.format_args(*args, **kw)
+        context_metadata = _build_context_metadata(context_val)
+        context_section_initial = f"Context metadata:\n{context_metadata}"
+        context_section_continue = (
+            "The `context` variable and all previous variables "
+            "remain available in the REPL namespace.")
 
         # --- initial prompt ---
         iter0_prompt = "You have not interacted with the REPL environment yet. " \
-            "Look through the context to understand what you're working with, " \
+            "Explore the context with code to understand what you're working with, " \
             "then plan and execute your strategy."
         user_prompt_0 = user_template.substitute(
             iteration_prompt=iter0_prompt,
-            input_args=input_args,
+            context_section=context_section_initial,
         )
 
         full_prompt = f"[SYSTEM]\n{system_prompt}\n\n[USER]\n{user_prompt_0}"
@@ -136,40 +140,13 @@ class RLMFactory(Implementation.Factory):
             all_stats.append(stats)
             conversation_log.append({'turn': turn, 'llm_output': llm_output})
 
-            # check for FINAL/FINAL_VAR in text (outside code blocks)
-            text_outside_code = _strip_code_blocks(llm_output)
-            final_match = re.search(
-                r'FINAL\((.+?)\)', text_outside_code, re.MULTILINE)
-            final_var_match = re.search(
-                r'FINAL_VAR\((.+?)\)', text_outside_code, re.MULTILINE)
-
-            if final_match and not final_var_match:
-                raw_answer = final_match.group(1).strip().strip('"\'')
-                answer = _type_cast(raw_answer, interface)
-                self._record_success(
-                    interface, args, kw, answer, all_stats,
-                    turn + 1, conversation_log)
-                return answer
-
-            if final_var_match:
-                var_name = final_var_match.group(1).strip().strip('"\'')
-                if var_name in namespace:
-                    answer = _type_cast(namespace[var_name], interface)
-                    self._record_success(
-                        interface, args, kw, answer, all_stats,
-                        turn + 1, conversation_log)
-                    return answer
-
-            # extract and execute code blocks
+            # extract and execute code blocks (FINAL only via code, per paper)
             code_blocks = _extract_code_blocks(llm_output)
             all_outputs = []
 
             for code in code_blocks:
                 output = _exec_code(code, namespace)
-                if len(output) > self.max_output_chars:
-                    remaining = len(output) - self.max_output_chars
-                    output = output[:self.max_output_chars] + \
-                        f"\n... [truncated, {remaining} chars omitted]"
+                namespace['_stdout'] = output
                 all_outputs.append((code, output))
 
                 # check if FINAL was called inside code
@@ -180,16 +157,17 @@ class RLMFactory(Implementation.Factory):
                         turn + 1, conversation_log)
                     return answer
 
-            # build continuation prompt
+            # build continuation with metadata only (per paper Algorithm 1)
             repl_section = ""
-            for code, output in all_outputs:
-                repl_section += f"\n[REPL OUTPUT]\nCode executed:\n```python\n{code}\n```\n\nOutput:\n{output}\n"
+            for i, (code, output) in enumerate(all_outputs, 1):
+                stdout_meta = _build_stdout_metadata(output)
+                repl_section += f"\n[REPL block {i}] {stdout_meta}\n"
 
             iterN_prompt = "The history above shows your previous REPL interactions. " \
                 "Continue using the REPL and sub-LLMs to answer the query."
             user_prompt_n = user_template.substitute(
                 iteration_prompt=iterN_prompt,
-                input_args=input_args,
+                context_section=context_section_continue,
             )
 
             full_prompt += f"\n\n[ASSISTANT]\n{llm_output}{repl_section}\n\n[USER]\n{user_prompt_n}"
@@ -231,11 +209,6 @@ def _extract_code_blocks(text: str) -> list[str]:
     """Extract ```repl or ```python code blocks from LLM output."""
     blocks = re.findall(r'```(?:repl|python)\n(.*?)\n```', text, re.DOTALL)
     return blocks
-
-
-def _strip_code_blocks(text: str) -> str:
-    """Remove code blocks from text, leaving only prose."""
-    return re.sub(r'```(?:repl|python)\n.*?\n```', '', text, flags=re.DOTALL)
 
 
 def _exec_code(code: str, namespace: dict) -> str:
