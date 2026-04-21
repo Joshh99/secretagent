@@ -97,8 +97,15 @@ def interface(func: Callable) -> Interface:
             docstring_node = func_node.body[0]
             if (isinstance(docstring_node, ast.Expr)
                 and isinstance(docstring_node.value, (ast.Constant, ast.Str))):
+                end_lineno = docstring_node.end_lineno
+                # Retain an Ellipsis (...) immediately after the docstring
+                if (len(func_node.body) > 1
+                    and isinstance(func_node.body[1], ast.Expr)
+                    and isinstance(func_node.body[1].value, ast.Constant)
+                    and func_node.body[1].value.value is ...):
+                    end_lineno = func_node.body[1].end_lineno
                 lines = trimmed_src.splitlines(keepends=True)
-                trimmed_src = ''.join(lines[:docstring_node.end_lineno])
+                trimmed_src = ''.join(lines[:end_lineno])
         except (SyntaxError, IndexError):
             pass
     result = Interface(
