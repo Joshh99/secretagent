@@ -85,25 +85,32 @@ class Evaluator(ABC):
             from concurrent.futures import ThreadPoolExecutor, as_completed
             import signal
             max_retries = int(config.get('evaluate.max_retries', 2))
-            case_timeout = float(config.get('evaluate.case_timeout', 300))
+            case_timeout = int(config.get('evaluate.case_timeout', 300))
 
-            def _run_with_retry(ex, attempt=0):
-                try:
-                    row = self.measure(ex, interface)
-                    row['case_name'] = ex.name
-                    return row
-                except Exception as e:
-                    if attempt < max_retries:
-                        return _run_with_retry(ex, attempt + 1)
-                    return {'case_name': ex.name, 'predicted_output': None,
-                            'correct': 0, '_error': str(e)}
+            class _BatchTimeout(Exception):
+                pass
 
-            # Process cases in batches to avoid hung-thread accumulation.
-            # Each batch runs in a fresh ThreadPoolExecutor so hung threads
-            # from a previous batch don't block future work.
+            def _alarm_handler(signum, frame):
+                raise _BatchTimeout()
+
+            def _run_with_retry(ex):
+                for attempt in range(max_retries + 1):
+                    try:
+                        row = self.measure(ex, interface)
+                        row['case_name'] = ex.name
+                        return row
+                    except Exception as e:
+                        if attempt < max_retries:
+                            continue
+                        return {'case_name': ex.name,
+                                'predicted_output': None,
+                                'correct': 0, '_error': str(e)}
+
+            # Process in batches with signal.alarm as a hard watchdog.
+            # signal.alarm interrupts even hung C-level socket reads,
+            # which thread-level timeouts cannot do.
             batch_size = max_workers * 3
             cases = list(dataset.cases)
-            completed = 0
             pbar = tqdm(total=len(cases))
 
             for batch_start in range(0, len(cases), batch_size):
@@ -112,29 +119,51 @@ class Evaluator(ABC):
                 futures = {pool.submit(_run_with_retry, ex): ex
                            for ex in batch}
                 done = set()
+
+                # Set hard watchdog: generous timeout for the whole batch
+                # Each case gets case_timeout seconds; batch gets enough for all cases
+                # to run sequentially (worst case: no parallelism benefit)
+                batch_timeout = case_timeout * len(batch) // max_workers + 60
+                old_handler = signal.signal(signal.SIGALRM, _alarm_handler)
+                signal.alarm(batch_timeout)
                 try:
-                    for fut in as_completed(futures,
-                                            timeout=case_timeout):
+                    for fut in as_completed(futures):
                         done.add(fut)
                         pbar.update(1)
                         yield fut.result()
-                except TimeoutError:
+                    # Batch completed normally
+                    signal.alarm(0)
+                except (_BatchTimeout, TimeoutError):
                     pass
-                # Don't wait for hung threads — shut down without blocking
-                pool.shutdown(wait=False, cancel_futures=True)
-                # Retry timed-out cases sequentially (fresh connection)
-                timed_out = [ex for fut, ex in futures.items()
-                             if fut not in done]
-                for ex in timed_out:
-                    pbar.update(1)
-                    try:
-                        row = self.measure(ex, interface)
-                        row['case_name'] = ex.name
-                        yield row
-                    except Exception:
-                        yield {'case_name': ex.name,
-                               'predicted_output': None,
-                               'correct': 0, '_timeout': True}
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
+                    pool.shutdown(wait=False, cancel_futures=True)
+
+                # Retry timed-out cases one at a time with per-case alarm
+                for fut, ex in futures.items():
+                    if fut not in done:
+                        old_h = signal.signal(signal.SIGALRM, _alarm_handler)
+                        signal.alarm(case_timeout)
+                        try:
+                            row = self.measure(ex, interface)
+                            row['case_name'] = ex.name
+                            signal.alarm(0)
+                            pbar.update(1)
+                            yield row
+                        except _BatchTimeout:
+                            pbar.update(1)
+                            yield {'case_name': ex.name,
+                                   'predicted_output': None,
+                                   'correct': 0, '_timeout': True}
+                        except Exception:
+                            pbar.update(1)
+                            yield {'case_name': ex.name,
+                                   'predicted_output': None,
+                                   'correct': 0, '_timeout': True}
+                        finally:
+                            signal.alarm(0)
+                            signal.signal(signal.SIGALRM, old_h)
 
             pbar.close()
             
