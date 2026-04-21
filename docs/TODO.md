@@ -2,7 +2,11 @@
 
 ## Experimental improvements
 
-* `result.py rename --to '%O_oss2b' results/*`
+ * add `result.py rename --to '%O_oss2b' results/*` - to help cleanup results
+ * look at pot failures and see if there is an easy way to improve them
+ * add `result.py replay --case-name NAME results/*` - like quick-test
+   but loads the config, turns up all the logging, and reruns that case.
+ * look at finding ICL examples for pot, workflow, ... ?
 
 ## Tracking extensions
 
