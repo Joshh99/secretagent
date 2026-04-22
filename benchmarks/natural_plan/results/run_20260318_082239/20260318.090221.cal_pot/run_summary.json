@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml ptools.calendar_scheduling.method=program_of_thought ptools.calendar_scheduling.tools=[ptools_calendar.extract_constraints,ptools_calendar.solve_problem,ptools_calendar.format_answer] evaluate.expt_name=cal_pot dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260318_082239 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42 dataset.prompt_mode=0shot evaluate.prompt_trace=true",
-  "accuracy": 0.16,
-  "total_cost_usd": 0.141754,
-  "total_time_sec": 1131.74,
-  "n_samples": 50
-}

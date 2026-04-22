@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/meeting.yaml ptools.meeting_planning.method=simulate_pydantic ptools.meeting_planning.tools=[ptools_meeting.parse_meeting_info,ptools_meeting.plan_visit_order,ptools_meeting.build_meeting_plan] evaluate.expt_name=meet_react dataset.n=5 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260406_185357 evaluate.prompt_trace=true",
-  "accuracy": 0.0,
-  "total_cost_usd": 0.0,
-  "total_time_sec": 0.0,
-  "n_samples": 5
-}

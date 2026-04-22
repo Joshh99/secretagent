@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml ptools.calendar_scheduling.method=prompt_llm ptools.calendar_scheduling.prompt_template_file=prompt_templates/zeroshot.txt evaluate.expt_name=cal_zs_unstruct dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260318_004100 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42",
-  "accuracy": 0.66,
-  "total_cost_usd": 0.151204,
-  "total_time_sec": 1421.78,
-  "n_samples": 50
-}

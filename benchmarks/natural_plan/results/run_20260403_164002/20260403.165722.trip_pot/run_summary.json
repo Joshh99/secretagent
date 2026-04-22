@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/trip.yaml ptools.trip_planning.method=program_of_thought ptools.trip_planning.tools=[ptools_trip.extract_constraints,ptools_trip.solve_problem,ptools_trip.format_answer] evaluate.expt_name=trip_pot dataset.n=5 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260403_164002 dataset.prompt_mode=5shot evaluate.prompt_trace=true",
-  "accuracy": 0.2,
-  "total_cost_usd": 0.030625,
-  "total_time_sec": 136.78,
-  "n_samples": 5
-}

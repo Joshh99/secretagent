@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml ptools.calendar_scheduling.method=direct ptools.calendar_scheduling.fn=ptools_calendar.calendar_workflow evaluate.expt_name=cal_workflow dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260318_082239 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42 dataset.prompt_mode=0shot evaluate.prompt_trace=true",
-  "accuracy": 0.24,
-  "total_cost_usd": 0.093991,
-  "total_time_sec": 723.87,
-  "n_samples": 50
-}

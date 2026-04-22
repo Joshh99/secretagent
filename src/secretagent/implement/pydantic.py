@@ -43,9 +43,24 @@ def _run_agent_impl(interface, model_name, return_type, prompt, tools):
     return_type = interface.annotations.get('return', str)
     agent = Agent(model, output_type=return_type, tools=tools)
 
-    # run the agent and time that
+    # run the agent and time that. Wrap in a thread-pool so an optional
+    # llm.timeout (in seconds) can bound the total agent wall-clock time.
+    # together_ai occasionally stalls on specific prompts; without a
+    # timeout the whole pipeline hangs indefinitely.
+    timeout = config.get('llm.timeout', None)
     start_time = time.time()
-    result = agent.run_sync(prompt)
+    if timeout is not None:
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(agent.run_sync, prompt)
+            try:
+                result = future.result(timeout=float(timeout))
+            except concurrent.futures.TimeoutError as ex:
+                raise TimeoutError(
+                    f'pydantic-ai agent exceeded llm.timeout={timeout}s'
+                ) from ex
+    else:
+        result = agent.run_sync(prompt)
     latency = time.time() - start_time
 
     # get the answer and maybe echo it
@@ -113,10 +128,17 @@ class SimulatePydanticFactory(SimulateFactory):
                     prompt=prompt,
                     tools=self.tools)
             except Exception as ex:
+                # pydantic-ai may have made LLM calls before the agent loop
+                # raised (e.g. when a tool-call's args don't match the
+                # Interface signature). Those costs are unrecoverable from
+                # here, so record NaN rather than lying with 0 — aggregation
+                # code should treat NaN as "unknown, not zero".
+                import math
                 record.record(
                     func=interface.name, args=args, kw=kw,
                     output=f'**exception**: {ex}', step_info=[],
-                    stats=dict(input_tokens=0, output_tokens=0, latency=0, cost=0))
+                    stats=dict(input_tokens=math.nan, output_tokens=math.nan,
+                               latency=math.nan, cost=math.nan))
                 raise
             record.record(
                 func=interface.name,

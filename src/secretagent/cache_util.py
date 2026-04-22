@@ -15,6 +15,39 @@ from secretagent import config
 _DECORATED = {}
 
 
+def _disable_watchdog_observer():
+    """Monkey-patch watchdog.observers.Observer to a no-op.
+
+    cachier's default observer uses macOS fsevents to watch the cache
+    file; under heavy sequential access the observer thread and the
+    caller deadlock inside libsystem_pthread. Our use case runs one
+    process at a time and doesn't need cross-process cache invalidation,
+    so we can safely disable the observer entirely.
+
+    Call this once, before the first cachier decorator is constructed.
+    Idempotent.
+    """
+    try:
+        import watchdog.observers
+    except ImportError:
+        return
+    if getattr(watchdog.observers, '_secretagent_patched', False):
+        return
+
+    class _NoopObserver:
+        def __init__(self, *a, **kw): pass
+        def start(self): pass
+        def stop(self): pass
+        def join(self, *a, **kw): pass
+        def schedule(self, *a, **kw): return None
+        def unschedule(self, *a, **kw): pass
+        def unschedule_all(self): pass
+        def is_alive(self): return False
+
+    watchdog.observers.Observer = _NoopObserver
+    watchdog.observers._secretagent_patched = True
+
+
 def cached(fn, **cachier_kw):
     """Return a cachier-decorated version of fn using current config.
 
@@ -35,6 +68,10 @@ def cached(fn, **cachier_kw):
     # Cache the decorated function, keyed by (fn, config snapshot)
     cache_key = (fn, str(sorted(merged.items())))
     if cache_key not in _DECORATED:
+        # Disable watchdog observer BEFORE importing cachier — fixes a
+        # macOS-only deadlock where the fsevents observer thread and the
+        # main thread mutually block waiting on libsystem_pthread locks.
+        _disable_watchdog_observer()
         from cachier import cachier as cachier_decorator
         _DECORATED[cache_key] = cachier_decorator(**merged)(fn)
 

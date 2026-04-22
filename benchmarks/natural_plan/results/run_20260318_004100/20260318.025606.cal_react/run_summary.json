@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml ptools.calendar_scheduling.method=simulate_pydantic ptools.calendar_scheduling.tools=[ptools_calendar.extract_constraints,ptools_calendar.solve_problem,ptools_calendar.format_answer] evaluate.expt_name=cal_react dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260318_004100 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42",
-  "accuracy": 0.46,
-  "total_cost_usd": 0.448358,
-  "total_time_sec": 1815.06,
-  "n_samples": 50
-}
