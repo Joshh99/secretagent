@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/trip.yaml ptools.trip_planning.method=program_of_thought ptools.trip_planning.tools=[ptools_trip.extract_constraints,ptools_trip.solve_problem,ptools_trip.format_answer] evaluate.expt_name=trip_pot dataset.n=50 evaluate.result_dir=/Users/yanjiarui/Desktop/Will_research/secretagent/benchmarks/natural_plan/results/run_20260318_004100 dataset.stratified=true dataset.sample_n=50 dataset.sample_seed=42",
-  "accuracy": 0.0625,
-  "total_cost_usd": 0.152949,
-  "total_time_sec": 1053.36,
-  "n_samples": 48
-}

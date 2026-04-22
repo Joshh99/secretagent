@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml dataset.n=1",
-  "accuracy": 0.0,
-  "total_cost_usd": 0.003943,
-  "total_time_sec": 25.43,
-  "n_samples": 1
-}

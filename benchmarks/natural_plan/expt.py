@@ -144,15 +144,21 @@ class NaturalPlanEvaluator(Evaluator):
         try:
             return super().measure(example, interface)
         except Exception as e:
+            # Cost/latency on exception paths are UNKNOWN (e.g. pydantic-ai
+            # agent may have made LLM calls before Interface arg-mismatch
+            # raised). Use NaN so aggregation distinguishes "actually free"
+            # from "cost not captured". Downstream code should treat NaN
+            # rows as partial observations.
+            import math
             print(f'  [error on {example.name}: {type(e).__name__}: {e}]')
             return dict(
-                predicted_output=None,
+                predicted_output=f'**exception raised**: {type(e).__name__}: {e}',
                 expected_output=example.expected_output,
                 correct=False,
-                input_tokens=0,
-                output_tokens=0,
-                latency=0,
-                cost=0,
+                input_tokens=math.nan,
+                output_tokens=math.nan,
+                latency=math.nan,
+                cost=math.nan,
             )
 
     def evaluate(self, dataset: Dataset, interface: Interface) -> Path:

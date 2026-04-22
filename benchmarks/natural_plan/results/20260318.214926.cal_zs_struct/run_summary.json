@@ -1,7 +1,0 @@
-{
-  "reproduce_cmd": "uv run python expt.py run --config-file conf/calendar.yaml evaluate.expt_name=cal_zs_struct ptools.calendar_scheduling.method=simulate dataset.n=2",
-  "accuracy": 0.0,
-  "total_cost_usd": 0.00271,
-  "total_time_sec": 15.48,
-  "n_samples": 2
-}
