@@ -7,7 +7,8 @@ from conftest import needs_gemini_key
 from secretagent import config, record
 from secretagent.core import interface, all_factories, _INTERFACES
 from secretagent.implement.rlm import (
-    RLMFactory, _extract_code_blocks, _strip_code_blocks, _load_template,
+    RLMFactory, _extract_code_blocks, _load_template,
+    _build_context_metadata, _build_stdout_metadata,
 )
 
 
@@ -60,27 +61,65 @@ def test_create_prompt_includes_llm_query_instructions():
     _INTERFACES.remove(analyze)
 
 
+def test_system_prompt_requires_final_in_code():
+    """FINAL must be called inside code blocks, not in prose (per paper)."""
+    template = _load_template('rlm_system.txt')
+    prompt = template.substitute(
+        stub_src="def f(x: str) -> str:\n    ...",
+        context_info="type=str",
+        thoughts="",
+    )
+    assert 'code block' in prompt.lower()
+    assert '_stdout' in prompt
+
+
+# --- metadata helpers ---
+
+def test_build_context_metadata_string():
+    meta = _build_context_metadata("hello world " * 100)
+    assert 'type: str' in meta
+    assert 'length:' in meta
+    assert 'prefix:' in meta
+    # full content must NOT appear in metadata
+    assert ('hello world ' * 100) not in meta
+
+
+def test_build_context_metadata_dict():
+    meta = _build_context_metadata({'text': 'abc' * 1000, 'question': 'what?'})
+    assert 'type: dict' in meta
+    assert 'keys:' in meta
+    assert "context['text']: str, 3000 chars" in meta
+    assert "context['question']: str, 5 chars" in meta
+    # full content must NOT appear
+    assert ('abc' * 1000) not in meta
+
+
+def test_build_context_metadata_list():
+    meta = _build_context_metadata([1, 2, 3, 4, 5])
+    assert 'type: list' in meta
+    assert 'length: 5 items' in meta
+
+
+def test_build_stdout_metadata_short():
+    """Short outputs are shown in full."""
+    meta = _build_stdout_metadata("42")
+    assert meta == "42"
+
+
+def test_build_stdout_metadata_long():
+    """Long outputs are truncated to prefix + length."""
+    big = "x" * 1000
+    meta = _build_stdout_metadata(big)
+    assert '[1000 chars]' in meta
+    assert len(meta) < 500
+
+
+def test_build_stdout_metadata_empty():
+    assert _build_stdout_metadata("") == "(no output)"
+    assert _build_stdout_metadata("   ") == "(no output)"
+
+
 # --- parsing helpers ---
-
-def test_final_answer_parsing():
-    """Test regex extraction for FINAL(some answer)."""
-    import re
-    text = "After analysis, I found the answer.\nFINAL(42)\n"
-    text_clean = _strip_code_blocks(text)
-    match = re.search(r'FINAL\((.+?)\)', text_clean, re.MULTILINE)
-    assert match is not None
-    assert match.group(1) == '42'
-
-
-def test_final_var_parsing():
-    """Test regex extraction for FINAL_VAR(my_var)."""
-    import re
-    text = "The answer is stored in result.\nFINAL_VAR(result)\n"
-    text_clean = _strip_code_blocks(text)
-    match = re.search(r'FINAL_VAR\((.+?)\)', text_clean, re.MULTILINE)
-    assert match is not None
-    assert match.group(1) == 'result'
-
 
 def test_code_block_extraction():
     """Test extracting ```repl blocks from LLM output."""
@@ -113,7 +152,7 @@ GEMINI_TEST_MODEL = 'gemini/gemini-3.1-flash-lite-preview'
 
 @needs_gemini_key
 def test_rlm_simple_string_lookup():
-    """RLM should find a hidden word in a text."""
+    """RLM should find a hidden word in a text using code to explore context."""
     @interface
     def find_secret(text: str) -> str:
         """Find and return the single word enclosed in triple asterisks (***word***) in the text."""
