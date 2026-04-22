@@ -13,7 +13,12 @@ def _has_llm_key():
     return bool(
         os.environ.get("ANTHROPIC_API_KEY")
         or os.environ.get("TOGETHERAI_API_KEY")
+        or os.environ.get("GEMINI_API_KEY")
     )
+
+
+def _has_gemini_key():
+    return bool(os.environ.get("GEMINI_API_KEY"))
 
 
 needs_api_key = pytest.mark.skipif(
@@ -24,4 +29,9 @@ needs_api_key = pytest.mark.skipif(
 needs_anthropic_key = pytest.mark.skipif(
     not os.environ.get("ANTHROPIC_API_KEY"),
     reason="ANTHROPIC_API_KEY not set",
+)
+
+needs_gemini_key = pytest.mark.skipif(
+    not _has_gemini_key(),
+    reason="GEMINI_API_KEY not set",
 )

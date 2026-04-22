@@ -186,8 +186,12 @@ class IterationRecord(BaseModel):
     iteration: int
     train_accuracy: float
     train_cost: float
+    train_failures: int = 0
+    train_timeouts: int = 0
     eval_accuracy: float | None = None
     eval_cost: float | None = None
+    eval_failures: int | None = None
+    eval_timeouts: int | None = None
     supervisor_cost: float = 0.0
     reasoning: str = ''
     kept: bool = False
@@ -207,13 +211,25 @@ class SupervisorReport(BaseModel):
 
 def _format_failure_traces(
     result_dir: Path,
-    max_cases: int = 5,
-    max_output_chars: int = 150,
+    dataset: Dataset | None = None,
+    max_cases: int = 999,
+    max_input_chars: int = 2000,
+    max_output_chars: int = 1000,
 ) -> str:
-    """Read results.jsonl and format failure cases as compact call chains."""
+    """Read results.jsonl and format failure cases with full context.
+
+    If dataset is provided, looks up input_args (patient_note, question)
+    by case_name so the supervisor can see what the LLM was asked.
+    """
     jsonl_path = Path(result_dir) / 'results.jsonl'
     if not jsonl_path.exists():
         return 'No results.jsonl found.'
+
+    # Build case lookup from dataset
+    case_lookup: dict[str, Any] = {}
+    if dataset is not None:
+        for case in dataset.cases:
+            case_lookup[case.name] = case
 
     failures = []
     with open(jsonl_path) as f:
@@ -225,228 +241,138 @@ def _format_failure_traces(
     if not failures:
         return 'All cases passed!'
 
-    # Select diverse failures: group by error type, pick one per group
-    error_groups: dict[str, list[dict]] = {}
+    # Select diverse failures: group by category/calculator, pick from each
+    cat_groups: dict[str, list[dict]] = {}
     for rec in failures:
-        rollout = rec.get('rollout', [])
-        # Key: first exception or "wrong_answer"
-        key = 'wrong_answer'
-        for step in rollout:
-            out = str(step.get('output', ''))
-            if out.startswith('**exception'):
-                key = out[:60]
-                break
-        error_groups.setdefault(key, []).append(rec)
+        key = rec.get('calculator_name', rec.get('category', 'unknown'))
+        cat_groups.setdefault(key, []).append(rec)
 
     selected: list[dict] = []
-    # One per error group (sorted by frequency)
-    for _key, recs in sorted(error_groups.items(), key=lambda kv: -len(kv[1])):
+    # Round-robin from each category
+    for _key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
         if len(selected) >= max_cases:
             break
         selected.append(recs[0])
 
-    # Fill remaining with highest-cost failures
+    # Fill remaining from largest groups
     if len(selected) < max_cases:
         used = {r.get('case_name') for r in selected}
-        by_cost = sorted(failures, key=lambda r: r.get('cost', 0), reverse=True)
-        for rec in by_cost:
-            if rec.get('case_name') not in used:
-                selected.append(rec)
-                used.add(rec.get('case_name'))
-                if len(selected) >= max_cases:
-                    break
+        for _key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
+            for rec in recs[1:]:
+                if rec.get('case_name') not in used and len(selected) < max_cases:
+                    selected.append(rec)
+                    used.add(rec.get('case_name'))
 
-    lines = []
+    lines = [f'Total failures: {len(failures)} / showing {len(selected)}:\n']
+    # Also show failure counts by category
+    lines.append('Failure counts by category:')
+    for key, recs in sorted(cat_groups.items(), key=lambda kv: -len(kv[1])):
+        lines.append(f'  {key}: {len(recs)} failures')
+    lines.append('')
+
     for rec in selected:
         meta_parts = []
-        for mk in ('calculator_name', 'category', 'ques_type'):
+        for mk in ('calculator_name', 'category', 'output_type'):
             if mk in rec:
                 meta_parts.append(f'{mk}={rec[mk]}')
         meta_str = f' ({", ".join(meta_parts)})' if meta_parts else ''
-        lines.append(f'Case {rec.get("case_name", "?")}:{meta_str}')
+        lines.append(f'--- Case {rec.get("case_name", "?")}:{meta_str} ---')
 
-        # Show input (truncated)
-        inp = rec.get('input_args', rec.get('predicted_output', ''))
-        lines.append(f'  Input: {str(inp)[:200]}')
+        # Show REAL input data from dataset
+        case_name = rec.get('case_name', '')
+        case = case_lookup.get(case_name)
+        if case and case.input_args:
+            for i, arg in enumerate(case.input_args):
+                arg_str = str(arg)[:max_input_chars]
+                lines.append(f'  Input arg {i}: {arg_str}')
+        else:
+            lines.append(f'  Input: (not available)')
 
-        # Show rollout steps
-        for step in rec.get('rollout', []):
-            func = step.get('func', '?')
-            output = str(step.get('output', ''))[:max_output_chars]
-            cost = step.get('stats', {}).get('cost', 0)
-            lines.append(f'  -> {func}() = {output} [${cost:.4f}]')
+        # Show rollout steps (LLM call traces)
+        rollout = rec.get('rollout', [])
+        if rollout:
+            lines.append(f'  Execution trace ({len(rollout)} LLM calls):')
+            for step in rollout:
+                func = step.get('func', '?')
+                args_str = str(step.get('args', ''))[:200]
+                output = str(step.get('output', ''))[:max_output_chars]
+                cost = step.get('stats', {}).get('cost', 0)
+                lines.append(f'    {func}({args_str})')
+                lines.append(f'      -> {output} [${cost:.4f}]')
+        else:
+            lines.append(f'  Execution trace: (no rollout recorded)')
 
         pred = rec.get('predicted_output', '?')
         exp = rec.get('expected_output', '?')
-        lines.append(f'  Predicted: {pred}, Expected: {exp}')
+        abs_err = rec.get('absolute_error', '')
+        err_str = f', absolute_error={abs_err}' if abs_err else ''
+        lines.append(f'  RESULT: predicted={pred}, expected={exp}{err_str}')
         lines.append('')
 
     return '\n'.join(lines)
 
 
 def _format_iteration_history(iterations: list[IterationRecord]) -> str:
-    """Condensed history: last 3 full detail, rest one-line."""
+    """Full history with reasoning for all iterations.
+
+    Every iteration shows: train/eval accuracy, kept/rolled back, and
+    a concise summary of what was tried so the supervisor doesn't repeat
+    failed approaches.
+    """
     if not iterations:
         return ''
     lines = []
-    for rec in iterations[:-3]:
+    for rec in iterations:
         status = 'KEPT' if rec.kept else 'ROLLED BACK'
+        eval_str = f', eval={rec.eval_accuracy:.1%}' if rec.eval_accuracy is not None else ''
         lines.append(
-            f'Iter {rec.iteration}: accuracy={rec.train_accuracy:.1%}, '
-            f'cost=${rec.train_cost:.4f} — {status}'
-        )
-    for rec in iterations[-3:]:
-        status = 'KEPT' if rec.kept else 'ROLLED BACK'
-        lines.append(
-            f'Iter {rec.iteration}: accuracy={rec.train_accuracy:.1%}, '
-            f'cost=${rec.train_cost:.4f} — {status}'
+            f'Iter {rec.iteration}: train={rec.train_accuracy:.1%}{eval_str} — {status}'
         )
         if rec.reasoning:
-            # Show first 200 chars of reasoning
-            lines.append(f'  Reasoning: {rec.reasoning[:200]}')
+            # Show full reasoning so supervisor knows exactly what was tried
+            lines.append(f'  What was tried: {rec.reasoning}')
+        if not rec.kept and rec.iteration > 0:
+            lines.append(f'  ⚠ This change HURT accuracy. Do NOT retry this approach.')
     return '\n'.join(lines)
 
 
-def _extract_initial_code(entry_interface: Interface) -> str:
-    """Get the function body of the entry interface's implementation."""
-    impl = entry_interface.implementation
-    if impl is None:
-        return '    pass'
-    fn = impl.implementing_fn
-    # If it's an OrchestrateFactory with a pipeline
-    if hasattr(fn, 'pipeline') and fn.pipeline is not None:
-        return fn.pipeline.code
-    # If it's a DirectFactory, get the actual function
-    actual_fn = getattr(fn, 'direct_fn', None) or getattr(fn, '_fn', None)
-    if actual_fn is None:
-        actual_fn = fn
-    # Try to get source
-    try:
-        src = inspect.getsource(actual_fn)
-        # Strip decorators and def line to get just the body
-        src_lines = src.split('\n')
-        body_start = 0
-        for i, line in enumerate(src_lines):
-            stripped = line.strip()
-            if stripped.startswith('def '):
-                body_start = i + 1
-                break
-        body = '\n'.join(src_lines[body_start:])
-        return textwrap.dedent(body)
-    except (TypeError, OSError):
-        return '    pass'
+
+def _count_failures(result_dir: Path) -> tuple[int, int]:
+    """Count failures and timeouts from results.jsonl."""
+    jsonl = result_dir / 'results.jsonl'
+    if not jsonl.exists():
+        return 0, 0
+    failures = 0
+    timeouts = 0
+    with open(jsonl) as f:
+        for line in f:
+            rec = json.loads(line)
+            if not rec.get('correct'):
+                failures += 1
+            if rec.get('_timeout'):
+                timeouts += 1
+    return failures, timeouts
 
 
-def _build_namespace(
-    tool_interfaces: list,
-    ptools_module: Any = None,
-) -> dict[str, Any]:
-    """Build exec namespace for pipeline compilation."""
-    import builtins
-    import json as json_mod
-    import re as re_mod
-    from secretagent.core import Interface
-
-    namespace: dict[str, Any] = {
-        '__builtins__': builtins,
-        'json': json_mod,
-        're': re_mod,
-    }
-    for iface in tool_interfaces:
-        namespace[iface.name] = iface
-
-    # Add non-Interface objects from ptools module (functions, modules, constants)
-    if ptools_module is not None:
-        import types
-        for name in dir(ptools_module):
-            if name.startswith('__'):
-                continue
-            obj = getattr(ptools_module, name)
-            if isinstance(obj, Interface):
-                continue
-            # Include callables, modules, and data objects
-            if (callable(obj) or isinstance(obj, types.ModuleType)
-                    or isinstance(obj, (str, list, dict, set, tuple, int, float))):
-                namespace[name] = obj
-
-    return namespace
-
-
-def _describe_namespace_utilities(
-    namespace: dict[str, Any],
-    tool_interfaces: list,
-) -> str:
-    """Build a description of non-tool items in the namespace."""
-    tool_names = {iface.name for iface in tool_interfaces}
-    skip = {'__builtins__', 'json', 're'}
-    lines = []
-    for name, obj in sorted(namespace.items()):
-        if name in tool_names or name in skip:
-            continue
-        if callable(obj):
-            # Try to get a one-line description
-            sig = ''
-            try:
-                sig = f'({", ".join(inspect.signature(obj).parameters.keys())})'
-            except (ValueError, TypeError):
-                pass
-            doc = (getattr(obj, '__doc__', '') or '').split('\n')[0][:80]
-            lines.append(f'- `{name}{sig}`: {doc}' if doc else f'- `{name}{sig}`')
-        elif isinstance(obj, str) and len(obj) > 20:
-            lines.append(f'- `{name}` (str, {len(obj)} chars)')
-        elif isinstance(obj, (list, dict)):
-            lines.append(f'- `{name}` ({type(obj).__name__}, {len(obj)} items)')
-    return '\n'.join(lines) if lines else ''
-
-
-def _compile_pipeline(code: str, entry_sig: str, namespace: dict):
-    """Compile pipeline code without Pipeline's indentation normalization.
-
-    Pipeline._compile has a first-line normalization that breaks try/except
-    blocks. This function does a clean compile: dedent, re-indent under
-    the entry signature, exec.
-    """
-    func_name = entry_sig.split('(')[0].replace('def ', '').strip()
-    indented_body = textwrap.indent(textwrap.dedent(code), '    ')
-    func_src = f'{entry_sig}\n{indented_body}'
-    exec_ns = dict(namespace)
-    exec(func_src, exec_ns)
-    fn = exec_ns[func_name]
-
-    # Wrap in a Pipeline-like callable for compatibility
-    p = Pipeline.__new__(Pipeline)
-    p.code = code
-    p.entry_signature = entry_sig
-    p._fn = fn
-    return p
-
-
-def _compile_with_retry(
-    code: str, entry_sig: str, namespace: dict,
-    recompose_fn, recompose_kwargs: dict,
-    max_retries: int = 2,
-) -> Pipeline | None:
-    """Try to compile pipeline code, retrying with error feedback."""
-    for attempt in range(1 + max_retries):
-        try:
-            return _compile_pipeline(code, entry_sig, namespace)
-        except Exception as e:
-            if attempt >= max_retries:
-                print(f'[supervisor] compile failed after {attempt + 1} attempts: {e}')
-                return None
-            print(f'[supervisor] compile error (retry {attempt + 1}): {e}')
-            # Append error context to custom instructions for retry
-            error_ctx = (
-                f'\n\nYour previous code had a compile error:\n```\n{e}\n```\n'
-                f'Previous code:\n```python\n{code}\n```\n'
-                f'Fix the syntax error. Return corrected code.'
-            )
-            retry_kwargs = dict(recompose_kwargs)
-            retry_kwargs['custom_instructions'] = (
-                retry_kwargs.get('custom_instructions', '') + error_ctx
-            )
-            code, _reasoning, _cfg, _stats = recompose_fn(**retry_kwargs)
-    return None
+def _save_running_report(output_dir, iterations, best_accuracy,
+                         best_source, best_config_overrides,
+                         total_supervisor_cost):
+    """Save report.json after each iteration so progress survives interruption."""
+    best_iter = max(
+        (r for r in iterations if r.kept),
+        key=lambda r: r.train_accuracy,
+        default=iterations[0],
+    )
+    report = SupervisorReport(
+        iterations=iterations,
+        best_iteration=best_iter.iteration,
+        best_train_accuracy=best_accuracy,
+        total_supervisor_cost=total_supervisor_cost,
+        best_code=f'# See ptools_evolved.py ({len(best_source)} chars)',
+        best_config_overrides=best_config_overrides,
+    )
+    (output_dir / 'report.json').write_text(report.model_dump_json(indent=2))
+    (output_dir / 'ptools_evolved.py').write_text(best_source)
 
 
 def improve_with_supervisor(
@@ -463,104 +389,193 @@ def improve_with_supervisor(
     model_choices: str = '',
     output_dir: Path | None = None,
     ptools_module: Any = None,
+    resume_iterations: list[IterationRecord] | None = None,
+    resume_best_accuracy: float | None = None,
+    resume_best_eval_accuracy: float | None = None,
+    resume_supervisor_cost: float = 0.0,
+    on_iteration_complete: Callable[[Path], None] | None = None,
 ) -> SupervisorReport:
     """Iteratively improve a pipeline using a supervisor LLM.
 
-    The supervisor sees profiling data and failure traces, and outputs
-    improved pipeline code + optional config overrides. Hill climbing:
-    keep improvements, rollback regressions.
+    The supervisor sees the FULL ptools source file and can modify anything:
+    workflow code, utility functions, docstrings, extraction logic, etc.
+    Changes are written to ptools_evolved.py and the module is reloaded.
 
-    Args:
-        entry_interface: the workflow Interface to improve
-        tool_interfaces: ptools available to the pipeline
-        catalog: ptool catalog for the supervisor prompt
-        evaluator: evaluator to measure performance
-        train_dataset: training dataset for evaluation
-        eval_dataset: optional held-out dataset for periodic eval
-        supervisor_model: LLM model for the supervisor
-        max_iterations: max improvement iterations
-        target_accuracy: stop when reached
-        custom_instructions: extra text for the supervisor prompt
-        model_choices: formatted model table for the supervisor
-        output_dir: directory to save iteration artifacts
-        ptools_module: the ptools module for namespace construction
+    Hill climbing: keep improvements, rollback regressions.
+
+    When resume_iterations is provided, skip the initial evaluation and
+    continue the improvement loop from where the previous run left off.
     """
     from secretagent.orchestrate.composer import recompose
     from secretagent.orchestrate.transforms.base import format_profiling_summary
+    from secretagent.core import implement_via_config
 
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / 'iterations').mkdir(exist_ok=True)
 
-    entry_sig = _entry_signature_from_interface(entry_interface)
-    namespace = _build_namespace(tool_interfaces, ptools_module)
-    current_code = _extract_initial_code(entry_interface)
+    # --- Setup evolved ptools file ---
+    # Derive evolved path from the module's actual file, supporting any
+    # module name (ptools.py, ptools_murder.py, etc.)
+    evolved_path = Path(ptools_module.__file__)
+    benchmark_dir = evolved_path.parent
 
-    # Build a description of utility functions available in the namespace
-    # so the supervisor knows it can use them
-    utility_desc = _describe_namespace_utilities(namespace, tool_interfaces)
-    if utility_desc:
-        custom_instructions = (
-            f'{custom_instructions}\n\n'
-            f'## Utility functions available in scope\n'
-            f'These helper functions and variables are also available '
-            f'(in addition to the tools listed above):\n{utility_desc}'
-        ).strip()
+    # If loaded from base (not evolved), create evolved copy
+    if '_evolved' not in evolved_path.stem:
+        base_path = evolved_path
+        evolved_path = benchmark_dir / f'{evolved_path.stem}_evolved.py'
+        if not evolved_path.exists():
+            evolved_path.write_text(base_path.read_text())
+            print(f'[supervisor] created {evolved_path.name} from {base_path.name}')
+
+    # IMPORTANT: importlib.reload() does NOT honor spec_from_file_location.
+    # It re-imports using sys.path, which finds the base file instead of the
+    # evolved file. We must use spec.loader.exec_module() instead.
+    def _reload_evolved_module():
+        """Re-execute the evolved ptools file into the existing module object."""
+        import importlib.util as ilu
+        spec = ilu.spec_from_file_location(ptools_module.__name__, str(evolved_path))
+        spec.loader.exec_module(ptools_module)
+
+    print(f'[supervisor] evolved ptools: {evolved_path.name}')
+
+    current_source = evolved_path.read_text()
+    entry_point_name = entry_interface.name
 
     iterations: list[IterationRecord] = []
-    best_code = current_code
+    best_source = current_source
     best_config_overrides: list[str] = []
+    best_eval_accuracy: float | None = None
     total_supervisor_cost = 0.0
 
-    # Save original state for rollback
-    original_impl = entry_interface.implementation
+    # --- Resume from previous run or do initial evaluation ---
+    resuming = resume_iterations is not None and len(resume_iterations) > 0
 
-    # --- Initial evaluation ---
-    print('\n[supervisor] === Initial Evaluation ===')
-    with config.configuration(evaluate=dict(
-        expt_name='rc_iter0', record_details=True,
-    )):
-        csv_path = evaluator.evaluate(train_dataset, entry_interface)
-    result_dir = csv_path.parent
-    profile = profile_from_results([result_dir])
-    best_accuracy = profile.accuracy
-    best_result_dir = result_dir
-
-    rec0 = IterationRecord(
-        iteration=0, train_accuracy=profile.accuracy,
-        train_cost=profile.avg_cost, kept=True, code_snapshot=current_code,
-    )
-    iterations.append(rec0)
-
-    print(f'[supervisor] baseline: accuracy={profile.accuracy:.1%}, '
-          f'avg_cost=${profile.avg_cost:.4f}')
-    prof_summary = format_profiling_summary(profile)
-    print(prof_summary)
-
-    if output_dir:
-        iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
-        iter_dir.mkdir(exist_ok=True)
-        (iter_dir / 'code.py').write_text(
-            f'{entry_sig}\n{textwrap.indent(textwrap.dedent(current_code), "    ")}'
+    if resuming:
+        # Carry forward state from the previous run
+        iterations = list(resume_iterations)
+        best_accuracy = resume_best_accuracy if resume_best_accuracy is not None else max(
+            r.train_accuracy for r in iterations if r.kept
         )
+        best_eval_accuracy = resume_best_eval_accuracy
+        total_supervisor_cost = resume_supervisor_cost
+        start_iter = iterations[-1].iteration + 1
+
+        # The current source on disk IS our best source (loaded from prev run)
+        best_source = current_source
+
+        # We need a profile for the improvement loop — do a quick eval
+        print(f'\n[supervisor] === Resuming from iteration {start_iter - 1} ===')
+        print(f'[supervisor] previous best accuracy: {best_accuracy:.1%}')
+        if best_eval_accuracy is not None:
+            print(f'[supervisor] previous best eval accuracy: {best_eval_accuracy:.1%}')
+        print(f'[supervisor] accumulated supervisor cost: ${total_supervisor_cost:.4f}')
+        print(f'[supervisor] re-evaluating current code to get fresh profile...')
+
+        with config.configuration(evaluate=dict(
+            expt_name=f'rc_resume_baseline', record_details=True,
+        )):
+            csv_path = evaluator.evaluate(train_dataset, entry_interface)
+        result_dir = csv_path.parent
+        profile = profile_from_results([result_dir])
+        best_result_dir = result_dir
+
+        print(f'[supervisor] current accuracy: {profile.accuracy:.1%}, '
+              f'avg_cost=${profile.avg_cost:.4f}')
+        print(format_profiling_summary(profile))
+
+    else:
+        start_iter = 1
+
+        # --- Initial evaluation ---
+        print('\n[supervisor] === Initial Evaluation ===')
+        with config.configuration(evaluate=dict(
+            expt_name='rc_iter0', record_details=True,
+        )):
+            csv_path = evaluator.evaluate(train_dataset, entry_interface)
+        result_dir = csv_path.parent
+        profile = profile_from_results([result_dir])
+        best_accuracy = profile.accuracy
+        best_result_dir = result_dir
+
+        # Eval baseline on held-out set
+        baseline_eval_acc = None
+        baseline_eval_cost = None
+        if eval_dataset is not None:
+            import pandas as pd
+            print('[supervisor] evaluating baseline on held-out set...')
+            with config.configuration(evaluate=dict(
+                expt_name='rc_iter0_eval', record_details=False,
+            )):
+                try:
+                    eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
+                    eval_df = pd.read_csv(eval_csv)
+                    baseline_eval_acc = float(eval_df['correct'].mean())
+                    baseline_eval_cost = float(eval_df.get('cost', pd.Series([0])).mean())
+                    print(f'[supervisor] baseline eval accuracy: {baseline_eval_acc:.1%}')
+                except Exception as e:
+                    print(f'[supervisor] baseline eval failed: {e}')
+
+        best_eval_accuracy = baseline_eval_acc
+
+        train_fail, train_to = _count_failures(result_dir)
+        eval_fail, eval_to = (None, None)
+        if baseline_eval_acc is not None:
+            eval_fail, eval_to = _count_failures(eval_csv.parent) if eval_csv else (None, None)
+
+        rec0 = IterationRecord(
+            iteration=0, train_accuracy=profile.accuracy,
+            train_cost=profile.avg_cost, kept=True,
+            train_failures=train_fail, train_timeouts=train_to,
+            eval_accuracy=baseline_eval_acc, eval_cost=baseline_eval_cost,
+            eval_failures=eval_fail, eval_timeouts=eval_to,
+            code_snapshot=f'# ptools_evolved.py ({len(current_source)} chars)',
+        )
+        iterations.append(rec0)
+
+        print(f'[supervisor] baseline: accuracy={profile.accuracy:.1%}, '
+              f'avg_cost=${profile.avg_cost:.4f}')
+        if baseline_eval_acc is not None:
+            print(f'[supervisor] baseline eval: {baseline_eval_acc:.1%}')
+        print(format_profiling_summary(profile))
+
+        if output_dir:
+            iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
+            iter_dir.mkdir(exist_ok=True)
+            (iter_dir / 'ptools_evolved.py').write_text(current_source)
 
     # --- Improvement loop ---
     no_improve_count = 0
+    end_iter = start_iter + max_iterations
 
-    for i in range(1, max_iterations + 1):
-        print(f'\n[supervisor] === Iteration {i}/{max_iterations} ===')
+    for i in range(start_iter, end_iter):
+        print(f'\n[supervisor] === Iteration {i}/{end_iter - 1} ===')
 
         # 1. Build context
         prof_summary = format_profiling_summary(profile)
-        failure_traces = _format_failure_traces(best_result_dir)
+        # Add call analysis
+        called = [n for n, pp in profile.ptool_profiles.items()
+                  if pp.calls_per_case > 0.01]
+        if called:
+            prof_summary += f'\n\nPtools called via LLM: {called}'
+        # Add eval accuracy so supervisor can see generalization
+        if best_eval_accuracy is not None:
+            prof_summary += (
+                f'\n\nHeld-out eval accuracy: {best_eval_accuracy:.1%}'
+                f' (train: {profile.accuracy:.1%})'
+                f'\nA large train-eval gap means your changes are OVERFITTING.'
+                f' Prefer changes that generalize to unseen cases.'
+            )
+
+        failure_traces = _format_failure_traces(
+            best_result_dir, dataset=train_dataset,
+        )
         history_text = _format_iteration_history(iterations)
 
-        # 2. Call supervisor
+        # 2. Call supervisor with FULL ptools source
         print('[supervisor] calling supervisor LLM...')
-        new_code, reasoning, cfg_overrides, sup_stats = recompose(
-            current_code=current_code,
-            catalog=catalog,
-            entry_signature=entry_sig,
+        new_source, reasoning, cfg_overrides, sup_stats = recompose(
+            ptools_source=current_source,
             profiling_summary=prof_summary,
             failure_traces=failure_traces,
             iteration_history=history_text,
@@ -572,72 +587,90 @@ def improve_with_supervisor(
         total_supervisor_cost += sup_cost
         print(f'[supervisor] supervisor cost: ${sup_cost:.4f}')
         if reasoning:
-            print(f'[supervisor] reasoning: {reasoning[:200]}')
+            print(f'[supervisor] reasoning: {reasoning[:300]}')
 
         # Save iteration artifacts
         if output_dir:
             iter_dir = output_dir / 'iterations' / f'iter_{i:03d}'
             iter_dir.mkdir(exist_ok=True)
-            (iter_dir / 'code_before.py').write_text(
-                f'{entry_sig}\n{textwrap.indent(textwrap.dedent(current_code), "    ")}'
-            )
-            (iter_dir / 'code_after.py').write_text(
-                f'{entry_sig}\n{textwrap.indent(textwrap.dedent(new_code), "    ")}'
-            )
+            (iter_dir / 'ptools_before.py').write_text(current_source)
+            (iter_dir / 'ptools_after.py').write_text(new_source)
             (iter_dir / 'reasoning.txt').write_text(reasoning)
+            (iter_dir / 'profiling_summary.txt').write_text(prof_summary)
+            (iter_dir / 'failure_traces.txt').write_text(failure_traces)
+            (iter_dir / 'iteration_history.txt').write_text(
+                history_text or 'No previous iterations.')
+            if sup_stats.get('_prompt'):
+                (iter_dir / 'supervisor_prompt.txt').write_text(sup_stats['_prompt'])
+            if sup_stats.get('_raw_output'):
+                (iter_dir / 'supervisor_response.txt').write_text(sup_stats['_raw_output'])
             if cfg_overrides:
                 (iter_dir / 'config_overrides.txt').write_text(
                     '\n'.join(cfg_overrides)
                 )
 
-        # 3. Check if code actually changed
-        if new_code.strip() == current_code.strip() and not cfg_overrides:
+        # 3. Check if anything changed
+        if new_source.strip() == current_source.strip() and not cfg_overrides:
             print('[supervisor] no changes proposed, skipping')
             iterations.append(IterationRecord(
                 iteration=i, train_accuracy=profile.accuracy,
                 train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                reasoning=reasoning, kept=False, code_snapshot=new_code,
+                reasoning=reasoning, kept=False,
             ))
             no_improve_count += 1
-            if no_improve_count >= 3:
-                print('[supervisor] 3 consecutive no-change iterations, stopping')
+            if no_improve_count >= 5:
+                print('[supervisor] 5 consecutive no-change iterations, stopping')
                 break
             continue
 
-        # 4. Compile new pipeline (with retry on syntax errors)
-        recompose_kwargs = dict(
-            current_code=current_code, catalog=catalog,
-            entry_signature=entry_sig, profiling_summary=prof_summary,
-            failure_traces=failure_traces, iteration_history=history_text,
-            custom_instructions=custom_instructions,
-            model_choices=model_choices, model=supervisor_model,
-        )
-        pipeline = _compile_with_retry(
-            new_code, entry_sig, namespace,
-            recompose, recompose_kwargs,
-        )
-        if pipeline is None:
+        # 4. Validate syntax of new source
+        import ast
+        try:
+            ast.parse(new_source)
+        except SyntaxError as e:
+            print(f'[supervisor] syntax error in {evolved_path.name}: {e}')
             iterations.append(IterationRecord(
                 iteration=i, train_accuracy=profile.accuracy,
                 train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                reasoning=reasoning, kept=False, code_snapshot=new_code,
+                reasoning=reasoning, kept=False,
             ))
             continue
 
-        # 5. Apply config overrides
+        # 5. Write evolved file and reload module
+        saved_source = current_source
         saved_config = dict(config.GLOBAL_CONFIG) if cfg_overrides else None
-        if cfg_overrides:
-            print(f'[supervisor] applying config: {cfg_overrides}')
-            try:
+
+        evolved_path.write_text(new_source)
+
+        try:
+            # Re-execute the evolved ptools file into the module
+            _reload_evolved_module()
+            # Re-bind interfaces from config
+            implement_via_config(ptools_module, config.require('ptools'))
+            # Get the fresh entry interface
+            entry_interface = getattr(ptools_module, entry_point_name)
+
+            if cfg_overrides:
+                print(f'[supervisor] applying config: {cfg_overrides}')
                 config.configure(dotlist=cfg_overrides)
-            except Exception as e:
-                print(f'[supervisor] config override failed: {e}')
 
-        # 6. Rebind entry interface to new pipeline
-        old_impl = entry_interface.implementation
-        entry_interface.implement_via('direct', fn=pipeline)
+        except Exception as e:
+            print(f'[supervisor] reload failed: {e}')
+            # Rollback: restore old source
+            evolved_path.write_text(saved_source)
+            _reload_evolved_module()
+            implement_via_config(ptools_module, config.require('ptools'))
+            entry_interface = getattr(ptools_module, entry_point_name)
+            if saved_config is not None:
+                config.GLOBAL_CONFIG = saved_config
+            iterations.append(IterationRecord(
+                iteration=i, train_accuracy=profile.accuracy,
+                train_cost=profile.avg_cost, supervisor_cost=sup_cost,
+                reasoning=reasoning, kept=False,
+            ))
+            continue
 
-        # 7. Re-evaluate
+        # 6. Re-evaluate
         print('[supervisor] re-evaluating on train set...')
         with config.configuration(evaluate=dict(
             expt_name=f'rc_iter{i}', record_details=True,
@@ -646,54 +679,137 @@ def improve_with_supervisor(
                 csv_path = evaluator.evaluate(train_dataset, entry_interface)
             except Exception as e:
                 print(f'[supervisor] evaluation failed: {e}')
-                entry_interface.implementation = old_impl
+                # Rollback
+                evolved_path.write_text(saved_source)
+                _reload_evolved_module()
+                implement_via_config(ptools_module, config.require('ptools'))
+                entry_interface = getattr(ptools_module, entry_point_name)
                 if saved_config is not None:
                     config.GLOBAL_CONFIG = saved_config
                 iterations.append(IterationRecord(
                     iteration=i, train_accuracy=profile.accuracy,
                     train_cost=profile.avg_cost, supervisor_cost=sup_cost,
-                    reasoning=reasoning, kept=False, code_snapshot=new_code,
+                    reasoning=reasoning, kept=False,
                 ))
                 continue
 
         new_result_dir = csv_path.parent
         new_profile = profile_from_results([new_result_dir])
 
-        print(f'[supervisor] accuracy: {profile.accuracy:.1%} -> {new_profile.accuracy:.1%}')
-        print(f'[supervisor] cost: ${profile.avg_cost:.4f} -> ${new_profile.avg_cost:.4f}')
+        # 7. Count failures in train results
+        iter_train_fail_early, iter_train_to_early = _count_failures(new_result_dir)
+        n_train = len(train_dataset.cases)
 
-        # 8. Keep or rollback
-        kept = new_profile.accuracy >= best_accuracy
+        print(f'[supervisor] train: {new_profile.accuracy:.1%} '
+              f'({n_train - iter_train_fail_early}/{n_train} correct, '
+              f'{iter_train_to_early} timeouts)')
+        print(f'[supervisor] cost: ${new_profile.avg_cost:.4f}/case')
+
+        # 8. Always run eval to track generalization curve
+        eval_acc = None
+        eval_cost_val = None
+        if eval_dataset is not None:
+            print(f'[supervisor] evaluating on held-out set...')
+            import pandas as pd
+            with config.configuration(evaluate=dict(
+                expt_name=f'rc_iter{i}_eval', record_details=False,
+            )):
+                try:
+                    eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
+                    eval_df = pd.read_csv(eval_csv)
+                    eval_acc = float(eval_df['correct'].mean())
+                    eval_cost_val = float(eval_df.get('cost', pd.Series([0])).mean())
+                except Exception as e:
+                    print(f'[supervisor] eval failed: {e}')
+
+        # 9. Keep or rollback
+        if new_profile.accuracy > best_accuracy:
+            kept = True  # strict train improvement
+        elif (new_profile.accuracy >= best_accuracy
+              and eval_acc is not None and best_eval_accuracy is not None):
+            kept = eval_acc > best_eval_accuracy  # tiebreak on eval
+        else:
+            kept = False  # train regression or no improvement
+
+        # Print eval results
+        if eval_acc is not None:
+            n_eval = len(eval_dataset.cases) if eval_dataset else 0
+            eval_correct = int(round(eval_acc * n_eval))
+            print(f'[supervisor] eval:  {eval_acc:.1%} '
+                  f'({eval_correct}/{n_eval} correct)')
+
+        # Print decision with full context
+        decision = 'KEPT' if kept else 'ROLLED BACK'
+        prev_train = f'{profile.accuracy:.1%}'
+        prev_eval = f'{best_eval_accuracy:.1%}' if best_eval_accuracy is not None else '—'
+        new_eval = f'{eval_acc:.1%}' if eval_acc is not None else '—'
+        print(f'[supervisor] {decision}: '
+              f'train {prev_train}→{new_profile.accuracy:.1%}, '
+              f'eval {prev_eval}→{new_eval}, '
+              f'best={best_accuracy:.1%}')
+
         if kept:
             no_improve_count = 0
             best_accuracy = new_profile.accuracy
-            best_code = new_code
+            if eval_acc is not None:
+                best_eval_accuracy = eval_acc
+            best_source = new_source
             best_result_dir = new_result_dir
-            current_code = new_code
+            current_source = new_source
             profile = new_profile
             if cfg_overrides:
                 best_config_overrides = cfg_overrides
-            print(f'[supervisor] KEPT (best accuracy: {best_accuracy:.1%})')
         else:
             no_improve_count += 1
-            entry_interface.implementation = old_impl
+            evolved_path.write_text(current_source)
+            _reload_evolved_module()
+            implement_via_config(ptools_module, config.require('ptools'))
+            entry_interface = getattr(ptools_module, entry_point_name)
             if saved_config is not None:
                 config.GLOBAL_CONFIG = saved_config
             print('[supervisor] ROLLED BACK (accuracy dropped)')
 
+        iter_eval_fail, iter_eval_to = (None, None)
+        if eval_acc is not None:
+            eval_result_dirs = sorted(
+                Path(config.get('evaluate.result_dir', 'results')).glob(
+                    f'*rc_iter{i}_eval'))
+            if eval_result_dirs:
+                iter_eval_fail, iter_eval_to = _count_failures(eval_result_dirs[-1])
+
         iterations.append(IterationRecord(
             iteration=i, train_accuracy=new_profile.accuracy,
             train_cost=new_profile.avg_cost, supervisor_cost=sup_cost,
-            reasoning=reasoning, kept=kept, code_snapshot=new_code,
+            train_failures=iter_train_fail_early, train_timeouts=iter_train_to_early,
+            reasoning=reasoning, kept=kept,
+            eval_accuracy=eval_acc, eval_cost=eval_cost_val,
+            eval_failures=iter_eval_fail, eval_timeouts=iter_eval_to,
             config_overrides=cfg_overrides,
         ))
 
-        # 9. Check stopping criteria
+        # Save outcome and running report
+        if output_dir:
+            outcome = 'KEPT' if kept else 'ROLLED BACK'
+            (iter_dir / 'outcome.txt').write_text(
+                f'{outcome}\n'
+                f'accuracy: {profile.accuracy:.1%} -> {new_profile.accuracy:.1%}\n'
+                f'cost: ${profile.avg_cost:.4f} -> ${new_profile.avg_cost:.4f}\n'
+                f'best so far: {best_accuracy:.1%}\n'
+            )
+            # Save running report so progress is visible if run is interrupted
+            _save_running_report(output_dir, iterations, best_accuracy,
+                                 best_source, best_config_overrides,
+                                 total_supervisor_cost)
+            # Auto-regenerate HTML report (refresh browser to see updates)
+            if on_iteration_complete:
+                on_iteration_complete(output_dir)
+
+        # 8. Check stopping criteria
         if target_accuracy is not None and best_accuracy >= target_accuracy:
             print(f'[supervisor] target accuracy {target_accuracy:.1%} reached!')
             break
-        if no_improve_count >= 3:
-            print('[supervisor] 3 consecutive non-improvements, stopping')
+        if no_improve_count >= 5:
+            print('[supervisor] 5 consecutive non-improvements, stopping')
             break
 
     # --- Final report ---
@@ -708,15 +824,13 @@ def improve_with_supervisor(
         best_iteration=best_iter.iteration,
         best_train_accuracy=best_accuracy,
         total_supervisor_cost=total_supervisor_cost,
-        best_code=best_code,
+        best_code=f'# See ptools_evolved.py ({len(best_source)} chars)',
         best_config_overrides=best_config_overrides,
     )
 
-    # Save report
+    # Save report and best evolved file
     if output_dir:
-        (output_dir / 'best_code.py').write_text(
-            f'{entry_sig}\n{textwrap.indent(textwrap.dedent(best_code), "    ")}'
-        )
+        (output_dir / 'ptools_evolved.py').write_text(best_source)
         (output_dir / 'report.json').write_text(
             report.model_dump_json(indent=2)
         )
@@ -725,5 +839,6 @@ def improve_with_supervisor(
     print(f'Iterations: {len(iterations) - 1}')
     print(f'Best accuracy: {best_accuracy:.1%} (iteration {best_iter.iteration})')
     print(f'Total supervisor cost: ${total_supervisor_cost:.4f}')
+    print(f'Evolved ptools saved to: {evolved_path}')
 
     return report

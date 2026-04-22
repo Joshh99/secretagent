@@ -1,30 +1,22 @@
 You are an expert ML engineer making a TARGETED improvement to an existing
-pipeline. The pipeline already works — your job is to make it better, not
-to rewrite it from scratch.
+pipeline. The pipeline already works at a certain accuracy — your job is to
+make it BETTER, not blow it up.
 
-## Available tools
+You have FULL CONTROL over the ptools module. You can modify ANY function,
+ANY docstring, ANY logic. Your changes will be written to ptools_evolved.py
+and evaluated.
 
-These Python functions are already implemented. Call them by name with
-the correct argument types.
-
-```python
-$tool_stubs
-```
-
-Available tool names: $tool_names
-
-## Current pipeline code (THIS ALREADY WORKS — improve it, don't replace it)
+## Current ptools_evolved.py (FULL SOURCE — you own this file)
 
 ```python
-$entry_signature
-$current_code
+$ptools_source
 ```
 
 ## Performance on training set
 
 $profiling_summary
 
-## Failure cases (call chains with outputs)
+## Failure cases with full context
 
 $failure_traces
 
@@ -34,44 +26,83 @@ $iteration_history
 $model_choices_section
 $custom_instructions_section
 
+## HOW CHANGES WORK
+
+- @interface-decorated functions with method=simulate use their DOCSTRING as
+  the LLM prompt. Improving the docstring improves the LLM's output.
+- Functions bound with method=direct run as pure Python.
+- You can modify ANY function: workflow logic, extraction helpers, validation,
+  computation, docstrings, everything.
+- The entire file is reloaded after your changes, so all modifications take effect.
+
+## STRATEGY — READ THIS CAREFULLY
+
+Your changes are evaluated on ALL cases, not just the failures shown above.
+A change that fixes 5 failures but breaks 15 working cases is a NET REGRESSION.
+This has happened in previous iterations — learn from it.
+
+**CONSERVATIVE APPROACH REQUIRED:**
+- Changes to docstrings/prompts affect ALL cases that go through that code path.
+  If you add instructions that help edge cases but confuse the LLM on common
+  cases, accuracy drops. Be surgical.
+- Changes to Python logic (extraction, validation, computation) are SAFER because
+  they only fire when their conditions are met.
+- Prefer adding NEW conditional branches or fallback logic over modifying
+  existing working code paths.
+- If a previous iteration was rolled back, DO NOT try a more aggressive version
+  of the same idea. Try a completely different approach or a much smaller change.
+
+**PRIORITIZE THESE CHANGE TYPES (safest to riskiest):**
+1. Fix a bug in Python computation logic (zero risk to other cases)
+2. Add a new fallback/recovery path for a specific failure pattern
+3. Improve validation to catch and fix a category of extraction errors
+4. Add a small, specific instruction to a docstring (low risk if well-scoped)
+5. Rewrite extraction/prompt logic (HIGH RISK — only if you are very confident)
+
+**AVOID:**
+- Rewriting the extraction prompt wholesale — this breaks working cases
+- Adding many instructions at once — impossible to know what helped vs hurt
+- Changing unit conversion logic broadly — most values are already correct
+
 ## CRITICAL RULES
 
-1. **DO NOT rewrite the pipeline from scratch.** The current code achieves
-   the accuracy shown above. Your job is to IMPROVE it, not replace it.
-2. **Make ONE targeted change** that fixes the most common failure pattern.
-3. **Keep all working logic intact.** If 79% of cases pass, preserve the
-   code paths that make them pass.
-4. All functions, modules, and variables referenced in the current code are
-   available in scope. Do NOT remove calls to utility functions thinking
-   they are undefined — they ARE defined and working.
-5. Return the improved function body in a ```python block (body only,
-   no def line). Return EXACTLY ONE code block.
-6. If you want to change config (e.g. switch a model for a specific ptool),
-   put dotlist overrides in a <config> block, one per line.
-7. Keep the same return type. The pipeline must return the expected type.
+1. **DO NOT REWARD-HACK.** DO NOT overfit to specific failing cases by adding
+   hard-coded lookups, case-specific if/else for training examples, or
+   special-casing by patient name or case ID. Changes MUST generalize to
+   unseen cases. A held-out test set will expose overfitting.
+
+2. Make ONE targeted change per iteration. Don't rewrite everything at once.
+
+3. Return the COMPLETE modified ptools_evolved.py inside a <ptools_file> block.
+   Include ALL imports, ALL functions, everything. The block replaces the
+   entire file.
+
+4. Keep the file syntactically valid Python. Do not break existing imports
+   or function signatures that are referenced by the config.
 
 ## Examples of GOOD changes
-- Adding better error handling around a failing tool call
-- Fixing argument parsing for a specific calculator type
-- Adding a validation step for extracted values
-- Improving a fallback path for a specific error pattern
+- Fixing a specific computation bug (e.g. wrong formula for a calculator type)
+- Adding a validation check that catches a common extraction error pattern
+- Adding a small, specific docstring instruction scoped to a failure class
+- Adding a new fallback path for cases where extraction fails
 
-## Examples of BAD changes
-- Replacing the entire pipeline with a single simulate_medical_value call
-- Removing the multi-stage pipeline logic
-- Removing calls to utility functions (they work, even if you can't see their source)
-
-First explain your reasoning, then provide the code:
+## Examples of BAD changes (cause regressions)
+- Rewriting the extraction prompt with many new instructions
+- Adding unit conversion logic that fires on all cases
+- Changing the workflow control flow
+- if calculator_name == "CHA2DS2-VASc": return 5
 
 <reasoning>
-What specific failure pattern did you identify? What minimal change will fix it?
+1. What SPECIFIC failure pattern did you identify?
+2. How many of the shown failures share this pattern?
+3. What is the MINIMAL change that fixes this pattern?
+4. Why will this change NOT break currently working cases?
 </reasoning>
 
-```python
-# Improved pipeline body here — keep the existing structure, fix the specific issue
-```
+<ptools_file>
+# Complete modified ptools_evolved.py here
+</ptools_file>
 
 <config>
-# Optional dotlist overrides (only if needed), e.g.:
-# ptools.extract_clinical_values.model=together_ai/deepseek-ai/DeepSeek-V3.1
+# Optional dotlist config overrides (e.g. model switches), one per line
 </config>

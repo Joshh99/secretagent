@@ -277,6 +277,40 @@ def stratified_sample(cases: list[Case], n: int, seed: int = 42) -> list[Case]:
     return selected
 
 
+def stratified_split(cases: list[Case], n_train: int, n_eval: int,
+                     seed: int = 42) -> tuple[list[Case], list[Case]]:
+    """Split cases into disjoint train/eval sets, stratified by calculator_name.
+
+    Each calculator gets n_train/total and n_eval/total cases respectively,
+    with no overlap between the two sets.
+    """
+    rng = random.Random(seed)
+
+    # Group by calculator_name and shuffle within each group
+    groups: dict[str, list[Case]] = {}
+    for case in cases:
+        calc = (case.metadata or {}).get('calculator_name', 'unknown')
+        groups.setdefault(calc, []).append(case)
+    for items in groups.values():
+        rng.shuffle(items)
+
+    n_per_calc_train = max(1, n_train // len(groups))
+    n_per_calc_eval = max(1, n_eval // len(groups))
+
+    train_cases = []
+    eval_cases = []
+    for name, items in groups.items():
+        n_t = min(n_per_calc_train, len(items))
+        train_cases.extend(items[:n_t])
+        remaining = items[n_t:]
+        n_e = min(n_per_calc_eval, len(remaining))
+        eval_cases.extend(remaining[:n_e])
+
+    rng.shuffle(train_cases)
+    rng.shuffle(eval_cases)
+    return train_cases, eval_cases
+
+
 # =============================================================================
 # Setup
 # =============================================================================

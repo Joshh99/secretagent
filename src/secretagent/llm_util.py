@@ -45,7 +45,10 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
   max_tokens = config.get('llm.max_tokens', None) or _default_max_tokens(model)
   temperature = config.get('llm.temperature', None)
   reasoning_effort = config.get('llm.reasoning_effort', None)
+  timeout = config.get('llm.timeout', 180)
   extra_kw = {}
+  if timeout:
+    extra_kw['timeout'] = float(timeout)
   if max_tokens:
     extra_kw['max_tokens'] = int(max_tokens)
   if temperature is not None:

@@ -141,9 +141,7 @@ def compose_with_retry(
 
 
 def recompose(
-    current_code: str,
-    catalog: PtoolCatalog,
-    entry_signature: str,
+    ptools_source: str,
     profiling_summary: str,
     failure_traces: str,
     iteration_history: str = '',
@@ -151,39 +149,32 @@ def recompose(
     model_choices: str = '',
     model: str | None = None,
 ) -> tuple[str, str, list[str], dict]:
-    """Re-generate pipeline code with performance feedback from a supervisor LLM.
+    """Ask supervisor LLM to improve ptools_evolved.py.
 
-    Like compose() but iterative: the supervisor sees current code, profiling
-    data, and failure traces, and outputs improved code + optional config changes.
+    The supervisor sees the full ptools source, profiling, and failure traces,
+    and outputs the complete modified file.
 
     Returns:
-        (new_code, reasoning, config_overrides, llm_stats)
+        (new_ptools_source, reasoning, config_overrides, llm_stats)
     """
     model = model or config.get('orchestrate.supervisor_model',
                                  'gemini/gemini-3.1-pro-preview')
     template = Template((PROMPT_TEMPLATE_DIR / 'recompose.txt').read_text())
 
-    # Build optional sections
     model_section = ''
     if model_choices:
         model_section = (
-            '\n## Available models (use sparingly — don\'t upgrade everything)\n'
+            '\n## Available models (use sparingly)\n'
             f'{model_choices}\n'
-            'NOTE: Only switch models if profiling shows a specific ptool is '
-            'the bottleneck AND a better model would help. Prefer fixing code '
-            'or prompts over upgrading models. Budget-conscious changes first.\n'
+            'Only switch models if profiling shows a specific ptool is the '
+            'bottleneck AND a better model would help.\n'
         )
     custom_section = ''
     if custom_instructions:
-        custom_section = (
-            f'\n## Additional instructions\n{custom_instructions}\n'
-        )
+        custom_section = f'\n## Additional instructions\n{custom_instructions}\n'
 
     prompt = template.substitute(
-        tool_stubs=catalog.render(),
-        tool_names=', '.join(catalog.names),
-        entry_signature=entry_signature,
-        current_code=textwrap.indent(textwrap.dedent(current_code), '    '),
+        ptools_source=ptools_source,
         profiling_summary=profiling_summary,
         failure_traces=failure_traces,
         iteration_history=iteration_history or 'No previous iterations.',
@@ -191,26 +182,34 @@ def recompose(
         custom_instructions_section=custom_section,
     )
 
-    llm_output, stats = llm(prompt, model)
+    # Supervisor gets highest reasoning effort + generous timeout
+    # record_details=True so we capture reasoning_content (thinking trace)
+    with config.configuration(
+        llm=dict(reasoning_effort='high', timeout=600),
+        evaluate=dict(record_details=True),
+    ):
+        llm_output, stats = llm(prompt, model)
 
     if config.get('echo.orchestrate_llm'):
         from secretagent.llm_util import echo_boxed
         echo_boxed(llm_output, 'supervisor LLM output')
 
-    # Extract code
-    try:
-        code = _extract_code(llm_output)
-        code = _extract_last_function_body(code, entry_signature)
-        code = _ruff_fix(code, entry_signature)
-    except ValueError:
-        # No code block found — return current code unchanged
-        code = current_code
+    # Extract the full ptools file
+    ptools_match = re.search(
+        r'<ptools_file>(.*?)</ptools_file>', llm_output, re.DOTALL,
+    )
+    new_source = ptools_match.group(1).strip() if ptools_match else ptools_source
 
-    # Extract reasoning
+    # Extract reasoning: try <reasoning> tags first, then everything before <ptools_file>
     reasoning_match = re.search(
         r'<reasoning>(.*?)</reasoning>', llm_output, re.DOTALL,
     )
-    reasoning = reasoning_match.group(1).strip() if reasoning_match else ''
+    if reasoning_match:
+        reasoning = reasoning_match.group(1).strip()
+    elif ptools_match:
+        reasoning = llm_output[:ptools_match.start()].strip()
+    else:
+        reasoning = ''
 
     # Extract config overrides
     config_match = re.search(
@@ -223,14 +222,20 @@ def recompose(
             if line and not line.startswith('#') and '=' in line:
                 config_overrides.append(line)
 
-    return code, reasoning, config_overrides, stats
+    stats['_prompt'] = prompt
+    stats['_raw_output'] = llm_output
+    # Capture reasoning_content (thinking trace) if available
+    if stats.get('trace', {}).get('reasoning_content'):
+        stats['_reasoning_trace'] = stats['trace']['reasoning_content']
+    return new_source, reasoning, config_overrides, stats
 
 
 def _extract_last_function_body(code: str, entry_signature: str) -> str:
     """Extract the body of the last function definition from code.
 
     When the LLM outputs multiple function definitions in one block,
-    this extracts only the last one's body.
+    this extracts only the last one's body. Normalizes indentation so
+    the first non-blank line has zero indent.
     """
     lines = code.strip().split('\n')
 
@@ -242,12 +247,35 @@ def _extract_last_function_body(code: str, entry_signature: str) -> str:
 
     if not def_positions:
         # No def lines — assume the whole thing is a function body
-        return textwrap.dedent(code).strip()
+        body = code
+    else:
+        # Take the body starting after the LAST def line
+        last_def = def_positions[-1]
+        body = '\n'.join(lines[last_def + 1:])
 
-    # Take the body starting after the LAST def line
-    last_def = def_positions[-1]
-    body_lines = lines[last_def + 1:]
-    return textwrap.dedent('\n'.join(body_lines)).strip()
+    # Normalize: find the indent of the first non-blank line, strip that
+    # amount from ALL lines. This handles the case where the LLM outputs
+    # the body with extra indentation from being inside the def.
+    body_lines = body.split('\n')
+    first_indent = 0
+    for line in body_lines:
+        if line.strip():
+            first_indent = len(line) - len(line.lstrip())
+            break
+
+    if first_indent > 0:
+        normalized = []
+        for line in body_lines:
+            if line.strip():
+                # Remove exactly first_indent spaces (or all leading if less)
+                normalized.append(line[first_indent:] if len(line) >= first_indent
+                                  and line[:first_indent].isspace()
+                                  else line.lstrip())
+            else:
+                normalized.append('')
+        body = '\n'.join(normalized)
+
+    return body.strip()
 
 
 def _extract_code(text: str) -> str:

@@ -4,6 +4,8 @@ orchestrate_cache/
 results_plot.png
 benchmarks/**/results/*DEFAULT
 benchmarks/**/training/
+benchmarks/**/ptools_evolved.py
+benchmarks/**/tmp*.py
 docs/orchestrator_demo.html
 docs/presentation.md
 docs/handoff_population_optimizer.md
@@ -227,5 +229,7 @@ __marimo__/
 .codex/benchmarks/natural_plan/llm_cache/
 
 strategy_comparison.png
+paper/
+docs/superpowers/
 benchmarks/designbench/data/
 benchmarks/designbench/results/

@@ -83,14 +83,89 @@ class Evaluator(ABC):
                 yield row
         else:
             from concurrent.futures import ThreadPoolExecutor, as_completed
-            def _run(ex):
-                row = self.measure(ex, interface)
-                row['case_name'] = ex.name
-                return row
-            with ThreadPoolExecutor(max_workers=max_workers) as pool:
-                futures = {pool.submit(_run, ex): ex for ex in dataset.cases}
-                for fut in tqdm(as_completed(futures), total=len(futures)):
-                    yield fut.result()
+            import signal
+            max_retries = int(config.get('evaluate.max_retries', 2))
+            case_timeout = int(config.get('evaluate.case_timeout', 300))
+
+            class _BatchTimeout(Exception):
+                pass
+
+            def _alarm_handler(signum, frame):
+                raise _BatchTimeout()
+
+            def _run_with_retry(ex):
+                for attempt in range(max_retries + 1):
+                    try:
+                        row = self.measure(ex, interface)
+                        row['case_name'] = ex.name
+                        return row
+                    except Exception as e:
+                        if attempt < max_retries:
+                            continue
+                        return {'case_name': ex.name,
+                                'predicted_output': None,
+                                'correct': 0, '_error': str(e)}
+
+            # Process in batches with signal.alarm as a hard watchdog.
+            # signal.alarm interrupts even hung C-level socket reads,
+            # which thread-level timeouts cannot do.
+            batch_size = max_workers * 3
+            cases = list(dataset.cases)
+            pbar = tqdm(total=len(cases))
+
+            for batch_start in range(0, len(cases), batch_size):
+                batch = cases[batch_start:batch_start + batch_size]
+                pool = ThreadPoolExecutor(max_workers=max_workers)
+                futures = {pool.submit(_run_with_retry, ex): ex
+                           for ex in batch}
+                done = set()
+
+                # Set hard watchdog: generous timeout for the whole batch
+                # Each case gets case_timeout seconds; batch gets enough for all cases
+                # to run sequentially (worst case: no parallelism benefit)
+                batch_timeout = case_timeout * len(batch) // max_workers + 60
+                old_handler = signal.signal(signal.SIGALRM, _alarm_handler)
+                signal.alarm(batch_timeout)
+                try:
+                    for fut in as_completed(futures):
+                        done.add(fut)
+                        pbar.update(1)
+                        yield fut.result()
+                    # Batch completed normally
+                    signal.alarm(0)
+                except (_BatchTimeout, TimeoutError):
+                    pass
+                finally:
+                    signal.alarm(0)
+                    signal.signal(signal.SIGALRM, old_handler)
+                    pool.shutdown(wait=False, cancel_futures=True)
+
+                # Retry timed-out cases one at a time with per-case alarm
+                for fut, ex in futures.items():
+                    if fut not in done:
+                        old_h = signal.signal(signal.SIGALRM, _alarm_handler)
+                        signal.alarm(case_timeout)
+                        try:
+                            row = self.measure(ex, interface)
+                            row['case_name'] = ex.name
+                            signal.alarm(0)
+                            pbar.update(1)
+                            yield row
+                        except _BatchTimeout:
+                            pbar.update(1)
+                            yield {'case_name': ex.name,
+                                   'predicted_output': None,
+                                   'correct': 0, '_timeout': True}
+                        except Exception:
+                            pbar.update(1)
+                            yield {'case_name': ex.name,
+                                   'predicted_output': None,
+                                   'correct': 0, '_timeout': True}
+                        finally:
+                            signal.alarm(0)
+                            signal.signal(signal.SIGALRM, old_h)
+
+            pbar.close()
             
 
     def evaluate(self, dataset: Dataset, interface: Interface) -> Path:
