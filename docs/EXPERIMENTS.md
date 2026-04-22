@@ -179,7 +179,7 @@ The sentence is: $sentence
  * standard baselines all fail with 0% accuracy
  * the 5shot stuff is promising
 
-* tabwmp/tabwmp: 50/100
+* tabmwp/tabmwp: 50/100
  * no local results or llm_cache
  * sensible results with deepseek
 
