@@ -23,21 +23,17 @@ dataset:
   shuffle_seed: 137
 
 ptools:
-  find_date_from_sentence:
+  extract_options:
     method: simulate
-  normalize_date_order:
+  extract_date_facts:
     method: simulate
-  find_time_difference:
+  extract_question:
     method: simulate
-  identify_time_difference:
+  make_inference:
     method: simulate
-  adjust_date_by_hours:
+  answer_question:
     method: simulate
-  parse_question:
-    method: simulate
-  select_closest_option:
+  match_option:
     method: simulate
   answer_date_question:
-    method: DEFAULT #should raise an error
-  answer_date_question_orchestrated:
     method: DEFAULT #should raise an error

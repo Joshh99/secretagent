@@ -20,95 +20,83 @@ class DateUnderstandingEvaluator(Evaluator):
         return dict(correct=float(normalize(predicted_output) == normalize(expected_output)))
 
 
+# An option is a possible multiple-choice answer, encoded as (letter, date),
+# where letter is a short string like A,B,C,D,E,F and date is a string in
+# MM/DD/YYYY format, i.e. Tuple[str, str].
+
+
 # ── sub-tools ────────────────────────────────────────────────────────────────
 
 @interface
-def find_date_from_sentence(description: str) -> str:
-    """Extract a date from a natural-language description and return it
-    as a string in MM/DD/YYYY format.
+def extract_options(input_str: str) -> List[Tuple[str, str]]:
+    """Extract the possible multiple-choice answers from the input string.
+
+    Returns a list of (letter, date_str) pairs, e.g. [('A', '12/14/2026'), ...].
 
     Examples:
-    >>> find_date_from_sentence("Today is Christmas Eve of 1937.")
-    '12/24/1937'
-    >>> find_date_from_sentence("the first Monday of 2019")
-    '01/07/2019'
+    >>> extract_options("Q: Today is Christmas Eve of 1937. What is the date 10 days ago in MM/DD/YYYY?\\nOptions:\\n(A) 12/14/2026\\n(B) 12/14/1950\\n(C) 12/14/2007\\n(D) 12/14/1937\\n")
+    [('A', '12/14/2026'), ('B', '12/14/1950'), ('C', '12/14/2007'), ('D', '12/14/1937')]
     """
     ...
 
 @interface
-def normalize_date_order(date_str: str) -> str:
-    """Take a date string that may use a non-American ordering (e.g.
-    DD/MM/YYYY) and return it in standard American MM/DD/YYYY format.
-
-    If the input is already in MM/DD/YYYY format, return it unchanged.
+def extract_date_facts(input_str: str) -> List[str]:
+    """Extract the background facts about dates needed to answer the question
+    from the input string.
 
     Examples:
-    >>> normalize_date_order('02/01/1987')  # UK format, day-first
-    '01/02/1987'
+    >>> extract_date_facts("Q: Today is Christmas Eve of 1937. What is the date 10 days ago in MM/DD/YYYY?")
+    ['Today is Christmas Eve of 1937.']
+    >>> extract_date_facts("Q: Jane and John married on Jan 2, 1958. It is their 5-year anniversary today. What is the date tomorrow in MM/DD/YYYY?")
+    ['Jane and John married on Jan 2, 1958.', 'It is their 5-year anniversary today.']
     """
     ...
 
 @interface
-def find_time_difference(date1: str, date2: str) -> int:
-    """Given two dates as MM/DD/YYYY strings, return the signed difference
-    between them in hours. A positive result means date2 is after date1.
-
-    >>> find_time_difference('01/01/2020', '01/02/2020')
-    24
-    """
-    ...
-
-@interface
-def identify_time_difference(description: str) -> int:
-    """Parse a natural-language description of a time offset and return
-    the corresponding number of hours (signed).
+def extract_question(input_str: str) -> str:
+    """Extract the question to answer from the input string.
 
     Examples:
-    >>> identify_time_difference("one week ago")
-    -168
-    >>> identify_time_difference("24 hours later")
-    24
-    >>> identify_time_difference("a month ago")
-    -720
+    >>> extract_question("Q: Today is Christmas Eve of 1937. What is the date 10 days ago in MM/DD/YYYY?")
+    'What is the date 10 days ago in MM/DD/YYYY?'
     """
     ...
 
 @interface
-def adjust_date_by_hours(date_str: str, hours: int) -> str:
-    """Apply an offset in hours to a date and return the resulting date
-    as a string in MM/DD/YYYY format.
+def make_inference(date_fact: str, context: List[str]) -> str:
+    """Given a background fact about dates, and a list of previously
+    stated facts, make a relevant inference.
 
-    >>> adjust_date_by_hours('01/01/2020', 48)
-    '01/03/2020'
-    """
-    ...
-
-@interface
-def parse_question(question: str) -> Tuple[str, List[Tuple[str, str]]]:
-    """Parse a date understanding question into its component parts.
-
-    Returns (scenario, options) where:
-      - scenario is the natural-language description including the date
-        context and the question being asked
-      - options is a list of (letter, date_str) pairs, e.g.
-        [('A', '12/24/1936'), ('B', '01/10/1937'), ...]
+    The inference is a natural language string.
 
     Examples:
-    >>> parse_question("Today is Christmas Eve of 1937. What is the date one year ago from today in MM/DD/YYYY?\\nOptions:\\n(A) 12/24/1862\\n(B) 01/10/1937\\n(C) 10/24/1936\\n(D) 12/24/1936")
-    ('Today is Christmas Eve of 1937. What is the date one year ago from today in MM/DD/YYYY?', [('A', '12/24/1862'), ('B', '01/10/1937'), ('C', '10/24/1936'), ('D', '12/24/1936')])
+    >>> make_inference('Today is Christmas Eve of 1937.', [])
+    "If today is Christmas Eve of 1937, then today's date is 12/24/1937."
+    >>> make_inference('It is their 5-year anniversary today.', ['Jane and John married on Jan 2, 1958.'])
+    "If it is their 5-year anniversary today, then today's date is 01/02/1963."
     """
     ...
 
 @interface
-def select_closest_option(date_str: str, options: List[Tuple[str, str]]) -> str:
-    """Given a computed date in MM/DD/YYYY format and a list of
-    multiple-choice options (each a (letter, date_str) pair), return
-    the letter of the option whose date is closest to the input date.
+def answer_question(question: str, inferences: List[str]) -> str:
+    """Given a question and a list of inferences about dates, construct a
+    natural language answer to the question.
 
-    Returns just the letter, e.g. 'D'.
+    Examples:
+    >>> answer_question('What is the date 10 days ago in MM/DD/YYYY?', ["If today is Christmas Eve of 1937, then today's date is 12/24/1937."])
+    '10 days before 12/24/1937 is 12/14/1937.'
+    """
+    ...
 
-    >>> select_closest_option('12/24/1936', [('A', '12/24/1862'), ('B', '01/10/1937'), ('C', '10/24/1936'), ('D', '12/24/1936')])
-    'D'
+@interface
+def match_option(answer: str, options: List[Tuple[str, str]]) -> Tuple[str, str]:
+    """Find the multiple-choice option that best matches an answer string.
+
+    Returns the matching (letter, date) pair.
+
+    Examples:
+    >>> match_option('10 days before 12/24/1937 is 12/14/1937.', [('A', '12/14/2026'), ('B', '12/14/1950'), ('C', '12/14/2007'), ('D', '12/14/1937')])
+    ('D', '12/14/1937')
     """
     ...
 
@@ -130,6 +118,31 @@ def answer_date_question_orchestrated(question: str) -> str:
     option label in parentheses, e.g. '(A)'.
     """
     ...
+
+
+# ── hand-coded workflow ───────────────────────────────────────────────────────
+
+def date_understanding_workflow(input_str: str) -> str:
+    """Hand-coded workflow implementing answer_date_question.
+
+    Mirrors the mock's date_understanding pipeline: extract options, extract
+    date facts, make inferences (each fact sees prior facts as context),
+    answer the question from the inferences, then match the answer to an
+    option.
+
+    To use:
+        ptools.answer_date_question.method=direct
+        ptools.answer_date_question.fn=ptools.date_understanding_workflow
+    """
+    options = extract_options(input_str)
+    date_facts = extract_date_facts(input_str)
+    inferences = [make_inference(fact, date_facts[:i])
+                  for i, fact in enumerate(date_facts)]
+    question = extract_question(input_str)
+    answer = answer_question(question, inferences)
+    letter, _ = match_option(answer, options)
+    return f'({letter})'
+
 
 #
 # zeroshot unstructured model is a workflow - first get a string

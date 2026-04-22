@@ -16,7 +16,7 @@ from pydantic import Field
 
 from secretagent import config, llm_util, record
 from secretagent.core import Implementation, register_factory
-from secretagent.implement.core import PROMPT_TEMPLATE_DIR
+from secretagent.implement.util import PROMPT_TEMPLATE_DIR
 
 
 def _load_template(name: str) -> Template:
