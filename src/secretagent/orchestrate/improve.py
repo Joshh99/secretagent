@@ -415,25 +415,29 @@ def improve_with_supervisor(
         (output_dir / 'iterations').mkdir(exist_ok=True)
 
     # --- Setup evolved ptools file ---
-    benchmark_dir = Path(ptools_module.__file__).parent if ptools_module else Path('.')
-    evolved_path = benchmark_dir / 'ptools_evolved.py'
-    base_path = benchmark_dir / 'ptools.py'
+    # Derive evolved path from the module's actual file, supporting any
+    # module name (ptools.py, ptools_murder.py, etc.)
+    evolved_path = Path(ptools_module.__file__)
+    benchmark_dir = evolved_path.parent
+
+    # If loaded from base (not evolved), create evolved copy
+    if '_evolved' not in evolved_path.stem:
+        base_path = evolved_path
+        evolved_path = benchmark_dir / f'{evolved_path.stem}_evolved.py'
+        if not evolved_path.exists():
+            evolved_path.write_text(base_path.read_text())
+            print(f'[supervisor] created {evolved_path.name} from {base_path.name}')
 
     # IMPORTANT: importlib.reload() does NOT honor spec_from_file_location.
-    # It re-imports using sys.path, which finds ptools.py (the base) instead
-    # of ptools_evolved.py. We must use spec.loader.exec_module() instead.
+    # It re-imports using sys.path, which finds the base file instead of the
+    # evolved file. We must use spec.loader.exec_module() instead.
     def _reload_evolved_module():
-        """Re-execute ptools_evolved.py into the existing module object."""
+        """Re-execute the evolved ptools file into the existing module object."""
         import importlib.util as ilu
-        spec = ilu.spec_from_file_location('ptools', str(evolved_path))
+        spec = ilu.spec_from_file_location(ptools_module.__name__, str(evolved_path))
         spec.loader.exec_module(ptools_module)
 
-    # If no evolved file exists, copy from base
-    if not evolved_path.exists():
-        print(f'[supervisor] creating ptools_evolved.py from ptools.py')
-        evolved_path.write_text(base_path.read_text())
-    else:
-        print(f'[supervisor] resuming from existing ptools_evolved.py')
+    print(f'[supervisor] evolved ptools: {evolved_path.name}')
 
     current_source = evolved_path.read_text()
     entry_point_name = entry_interface.name
@@ -624,7 +628,7 @@ def improve_with_supervisor(
         try:
             ast.parse(new_source)
         except SyntaxError as e:
-            print(f'[supervisor] syntax error in ptools_evolved.py: {e}')
+            print(f'[supervisor] syntax error in {evolved_path.name}: {e}')
             iterations.append(IterationRecord(
                 iteration=i, train_accuracy=profile.accuracy,
                 train_cost=profile.avg_cost, supervisor_cost=sup_cost,
@@ -701,34 +705,31 @@ def improve_with_supervisor(
               f'{iter_train_to_early} timeouts)')
         print(f'[supervisor] cost: ${new_profile.avg_cost:.4f}/case')
 
-        # 8. Keep or rollback — skip eval for clear train regressions
+        # 8. Always run eval to track generalization curve
         eval_acc = None
         eval_cost_val = None
+        if eval_dataset is not None:
+            print(f'[supervisor] evaluating on held-out set...')
+            import pandas as pd
+            with config.configuration(evaluate=dict(
+                expt_name=f'rc_iter{i}_eval', record_details=False,
+            )):
+                try:
+                    eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
+                    eval_df = pd.read_csv(eval_csv)
+                    eval_acc = float(eval_df['correct'].mean())
+                    eval_cost_val = float(eval_df.get('cost', pd.Series([0])).mean())
+                except Exception as e:
+                    print(f'[supervisor] eval failed: {e}')
 
-        if new_profile.accuracy < best_accuracy:
-            kept = False  # clear train regression — no need to eval
+        # 9. Keep or rollback
+        if new_profile.accuracy > best_accuracy:
+            kept = True  # strict train improvement
+        elif (new_profile.accuracy >= best_accuracy
+              and eval_acc is not None and best_eval_accuracy is not None):
+            kept = eval_acc > best_eval_accuracy  # tiebreak on eval
         else:
-            # Train improved or equal — run eval for tiebreaking
-            if eval_dataset is not None:
-                print(f'[supervisor] evaluating on held-out set...')
-                import pandas as pd
-                with config.configuration(evaluate=dict(
-                    expt_name=f'rc_iter{i}_eval', record_details=False,
-                )):
-                    try:
-                        eval_csv = evaluator.evaluate(eval_dataset, entry_interface)
-                        eval_df = pd.read_csv(eval_csv)
-                        eval_acc = float(eval_df['correct'].mean())
-                        eval_cost_val = float(eval_df.get('cost', pd.Series([0])).mean())
-                    except Exception as e:
-                        print(f'[supervisor] eval failed: {e}')
-
-            if new_profile.accuracy > best_accuracy:
-                kept = True  # strict train improvement
-            elif eval_acc is not None and best_eval_accuracy is not None:
-                kept = eval_acc > best_eval_accuracy  # tiebreak on eval
-            else:
-                kept = False  # no improvement
+            kept = False  # train regression or no improvement
 
         # Print eval results
         if eval_acc is not None:
