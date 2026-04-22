@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import inspect
 import json
 import logging
-import textwrap
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Sequence
 
@@ -14,7 +12,7 @@ from pydantic import BaseModel
 from secretagent import config
 from secretagent.orchestrate.catalog import PtoolCatalog
 from secretagent.orchestrate.pipeline import (
-    Pipeline, _entry_signature_from_interface,
+    Pipeline,
 )
 from secretagent.orchestrate.profiler import PipelineProfile, profile_from_results
 
@@ -286,7 +284,7 @@ def _format_failure_traces(
                 arg_str = str(arg)[:max_input_chars]
                 lines.append(f'  Input arg {i}: {arg_str}')
         else:
-            lines.append(f'  Input: (not available)')
+            lines.append('  Input: (not available)')
 
         # Show rollout steps (LLM call traces)
         rollout = rec.get('rollout', [])
@@ -300,7 +298,7 @@ def _format_failure_traces(
                 lines.append(f'    {func}({args_str})')
                 lines.append(f'      -> {output} [${cost:.4f}]')
         else:
-            lines.append(f'  Execution trace: (no rollout recorded)')
+            lines.append('  Execution trace: (no rollout recorded)')
 
         pred = rec.get('predicted_output', '?')
         exp = rec.get('expected_output', '?')
@@ -332,7 +330,7 @@ def _format_iteration_history(iterations: list[IterationRecord]) -> str:
             # Show full reasoning so supervisor knows exactly what was tried
             lines.append(f'  What was tried: {rec.reasoning}')
         if not rec.kept and rec.iteration > 0:
-            lines.append(f'  ⚠ This change HURT accuracy. Do NOT retry this approach.')
+            lines.append('  ⚠ This change HURT accuracy. Do NOT retry this approach.')
     return '\n'.join(lines)
 
 
@@ -470,10 +468,10 @@ def improve_with_supervisor(
         if best_eval_accuracy is not None:
             print(f'[supervisor] previous best eval accuracy: {best_eval_accuracy:.1%}')
         print(f'[supervisor] accumulated supervisor cost: ${total_supervisor_cost:.4f}')
-        print(f'[supervisor] re-evaluating current code to get fresh profile...')
+        print('[supervisor] re-evaluating current code to get fresh profile...')
 
         with config.configuration(evaluate=dict(
-            expt_name=f'rc_resume_baseline', record_details=True,
+            expt_name='rc_resume_baseline', record_details=True,
         )):
             csv_path = evaluator.evaluate(train_dataset, entry_interface)
         result_dir = csv_path.parent
@@ -709,7 +707,7 @@ def improve_with_supervisor(
         eval_acc = None
         eval_cost_val = None
         if eval_dataset is not None:
-            print(f'[supervisor] evaluating on held-out set...')
+            print('[supervisor] evaluating on held-out set...')
             import pandas as pd
             with config.configuration(evaluate=dict(
                 expt_name=f'rc_iter{i}_eval', record_details=False,

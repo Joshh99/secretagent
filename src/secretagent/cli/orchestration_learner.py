@@ -109,7 +109,7 @@ def _generate_html_report(report, output_dir: Path):
         iterations_data.append(entry)
 
     # Build JSON data for the page
-    page_data = {
+    _page_data = {
         'best_train_accuracy': report.best_train_accuracy,
         'best_iteration': report.best_iteration,
         'final_eval_accuracy': report.final_eval_accuracy,
@@ -544,7 +544,7 @@ def run(
         project_root = project_root.parent
 
     from secretagent import config
-    from secretagent.core import Interface, all_interfaces, implement_via_config
+    from secretagent.core import all_interfaces, implement_via_config
     from secretagent.orchestrate.catalog import PtoolCatalog
     from secretagent.orchestrate.improve import improve_with_supervisor
 
@@ -569,9 +569,9 @@ def run(
         import shutil
         base_path = benchmark_dir / 'ptools.py'
         shutil.copy2(base_path, evolved_path)
-        print(f'Created ptools_evolved.py from ptools.py')
+        print('Created ptools_evolved.py from ptools.py')
     else:
-        print(f'Using existing ptools_evolved.py')
+        print('Using existing ptools_evolved.py')
 
     # Import ptools_evolved as the ptools module
     import importlib.util
@@ -610,7 +610,7 @@ def run(
     entry_interface = getattr(ptools_module, entry_point_name)
 
     # --- Load datasets (disjoint train/eval from same split) ---
-    print(f'\n=== Loading datasets ===')
+    print('\n=== Loading datasets ===')
     full_dataset = load_dataset(train_split)
     seed = config.get('dataset.shuffle_seed', 42)
 
@@ -665,7 +665,7 @@ def run(
     resume_supervisor_cost = 0.0
 
     if resume:
-        from secretagent.orchestrate.improve import SupervisorReport, IterationRecord
+        from secretagent.orchestrate.improve import SupervisorReport
         resume_dir = Path(resume)
         prev_report_path = resume_dir / 'report.json'
         if not prev_report_path.exists():
@@ -709,7 +709,7 @@ def run(
     config.configure(evaluate=dict(result_dir=str(results_base)))
 
     # --- Print setup summary ---
-    print(f'\n=== Orchestration Learner ===')
+    print('\n=== Orchestration Learner ===')
     print(f'Benchmark: {benchmark_dir.name}')
     print(f'Config: {cfg_path.name}')
     print(f'Entry point: {entry_point_name}')
@@ -721,7 +721,7 @@ def run(
     if instructions:
         print(f'Custom instructions: {instructions[:100]}...')
     if model_choices_text:
-        print(f'Model choices loaded')
+        print('Model choices loaded')
     if resume:
         print(f'Resuming from: {resume}')
     print(f'Output: {output_dir}')
@@ -775,13 +775,13 @@ def run(
         )
 
     # --- Generate plots and HTML report ---
-    print(f'\n=== Generating Plots & Report ===')
+    print('\n=== Generating Plots & Report ===')
     _generate_plots(report, output_dir)
     _generate_html_report(report, output_dir)
 
     # --- Final summary ---
     print(f'\n{"=" * 60}')
-    print(f'=== Orchestration Learner Complete ===')
+    print('=== Orchestration Learner Complete ===')
     print(f'{"=" * 60}')
     print(f'Best train accuracy: {report.best_train_accuracy:.1%} '
           f'(iteration {report.best_iteration})')
@@ -793,7 +793,7 @@ def run(
     # Print iteration summary table
     has_eval = any(r.eval_accuracy is not None for r in report.iterations)
     eval_hdr = f'  {"Eval":>8}' if has_eval else ''
-    print(f'\nIteration log:')
+    print('\nIteration log:')
     print(f'  {"Iter":>4}  {"Train":>8}  {"Fail":>4}  {"TO":>3}{eval_hdr}  {"Sup $":>7}  {"Status":>10}')
     for r in report.iterations:
         status = 'KEPT' if r.kept else ('BASELINE' if r.iteration == 0 else 'ROLLBACK')
