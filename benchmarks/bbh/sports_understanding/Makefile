@@ -107,3 +107,27 @@ evaluate_learned_consistent_sports:
 	  ptools.consistent_sports.backoff=True \
 	  ptools.are_sports_in_sentence_consistent.method=direct \
 	  ptools.are_sports_in_sentence_consistent.fn=ptools.sports_understanding_workflow
+
+#
+# example of creating new ptools and then using them
+#
+
+# toy example: edit an existing list of ptools, store them 'learned',
+# a directory of learned implementations
+
+edit_ptools:
+	uv run python -m secretagent.cli.learn edit-ptools --interface are_sports_in_sentence_consistent \
+	  --ptool ptools.analyze_sentence --ptool ptools.sport_for --ptool ptools.consistent_sports \
+	  --pattern Western --replacement Eastern \
+	  --learned-dir learned recordings/*
+
+# run reAct using all the tools in the module produced by 'cli.learn edit-ptools'
+
+eval_edited_ptools:
+	uv run python -m secretagent.cli.expt run --interface ptools.are_sports_in_sentence_consistent evaluate.expt_name=learned_ptool_react \
+	  learn.train_dir=learned dataset.n=10\
+	  ptools.are_sports_in_sentence_consistent.method=simulate_pydantic \
+	    ptools.are_sports_in_sentence_consistent.tool_module=__learned__ \
+	    ptools.are_sports_in_sentence_consistent.learner=ptool_editer\
+	    ptools.are_sports_in_sentence_consistent.tools=__all__
+

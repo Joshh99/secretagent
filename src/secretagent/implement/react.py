@@ -23,7 +23,8 @@ from pydantic import Field
 
 from secretagent import config, record
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, resolve_tools, _load_template
+from secretagent.implement.core import SimulateFactory, ToolUsingFactory
+from secretagent.implement.util import load_template
 from secretagent.implement.vlm import call_vlm, create_vlm_messages
 from secretagent.llm_util import llm as llm_call
 
@@ -138,7 +139,7 @@ def _coerce_arg(fn, arg_str: str, react_images: dict | None = None):
 # Factory
 # ---------------------------------------------------------------------------
 
-class ReactFactory(SimulateFactory):
+class ReactFactory(SimulateFactory, ToolUsingFactory):
     """LangChain-style zero-shot ReAct factory.
 
     Runs a Thought / Action / Action Input / Observation loop via repeated
@@ -157,8 +158,8 @@ class ReactFactory(SimulateFactory):
 
     prompt_kw: dict = Field(default_factory=dict)
 
-    def setup(self, tools=None, max_steps=8, **prompt_kw):
-        raw = resolve_tools(self.bound_interface, tools)
+    def setup(self, tools=None, max_steps=8, tool_module=None, learner=None, **prompt_kw):
+        raw = self.setup_tools(tools, tool_module=tool_module, learner=learner)
         self.tools = {fn.__name__: fn for fn in raw}
         self.max_steps = int(max_steps)
         self.prompt_kw = prompt_kw
@@ -173,7 +174,7 @@ class ReactFactory(SimulateFactory):
 
         with config.configuration(**self.prompt_kw):
             # Build the initial prompt
-            template = _load_template('react.txt')
+            template = load_template('react.txt')
             input_args = interface.format_args(*args, **call_kw)
             tool_descs = _all_tool_descriptions(self.tools)
             tool_name_list = _tool_names(self.tools)
