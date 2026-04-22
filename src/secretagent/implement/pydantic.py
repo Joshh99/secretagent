@@ -6,6 +6,7 @@ to implement an Interface.
 
 import hashlib
 import inspect
+import reprlib
 import time
 from pydantic import Field
 from pydantic_ai import Agent
@@ -119,7 +120,7 @@ class SimulatePydanticFactory(SimulateFactory, ToolUsingFactory):
         for tool in self.tools:
             if not inspect.isfunction(tool):
                 raise ValueError(
-                    f'Tool {tool!r} is not a function; '
+                    f'Tool {reprlib.repr(tool)} is not a function; '
                     f'simulate_pydantic requires plain functions')
         self.prompt_kw = prompt_kw
 

@@ -1,5 +1,6 @@
 """Utility helpers shared across implementation factories."""
 
+import functools
 import importlib
 import importlib.util
 import pathlib
@@ -62,7 +63,13 @@ def resolve_tools(interface: Interface, tools, tool_module=None) -> list[Callabl
         if isinstance(tool, Interface):
             if tool.implementation is None:
                 raise ValueError(f'Interface {tool.name!r} has no implementation')
-            resolved.append(tool.implementation.implementing_fn)
+            # Wrap in a plain function so that downstream consumers
+            # (e.g. pydantic-ai Agent) get a proper function with the
+            # right signature and no circular Pydantic references.
+            @functools.wraps(tool.func)
+            def wrapper(*args, _iface=tool, **kw):
+                return _iface(*args, **kw)
+            resolved.append(wrapper)
         else:
             if not callable(tool):
                 raise ValueError(
