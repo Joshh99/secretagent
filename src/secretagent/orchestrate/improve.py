@@ -97,7 +97,7 @@ def improve_pipeline(
     log.info('improvement loop starting: accuracy=%.1f%%, %d cases',
              before.accuracy * 100, before.n_cases)
     from secretagent.orchestrate.transforms.base import format_profiling_summary
-    print(f'\n[improve] === Initial Profile ===')
+    print('\n[improve] === Initial Profile ===')
     print(format_profiling_summary(before))
 
     profile = before
@@ -153,7 +153,7 @@ def improve_pipeline(
                         best_accuracy = new_profile.accuracy
                     print(f'[improve] kept improvements (accuracy={new_profile.accuracy:.1%})')
                 else:
-                    print(f'[improve] regression detected, keeping previous state')
+                    print('[improve] regression detected, keeping previous state')
                     # Note: ptool state was already modified by transforms.
                     # The caller is responsible for rollback if needed.
             except Exception as e:
@@ -767,6 +767,7 @@ def improve_with_supervisor(
             entry_interface = getattr(ptools_module, entry_point_name)
             if saved_config is not None:
                 config.GLOBAL_CONFIG = saved_config
+            print('[supervisor] ROLLED BACK (accuracy dropped)')
 
         iter_eval_fail, iter_eval_to = (None, None)
         if eval_acc is not None:
@@ -834,7 +835,7 @@ def improve_with_supervisor(
             report.model_dump_json(indent=2)
         )
 
-    print(f'\n[supervisor] === Summary ===')
+    print('\n[supervisor] === Summary ===')
     print(f'Iterations: {len(iterations) - 1}')
     print(f'Best accuracy: {best_accuracy:.1%} (iteration {best_iter.iteration})')
     print(f'Total supervisor cost: ${total_supervisor_cost:.4f}')

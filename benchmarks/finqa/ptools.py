@@ -1,18 +1,19 @@
 """FinQA: numerical reasoning over financial text + tables.
 
-Top-level task: ``answer_finqa(problem)`` — one string built by ``data/build_datasets.py``.
+Top-level task: ``answer_finqa(problem)`` — one string built by
+``data/build_datasets.py``.
 
-Spreadsheet mapping:
-  Str   → ``simulate`` on ``answer_finqa``     (conf/conf.yaml)
-  Unst  → ``prompt_llm`` on ``answer_finqa``   (conf/zeroshot_prompt.yaml)
-  PoT   → ``program_of_thought``               (conf/pot.yaml)
-  ReAct → ``simulate_pydantic`` + tools        (conf/react.yaml)
-  WFlow → ``direct`` + ``answer_finqa_workflow`` (conf/workflow.yaml)
+Experiment mapping (see Makefile):
+  workflow              — hand-coded workflow + engineered ptools
+  pot                   — drop workflow, keep ptools (program of thought)
+  react                 — drop workflow, keep ptools (ReAct agent)
+  structured_baseline   — drop workflow and ptools (simulate)
+  unstructured_baseline — drop workflow, ptools, and structured prompt
 """
 
 import re
 
-from secretagent.core import interface
+from secretagent.core import interface, implement_via
 
 
 # ---------------------------------------------------------------
@@ -30,7 +31,7 @@ def answer_finqa(problem: str) -> str:
 
 
 # ---------------------------------------------------------------
-# Grounded tools (direct-implemented Python, no LLM calls)
+# Ptools: direct-implemented Python tools
 # ---------------------------------------------------------------
 
 @interface
@@ -117,7 +118,7 @@ def compute(expression: str) -> str:
 
 
 # ---------------------------------------------------------------
-# LLM reasoning interfaces (simulate-implemented)
+# Ptools: LLM-implemented interfaces (bound to simulate via config)
 # ---------------------------------------------------------------
 
 @interface
@@ -159,11 +160,16 @@ def extract_final_number(verbose_output: str) -> str:
 
 
 # ---------------------------------------------------------------
-# Workflow: extract plan → compute with Python
+# Workflow implementation
 # ---------------------------------------------------------------
 
 def answer_finqa_workflow(problem: str) -> str:
-    """Workflow: LLM plans the computation, Python executes it."""
+    """Hand-coded workflow for answer_finqa.
+
+    LLM extracts a reasoning plan with target, values, and formula.
+    Python evaluates the formula. Falls back to LLM extraction when
+    no clean formula is found.
+    """
     plan = extract_reasoning_plan(problem)
     formula = _extract_formula(plan)
     if formula:
@@ -187,7 +193,7 @@ def _extract_formula(plan: str) -> str | None:
 
 
 # ---------------------------------------------------------------
-# ReAct wrapper and tool callables
+# Tool callables for ReAct (wrappers around interfaces)
 # ---------------------------------------------------------------
 
 def call_parse_table(problem: str) -> str:
@@ -208,3 +214,45 @@ def call_compute(expression: str) -> str:
 def call_extract_reasoning_plan(problem: str) -> str:
     """Produce a reasoning plan with target, values, and formula."""
     return extract_reasoning_plan(problem)
+
+
+# ---------------------------------------------------------------
+# Unstructured baseline: zero-shot prompt + answer coercion
+# ---------------------------------------------------------------
+
+@implement_via('prompt_llm', prompt_template_file='prompt_templates/zeroshot.txt', answer_pattern=None)
+def zeroshot_answer_finqa(problem: str) -> str:
+    """Zero-shot unstructured prompt for FinQA (returns raw LLM string)."""
+    ...
+
+
+_NUM_RE = re.compile(r'[$€£]?\s*-?\s*[\d,]+\.?\d*\s*%?')
+
+
+@implement_via('direct')
+def coerce_to_answer(llm_output: str) -> str:
+    """Extract the final numeric answer from raw LLM text.
+
+    Looks for ``<answer>`` tags first, then falls back to the last
+    number-like token in the text.
+    """
+    s = llm_output.strip()
+    m = re.search(r'<answer[^>]*>(.*?)</answer>', s, flags=re.DOTALL | re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    matches = _NUM_RE.findall(s)
+    if matches:
+        return matches[-1].strip()
+    lines = [ln.strip() for ln in s.splitlines() if ln.strip()]
+    return lines[-1] if lines else s
+
+
+def unstructured_baseline_workflow(problem: str) -> str:
+    """Workflow for the unstructured baseline: zero-shot prompt then cleanup.
+
+    To run, bind answer_finqa to this function via:
+      ptools.answer_finqa.method=direct
+      ptools.answer_finqa.fn=ptools.unstructured_baseline_workflow
+    """
+    raw = zeroshot_answer_finqa(problem)
+    return coerce_to_answer(raw)

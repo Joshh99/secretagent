@@ -103,6 +103,55 @@ def test_direct_with_dotted_string_fn():
     _INTERFACES.remove(check_path)
 
 
+def _stub_for_src_test(x: int) -> int:
+    """Double x."""
+    return x * 2
+
+
+def _stub_with_ellipsis(x: int) -> int:
+    """Double x."""
+    ...
+
+
+def test_interface_strips_body_by_default():
+    """When simulate.full_src is not set, @interface should strip the function body after the docstring."""
+    from secretagent import config
+
+    with config.configuration(simulate=dict(full_src=False)):
+        iface = interface(_stub_for_src_test)
+
+    assert 'return x * 2' not in iface.src
+    assert 'Double x.' in iface.src
+    assert 'def _stub_for_src_test' in iface.src
+    _INTERFACES.remove(iface)
+
+
+def test_interface_retains_ellipsis_after_docstring():
+    """When stripping, an Ellipsis immediately after the docstring should be kept."""
+    from secretagent import config
+
+    with config.configuration(simulate=dict(full_src=False)):
+        iface = interface(_stub_with_ellipsis)
+
+    assert '...' in iface.src
+    assert 'Double x.' in iface.src
+    assert 'def _stub_with_ellipsis' in iface.src
+    _INTERFACES.remove(iface)
+
+
+def test_interface_keeps_full_src_when_configured():
+    """When simulate.full_src is truthy, @interface should keep the full function body."""
+    from secretagent import config
+
+    with config.configuration(simulate=dict(full_src=True)):
+        iface = interface(_stub_for_src_test)
+
+    assert 'return x * 2' in iface.src
+    assert 'Double x.' in iface.src
+    assert 'def _stub_for_src_test' in iface.src
+    _INTERFACES.remove(iface)
+
+
 @needs_api_key
 def test_simulate():
     sport_for.implement_via('simulate', llm = dict(model=CI_TEST_MODEL))

@@ -1,6 +1,7 @@
 """Core components of SecretAgents package: interfaces and implementations.
 """
 
+import ast
 import inspect
 
 from pydantic import BaseModel, Field
@@ -88,6 +89,25 @@ def interface(func: Callable) -> Interface:
     """
     full_src = inspect.getsource(func)
     trimmed_src = full_src[full_src.find('\ndef')+1:]
+    if not config.get('simulate.full_src'):
+        # Strip body after docstring so src only has signature + docstring
+        try:
+            tree = ast.parse(trimmed_src)
+            func_node = tree.body[0]
+            docstring_node = func_node.body[0]
+            if (isinstance(docstring_node, ast.Expr)
+                and isinstance(docstring_node.value, (ast.Constant, ast.Str))):
+                end_lineno = docstring_node.end_lineno
+                # Retain an Ellipsis (...) immediately after the docstring
+                if (len(func_node.body) > 1
+                    and isinstance(func_node.body[1], ast.Expr)
+                    and isinstance(func_node.body[1].value, ast.Constant)
+                    and func_node.body[1].value.value is ...):
+                    end_lineno = func_node.body[1].end_lineno
+                lines = trimmed_src.splitlines(keepends=True)
+                trimmed_src = ''.join(lines[:end_lineno])
+        except (SyntaxError, IndexError):
+            pass
     result = Interface(
         func=func,
         name=func.__name__,

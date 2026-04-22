@@ -2,8 +2,7 @@
 
 orchestrate_cache/
 results_plot.png
-benchmarks/**/results/
-benchmarks/**/llm_cache/
+benchmarks/**/results/*DEFAULT
 benchmarks/**/training/
 benchmarks/**/ptools_evolved.py
 benchmarks/**/tmp*.py
@@ -226,8 +225,11 @@ __marimo__/
 .env
 .claude/
 .cursor/
+.codex/
 .codex/benchmarks/natural_plan/llm_cache/
 
 strategy_comparison.png
 paper/
 docs/superpowers/
+benchmarks/designbench/data/
+benchmarks/designbench/results/

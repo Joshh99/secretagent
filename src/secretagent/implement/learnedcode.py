@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any
 
 from omegaconf import OmegaConf
-from smolagents.local_python_executor import LocalPythonExecutor, BASE_PYTHON_TOOLS
 
 from secretagent import config
 from secretagent.core import Implementation, _FACTORIES, register_factory

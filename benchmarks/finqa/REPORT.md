@@ -15,66 +15,55 @@ Gold answers are floats (`exe_ans`) representing exact numeric results.
 
 ## Experiment Conditions
 
-| Condition | Config | Method | Description |
-|-----------|--------|--------|-------------|
-| Unstructured baseline | `conf/zeroshot_prompt.yaml` | `prompt_llm` | Single-shot custom prompt template, raw string output. |
-| Structured baseline | `conf/conf.yaml` | `simulate` | Framework structured prompt (SimulateFactory). |
-| PoT v1 | `conf/pot.yaml` (old) | `program_of_thought` | LLM writes Python in sandbox. No tools, `inject_args=true`. |
-| PoT v2 | `conf/pot.yaml` | `program_of_thought` | LLM writes Python with `parse_table` and `compute` tools + `re` import. |
-| Workflow v1 | `conf/workflow.yaml` (old) | `direct` chain | 3-step LLM pipeline: state goal → list numbers → synthesize answer. |
-| Workflow v2 | `conf/workflow.yaml` | `direct` chain | LLM extracts reasoning plan (target + formula); Python evaluates the formula. Falls back to LLM extraction. |
-| ReAct v2 | `conf/react.yaml` | `simulate_pydantic` | Pydantic-ai agent with grounded tools: `parse_table`, `lookup_cell`, `compute` (all `direct` Python) + `extract_reasoning_plan` (LLM). |
+All five experiments use the same model (`together_ai/deepseek-ai/DeepSeek-V3.1`) and the same evaluator (`FinQAEvaluator`).
 
-Default model: `together_ai/deepseek-ai/DeepSeek-V3.1` (all conditions).
+| expt_name | Method | Description |
+|-----------|--------|-------------|
+| `workflow` | `direct` → `answer_finqa_workflow` | **Main result.** Hand-coded workflow using engineered ptools. LLM extracts reasoning plan (target + formula); Python evaluates the formula. Falls back to LLM extraction. |
+| `pot` | `program_of_thought` | Ablation: drop the workflow, keep ptools. LLM writes Python with `parse_table` and `compute` as available tools. |
+| `react` | `simulate_pydantic` | Ablation: drop the workflow, keep ptools. Pydantic-ai ReAct agent with `parse_table`, `lookup_cell`, `compute`, and `extract_reasoning_plan` as tools. |
+| `structured_baseline` | `simulate` | Ablation: drop workflow and ptools. Single `simulate` call on `answer_finqa`. |
+| `unstructured_baseline` | `prompt_llm` + coercion | Ablation: drop workflow, ptools, and structured prompt. Zero-shot prompt followed by answer extraction. |
 
 ## Results (valid split, N=300)
 
-| Condition | Accuracy | Cost/ex | Latency/ex | Exceptions | Status |
-|-----------|----------|---------|------------|------------|--------|
-| **Simulate (baseline)** | **68.3%** | $0.0010 | 4.2s | 0 | done |
-| Workflow v2 (plan+compute) | 65.7% | $0.0012 | 4.9s | 0 | done |
-| Workflow v1 (3-LLM) | 62.7% | $0.0031 | 21.1s | 0 | done |
-| Zeroshot prompt | 56.0% | $0.0006 | 0.6s | 0 | done |
-| PoT v1 (no tools) | 49.7% | $0.0013 | 33.8s | 23 | done |
-| ReAct v2 (grounded) | 49.0% | $0.0088 | 265.8s | 0 | done |
-| PoT v2 (with tools) | 44.3% | $0.0017 | 16.6s | 17 | done |
+| expt_name | Accuracy | Cost/ex | Latency/ex | Exceptions |
+|-----------|----------|---------|------------|------------|
+| structured_baseline | 79.6%* | $0.0011 | 18.1s | 0 |
+| workflow | 65.7% | $0.0012 | 4.9s | 0 |
+| unstructured_baseline | 57.7% | $0.0007 | 2.4s | 0 |
+| react | 49.0% | $0.0084 | 238.1s | 0 |
+| pot | 44.3% | $0.0017 | 16.6s | 17 |
 
-![Accuracy vs Cost](results_plot.png)
+*\* structured_baseline: partial run (54/300 cases). Needs re-run.*
+
+TODO:
+run workflow with everything simulated
+split ptools w direct imp into docstring and types and the function imp
+workflow on training data
+
+![Cost vs Accuracy](results_plot.png)
 
 ## Analysis
 
-### Simulate remains the strongest single-call approach
+### Structured baseline vs workflow
 
-The framework's structured `simulate` prompt (68.3%) continues to outperform all other strategies. It benefits from the `<answer>` tag format that focuses the model's output and avoids verbose reasoning that can dilute accuracy.
+The structured baseline uses a single `simulate` call — the LLM sees the `answer_finqa` function signature and docstring as a prompt. The workflow decomposes the task: `extract_reasoning_plan` (LLM) produces a plan with a formula, then `compute` (Python) evaluates it, falling back to `extract_final_number` (LLM) if no formula is found.
 
-### Workflow v2 improved over v1 (+3.0 pp, 2.5x cheaper)
+The structured baseline leads at 79.6% (on 54 cases — partial run, may shift with full 300). The workflow (65.7%) trails by ~14pp but demonstrates the ptool decomposition: separating *what to compute* (LLM judgment) from *doing the computation* (Python arithmetic). The high structured baseline suggests DeepSeek-V3.1 is strong at single-shot numerical reasoning on this task.
 
-The redesigned workflow — where the LLM produces a reasoning plan with an explicit formula and Python's `compute()` evaluates it — outperforms the v1 3-LLM pipeline (65.7% vs 62.7%). It's also 2.5x cheaper ($0.0012 vs $0.0031) and 4x faster (4.9s vs 21.1s) because it makes fewer LLM calls: one `extract_reasoning_plan` call plus an optional `extract_final_number` fallback, versus three sequential `simulate` calls.
+### Dropping the workflow hurts (pot and react)
 
-The key architectural insight: separating *what to compute* (LLM judgment) from *doing the computation* (Python arithmetic) is more effective than chaining multiple LLM calls that rephrase each other.
+When we drop the hand-coded workflow and let the LLM plan tool calls autonomously:
 
-### ReAct is expensive and underperforms
+- **PoT** (44.3%): The model frequently generates prose instead of executable Python, causing 17 extraction exceptions. When code is generated, it often contains errors.
+- **ReAct** (49.0%): The pydantic-ai agent loop is very expensive ($0.0084/ex) and slow. DeepSeek-V3.1 sometimes emits raw tool-call tokens instead of properly invoking tools, producing garbage output.
 
-Despite having grounded tools (`parse_table`, `lookup_cell`, `compute`), the ReAct agent (49.0%) underperforms even the zeroshot baseline. Two issues:
+Both ablations underperform the structured baseline, suggesting the hand-coded workflow provides significant value for this task.
 
-1. **DeepSeek-V3.1 tool-use reliability**: The model sometimes emits raw tool-call tokens instead of properly invoking tools through the pydantic-ai API, producing garbage output.
-2. **Overhead vs. benefit**: The agent loop averages $0.0088/ex and 265.8s latency — 9x the cost and 63x the latency of simulate — for worse accuracy. The model doesn't effectively leverage the grounded tools to improve over its single-call reasoning.
+### Unstructured baseline
 
-### PoT continues to struggle
-
-Both PoT variants underperform: v1 (49.7%) and v2 (44.3%). The v2 change (adding `parse_table` and `compute` as tools) actually hurt — the model may be confused by tool availability in the code-generation prompt. The primary failure mode remains the model generating prose instead of a Python code block, causing extraction failures (17–23 exceptions out of 300).
-
-### Error analysis (from earlier 64-case ReAct run)
-
-A detailed error analysis of an earlier ReAct run revealed three failure categories:
-
-| Category | Count | Description |
-|----------|-------|-------------|
-| Tool-call leaks | 7/35 | Model emits raw `<tool_calls_begin>` tokens |
-| Format mismatch | 14/35 | Correct number computed but lost in verbose output |
-| Wrong computation | 14/35 | Actual arithmetic or reasoning errors |
-
-The **format mismatch** issue was partially addressed by improving the evaluator's `normalize_finqa_prediction` to prefer the first numeric line over the last line, and by teaching `_to_float_token` to strip unit words like "million". These evaluator fixes benefit all conditions equally.
+The unstructured baseline (57.7%) uses a zero-shot prompt with `<answer>` tags followed by a direct Python coercion step. It outperforms both pot and react, showing that for this task a well-crafted prompt without tools can beat autonomous tool-use strategies.
 
 ## Scoring
 
@@ -85,37 +74,35 @@ and multi-line output normalization (prefers first numeric line).
 
 ## Ptool Design
 
-### Grounded tools (direct Python, no LLM)
+### Python tools (direct)
 
 - **`parse_table(problem)`**: Extracts the markdown table into clean tab-separated text.
 - **`lookup_cell(problem, row_label, column)`**: Fuzzy row/column lookup returning exact cell values.
 - **`compute(expression)`**: Safe arithmetic evaluation with `$`/`,` stripping.
 
-### LLM reasoning tools (simulate)
+### LLM ptools (simulate)
 
 - **`extract_reasoning_plan(problem)`**: Produces a structured plan (target, values with row/col refs, formula with numbers substituted).
 - **`extract_final_number(verbose_output)`**: Cleans verbose LLM output to a bare number.
 
 ### Design principle
 
-Following the pattern established by the strongest benchmarks in the framework (RuleArena's L1 extract-then-compute, TabMWP's direct table tools): the LLM handles *understanding and planning* while Python handles *data retrieval and arithmetic*. This avoids LLM-to-LLM passthroughs that add cost and error propagation without adding grounding.
+The LLM handles *understanding and planning* while Python handles *data retrieval and arithmetic*. This avoids LLM-to-LLM passthroughs that add cost and error propagation.
 
 ## Reproducing
+
+All experiments use the generic CLI (`secretagent.cli.expt`) from `benchmarks/finqa/`:
 
 ```bash
 cd benchmarks/finqa
 
-# Run each condition
-uv run python expt.py run --config-file conf/conf.yaml evaluate.expt_name=simulate dataset.n=300
-uv run python expt.py run --config-file conf/zeroshot_prompt.yaml evaluate.expt_name=zeroshot_prompt dataset.n=300
-uv run python expt.py run --config-file conf/pot.yaml evaluate.expt_name=pot dataset.n=300
-uv run python expt.py run --config-file conf/workflow.yaml evaluate.expt_name=workflow dataset.n=300
-uv run python expt.py run --config-file conf/react.yaml evaluate.expt_name=react dataset.n=300
+# Run all five (or individually: make workflow, make pot, etc.)
+make basics
 
 # Analyze results
-uv run -m secretagent.cli.results average --latest 1 --metric correct --metric cost- results/*/
-uv run -m secretagent.cli.results plot --latest 1 --metric cost- --metric correct --output results_plot.png results/*/
+make avg
+make plot
 
-# Export to shared results directory
-uv run -m secretagent.cli.results export --latest 1 results/*/
+# Export to benchmarks/results/finqa/finqa/
+make export
 ```
