@@ -99,7 +99,7 @@ if __name__ == '__main__':
   # configuration and remove them when we exit.  In this case we
   # config request to trace some actions.
   with config.configuration(
-      echo={'service': True, 'llm_input': True, 'llm_output': True},
+      echo={'service': True, 'llm_input': True, 'llm_output': True, 'box_width':120},
       cachier={'enable_caching': False}):
     result = sports_understanding_workflow("Tim Duncan scored from inside the paint.")
     print('Traced result is', result)
