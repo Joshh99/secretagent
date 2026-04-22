@@ -77,6 +77,14 @@ def answer_penguin_question(question: str) -> str:
     """
     ...
 
+@interface
+def answer_penguin_question_orchestrated(input_str: str) -> str:
+    """Given a penguins-in-a-table multiple-choice question, return the correct
+    option label, e.g. '(A)'.
+    """
+    ...
+
+
 # ── hand-coded workflow ───────────────────────────────────────────────────────
 
 def penguins_workflow(input_str: str) -> str:

@@ -54,7 +54,7 @@ TASKS = [
     "rulearena/airlines",
     "rulearena/tax",
     "rulearena/nba",
-    "tabwmp/tabwmp",
+    "tabmwp/tabmwp",
     "tau_bench/retail",
 ]
 

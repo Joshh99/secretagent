@@ -246,6 +246,12 @@ def extract_option_letter(llm_output: str) -> str:
     """
     ...
 
+@interface
+def identify_shape_orchestrated(input: str) -> str:
+    """Given an SVG path multiple-choice question, return the correct option letter (e.g. "(J)")."""
+    ...
+
+
 def zeroshot_unstructured_workflow(input: str) -> str:
     """Workflow for zero-shot prompt with letter extraction.
 
