@@ -81,19 +81,30 @@ def errors(
             print(f'  [{count}x] (e.g. {examples[msg]}) {msg}')
 
 
-@app.command()
+@app.command(context_settings=_EXTRA_ARGS)
 def replay(
-    result_dir: str = typer.Argument(..., help='Single experiment result directory'),
+    ctx: typer.Context,
     interface: str = typer.Option(..., help="Top-level interface as 'module.name'"),
     case_name: str = typer.Option(..., help='Case name to replay'),
+    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
+    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
 ):
     """Replay a single case from an experiment with full tracing.
 
     Loads config from the result directory's config.yaml, finds the
     named case in the dataset, and runs the top-level interface with
     echo flags enabled.
+
+    Takes the same result-directory arguments as the errors command,
+    but uses only the first matching directory.
     """
-    result_path = Path(result_dir)
+    dirs = _get_dirs(ctx, latest=latest, check=check)
+    if len(dirs) > 1:
+        import warnings
+        warnings.warn(
+            f'Multiple result directories found ({len(dirs)}), using first: {dirs[0]}'
+        )
+    result_path = Path(dirs[0])
     config_file = result_path / 'config.yaml'
     if not config_file.exists():
         raise ValueError(f'No config.yaml in {result_path}')
