@@ -625,45 +625,6 @@ def export_results(
     print(f'\nExported {len(dirs)} directories to {dest_base}')
 
 
-@app.command(context_settings=_EXTRA_ARGS)
-def errors(
-    ctx: typer.Context,
-    latest: int = typer.Option(1, help='Keep latest k dirs per tag; 0 for all'),
-    check: Optional[list[str]] = typer.Option(None, help='Config constraint like key=value'),
-    column: str = typer.Option('predicted_output', help='Column to search for exceptions'),
-):
-    """Report exceptions found in experiment outputs.
-
-    Looks for outputs starting with '**exception raised**:' and reports
-    each unique exception message with a count and an example case name.
-    """
-    dirs = _get_dirs(ctx, latest=latest, check=check)
-    for d in dirs:
-        df = pd.read_csv(d / 'results.csv')
-        if column not in df.columns:
-            print(f'{d.name}: column "{column}" not found')
-            continue
-        prefix = '**exception raised**:'
-        mask = df[column].astype(str).str.startswith(prefix)
-        exc_df = df[mask]
-        if exc_df.empty:
-            print(f'{d.name}: no exceptions')
-            continue
-        # Group by exception message
-        exc_msgs = exc_df[column].astype(str).str[len(prefix):].str.strip()
-        # Track first example case_name per unique exception
-        case_col = 'case_name' if 'case_name' in df.columns else None
-        counts: dict[str, tuple[int, str]] = {}
-        for idx, msg in exc_msgs.items():
-            example = str(exc_df.loc[idx, case_col]) if case_col else f'row {idx}'
-            if msg not in counts:
-                counts[msg] = (0, example)
-            counts[msg] = (counts[msg][0] + 1, counts[msg][1])
-        print(f'{d.name}: {len(exc_df)} exceptions ({len(counts)} unique)')
-        for msg, (count, example) in sorted(counts.items(), key=lambda x: -x[1][0]):
-            print(f'  [{count}x] (e.g. {example}) {msg}')
-
-
 @app.callback()
 def main(
     config_file: Optional[str] = typer.Option(None, help='YAML config file to load'),
