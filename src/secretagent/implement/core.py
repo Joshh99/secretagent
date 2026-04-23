@@ -308,7 +308,7 @@ class PoTFactory(ToolUsingFactory):
             iface for iface in all_interfaces()
             if iface is not interface
             and iface.implementation is not None
-            and iface.implementation.implementing_fn in tool_functions.values()]
+            and iface.name in tool_functions]
 
     def __call__(self, *args, **kw):
         interface = self.bound_interface

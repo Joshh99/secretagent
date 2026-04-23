@@ -91,9 +91,13 @@ def test_resolve_tools_all():
         """Main."""
 
     resolved = resolve_tools(main_fn, '__all__')
-    # should include tool_a and tool_b's implementing functions
-    assert tool_a.implementation.implementing_fn in resolved
-    assert tool_b.implementation.implementing_fn in resolved
+    # should include wrappers for tool_a and tool_b
+    names = [fn.__name__ for fn in resolved]
+    assert 'tool_a' in names
+    assert 'tool_b' in names
+    # wrappers should delegate to the interface implementations
+    assert any(fn(5) == 6 for fn in resolved)   # tool_a: x+1
+    assert any(fn(5) == 7 for fn in resolved)   # tool_b: x+2
     # should not include main_fn (unimplemented, and it's the excluded interface)
     _INTERFACES.remove(tool_a)
     _INTERFACES.remove(tool_b)
@@ -110,7 +114,7 @@ def test_resolve_tools_all_excludes_self():
     self_fn.implement_via('direct')
 
     resolved = resolve_tools(self_fn, '__all__')
-    assert self_fn.implementation.implementing_fn not in resolved
+    assert 'self_fn' not in [fn.__name__ for fn in resolved]
     _INTERFACES.remove(self_fn)
 
 
@@ -128,7 +132,9 @@ def test_resolve_tools_with_interface():
         """Main."""
 
     resolved = resolve_tools(main_fn, [tool_a])
-    assert resolved == [tool_a.implementation.implementing_fn]
+    assert len(resolved) == 1
+    assert resolved[0].__name__ == 'tool_a'
+    assert resolved[0](5) == 6
     _INTERFACES.remove(tool_a)
     _INTERFACES.remove(main_fn)
 
@@ -177,7 +183,10 @@ def test_resolve_tools_mixed():
 
     import os.path
     resolved = resolve_tools(main_fn, [tool_a, my_func, 'os.path.join'])
-    assert resolved == [tool_a.implementation.implementing_fn, my_func, os.path.join]
+    assert len(resolved) == 3
+    assert resolved[0].__name__ == 'tool_a'
+    assert resolved[1] is my_func
+    assert resolved[2] is os.path.join
     _INTERFACES.remove(tool_a)
     _INTERFACES.remove(main_fn)
 
@@ -200,7 +209,9 @@ def test_resolve_tools_string_resolving_to_interface():
         """Main."""
 
     resolved = resolve_tools(main_fn, ['tests.test_resolve_tools._tool_iface_for_test'])
-    assert resolved == [tool_iface.implementation.implementing_fn]
+    assert len(resolved) == 1
+    assert resolved[0].__name__ == 'tool_iface'
+    assert resolved[0](5) == 6
     del this_module._tool_iface_for_test
     _INTERFACES.remove(tool_iface)
     _INTERFACES.remove(main_fn)

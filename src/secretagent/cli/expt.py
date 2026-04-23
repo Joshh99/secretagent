@@ -37,13 +37,19 @@ from secretagent.implement.util import resolve_dotted
 
 _EXTRA_ARGS = {"allow_extra_args": True, "allow_interspersed_args": False}
 
-def setup_and_load_dataset(dotlist: list[str]) -> Dataset:
+def setup_and_load_dataset(dotlist: list[str], config_file: str | Path | None = None) -> Dataset:
     """Load config, dataset, and configure ptools.
+
+    Args:
+        dotlist: config overrides in dot notation.
+        config_file: YAML config file to load. Defaults to conf/conf.yaml
+            in the current directory.
 
     Returns dataset ready for evaluation.
     """
     root = Path.cwd()
-    config_file = root / 'conf' / 'conf.yaml'
+    if config_file is None:
+        config_file = root / 'conf' / 'conf.yaml'
     config.configure(yaml_file=config_file, dotlist=dotlist)
     config.set_root(root)
 

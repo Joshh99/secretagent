@@ -252,8 +252,6 @@ class Implementation(BaseModel):
             factory = self.model_copy()
             factory.bound_interface = interface
             factory.model = builder_kwargs.pop('model', None)
-            # pydantic-ai requires __qualname__ on tool callables
-            factory.__qualname__ = interface.name
             factory.setup(**builder_kwargs)
 
             return Implementation(

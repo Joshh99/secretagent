@@ -2,6 +2,7 @@
 """
 
 import sys
+import textwrap
 import time
 from typing import Any
 
@@ -12,6 +13,9 @@ from litellm import completion, completion_cost, token_counter
 def echo_boxed(text: str, tag:str = ''):
     """Echo some text in a pretty box."""
     lines = text.split('\n')
+    box_width = config.get('echo.box_width', 0)
+    if box_width and max(len(line) for line in lines) > box_width:
+        lines = textwrap.fill(text, width=box_width).split('\n')
     width = max(len(line) for line in lines)
     print('┌' + tag.center(width+2, '─') + '┐')
     for line in lines:
@@ -136,9 +140,6 @@ def _llm_impl(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
           model=model,
       )
 
-  if config.get('echo.llm_output'):
-    echo_boxed(model_output, 'llm_output')
-
   return model_output, stats
 
 def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
@@ -146,4 +147,7 @@ def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
 
   See cache_util.py for why this weird process is necessary.
   """
-  return cached(_llm_impl)(prompt, model)
+  model_output, stats = cached(_llm_impl)(prompt, model)
+  if config.get('echo.llm_output'):
+    echo_boxed(model_output, 'llm_output')
+  return model_output, stats

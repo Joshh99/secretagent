@@ -6,6 +6,7 @@ to implement an Interface.
 
 import hashlib
 import inspect
+import reprlib
 import time
 from pydantic import Field
 from pydantic_ai import Agent
@@ -27,7 +28,8 @@ def _run_agent_hashkey(_, kwds):
          kwds['model_name'],  # a string
          str(kwds['return_type']), # convert type to str
          kwds['prompt'], # a string
-         tuple(tool.__name__ for tool in kwds['tools']))) # use function names
+         tuple(tool.__name__ for tool in kwds['tools']),  # use function names
+         config.get('pydantic.retries', 1)))  # retries affects agent behavior
     # convert the tuple to a string and encode it to hash
     return hashlib.sha256(str(hashable).encode('utf-8')).hexdigest()
 
@@ -43,7 +45,8 @@ def _run_agent_impl(interface, model_name, return_type, prompt, tools):
     # create the Model the agent will use and the Agent
     model = LiteLLMModel(model_name=model_name)
     return_type = interface.annotations.get('return', str)
-    agent = Agent(model, output_type=return_type, tools=tools)
+    retries = config.get('pydantic.retries', 1)
+    agent = Agent(model, output_type=return_type, tools=tools, retries=retries)
 
     # run the agent and time that. Wrap in a thread-pool so an optional
     # llm.timeout (in seconds) can bound the total agent wall-clock time.
@@ -119,7 +122,7 @@ class SimulatePydanticFactory(SimulateFactory, ToolUsingFactory):
         for tool in self.tools:
             if not inspect.isfunction(tool):
                 raise ValueError(
-                    f'Tool {tool!r} is not a function; '
+                    f'Tool {reprlib.repr(tool)} is not a function; '
                     f'simulate_pydantic requires plain functions')
         self.prompt_kw = prompt_kw
 

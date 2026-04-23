@@ -167,6 +167,8 @@ A run creates a timestamped directory under `results/orchestration_learner/`:
 ```
 results/orchestration_learner/
   20260419.215731.orch_learner/
+    config.yaml             # Effective config snapshot for this learner run
+    run_metadata.json       # Benchmark/config provenance for the learner run
     report.json              # Full structured report (SupervisorReport model)
     report.html              # Self-contained interactive HTML report
     ptools_evolved.py        # Best version of the evolved ptools file
@@ -179,8 +181,13 @@ results/orchestration_learner/
       results.jsonl
     iterations/
       iter_000_baseline/
+        config.yaml         # Config snapshot for the baseline iteration
+        result_dirs.json    # Train/eval result directory pointers
         ptools_evolved.py    # Snapshot of baseline code
       iter_001/
+        config_before.yaml  # Config before applying any proposed overrides
+        config_after.yaml   # Config after applying proposed overrides (if any)
+        result_dirs.json    # Train/eval result directory pointers
         ptools_before.py     # Code before this iteration's changes
         ptools_after.py      # Code after supervisor's changes
         reasoning.txt        # Supervisor's reasoning
@@ -211,6 +218,7 @@ Top-level fields (`SupervisorReport`):
 | `total_supervisor_cost` | float | Cumulative $ spent on supervisor LLM calls |
 | `best_code` | str | Reference to ptools_evolved.py |
 | `best_config_overrides` | list[str] | Config overrides from the best iteration |
+| `config_snapshot_path` | str or null | Relative path to the saved config snapshot |
 
 Per-iteration fields (`IterationRecord`):
 
@@ -227,6 +235,10 @@ Per-iteration fields (`IterationRecord`):
 | `reasoning` | str | Supervisor's reasoning for the change |
 | `kept` | bool | Whether this iteration's changes were kept |
 | `config_overrides` | list[str] | Dotlist config overrides proposed |
+| `train_result_dir` | str or null | Result directory for the training evaluation |
+| `eval_result_dir` | str or null | Result directory for the eval evaluation |
+| `config_before_path` | str or null | Relative path to the pre-override config snapshot |
+| `config_after_path` | str or null | Relative path to the post-override config snapshot |
 
 ## Configuration
 

@@ -3,6 +3,7 @@
 
 from abc import ABC, abstractmethod
 import json
+import os
 from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
@@ -195,6 +196,7 @@ class Evaluator(ABC):
             for row in results
         ]
         df = pd.DataFrame(csv_rows).set_index('case_name')
+        os.makedirs(csv_path.parent, exist_ok=True)
         df.to_csv(csv_path)
         print(f'saved in {csv_path}')
         return csv_path
