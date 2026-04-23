@@ -6,11 +6,12 @@ Three tiers of tools for different experiment strategies:
   High-level: parse_task, extract_answer (LLM reasoning)
 
 Experiment levels:
-  L0 paper_baseline: multi-turn text loop (GET/POST/FINISH)
-  L1 structured_tools: pydantic-ai structured tool calling
+  L0 unstructured_baseline: multi-turn text loop (GET/POST/FINISH) — paper's protocol
+  L1 react: pydantic-ai structured tool calling
   L2 pot: single-pass code generation with FHIR tools
   L3 codeact: iterative code generation with error feedback
   L4 orchestrate: auto-generated workflow composing all tiers
+  L5 orchestrate_evolve: orchestrate plus post-bind evolution of the task description
 """
 
 from secretagent.core import interface

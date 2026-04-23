@@ -5,15 +5,14 @@ cachier:
   enable_caching: false
 fhir:
   api_base: http://localhost:8080/fhir/
+  max_round: 8
 evaluate:
   result_dir: /Users/lauhityareddy/secretagent/benchmarks/medagentbench/results
-  expt_name: structured_tools
+  expt_name: unstructured_baseline
   record_details: true
 dataset:
   version: v2
 ptools:
   solve_medical_task:
-    method: simulate_pydantic
-    tools:
-    - fhir_tools.fhir_get
-    - fhir_tools.fhir_post
+    method: direct
+    fn: medagent_loop.medagent_loop

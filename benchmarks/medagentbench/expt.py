@@ -305,7 +305,7 @@ _EXTRA_ARGS = {"allow_extra_args": True, "allow_interspersed_args": False}
 def setup(dotlist: list[str], config_file: Path | None = None) -> tuple[Dataset, Any]:
     """Load config, verify FHIR server, load dataset, bind implementations."""
     if config_file is None:
-        config_file = _BENCHMARK_DIR / 'conf' / 'paper_baseline.yaml'
+        config_file = _BENCHMARK_DIR / 'conf' / 'unstructured_baseline.yaml'
     config.configure(yaml_file=config_file, dotlist=dotlist)
     config.set_root(_BENCHMARK_DIR)
 

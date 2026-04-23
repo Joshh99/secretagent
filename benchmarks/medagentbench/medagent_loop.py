@@ -81,7 +81,7 @@ def medagent_loop(instruction: str, context: str) -> list:
     fhir_base = config.get('fhir.api_base', 'http://localhost:8080/fhir/')
 
     funcs = json.loads((_TEMPLATE_DIR.parent / 'data' / 'funcs_v1.json').read_text())
-    system_prompt = _load_template('paper_baseline.txt').format(
+    system_prompt = _load_template('unstructured_baseline.txt').format(
         api_base=fhir_base, functions=json.dumps(funcs),
         context=_extract_task_context(context), question=instruction)
 

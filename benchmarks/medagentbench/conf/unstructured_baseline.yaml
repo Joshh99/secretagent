@@ -1,4 +1,4 @@
-# L0 Paper Baseline: exact replication of the MedAgentBench paper protocol.
+# L0 Unstructured Baseline: exact replication of the MedAgentBench paper protocol.
 # Multi-turn raw text loop: agent outputs GET/POST/FINISH as plain text,
 # system parses and executes, up to max_round turns. No structured tool calling.
 llm:
@@ -14,7 +14,7 @@ fhir:
 
 evaluate:
   result_dir: results
-  expt_name: paper_baseline
+  expt_name: unstructured_baseline
   record_details: true
 
 dataset:

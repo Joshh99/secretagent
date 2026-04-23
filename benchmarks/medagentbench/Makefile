@@ -6,11 +6,11 @@ docker-stop:
 
 # ── Experiments (L0–L4) ─────────────────────────────────────────────
 
-paper-baseline:
-	uv run python expt.py run --config-file conf/paper_baseline.yaml
+unstructured-baseline:
+	uv run python expt.py run --config-file conf/unstructured_baseline.yaml
 
-structured-tools:
-	uv run python expt.py run --config-file conf/structured_tools.yaml
+react:
+	uv run python expt.py run --config-file conf/react.yaml
 
 pot:
 	uv run python expt.py run --config-file conf/pot.yaml
@@ -27,10 +27,10 @@ orchestrate-evolve:
 # ── Quick tests (single case) ───────────────────────────────────────
 
 quick-test:
-	uv run python expt.py quick-test --config-file conf/paper_baseline.yaml dataset.n=1
+	uv run python expt.py quick-test --config-file conf/unstructured_baseline.yaml dataset.n=1
 
-quick-test-structured:
-	uv run python expt.py quick-test --config-file conf/structured_tools.yaml dataset.n=1
+quick-test-react:
+	uv run python expt.py quick-test --config-file conf/react.yaml dataset.n=1
 
 quick-test-pot:
 	uv run python expt.py quick-test --config-file conf/pot.yaml dataset.n=1
