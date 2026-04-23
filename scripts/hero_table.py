@@ -6,7 +6,18 @@ directory for each strategy and computes mean +/- sem for cost and
 correctness.  Prints two DataFrames: one for correctness, one for cost.
 
 Usage:
-    uv run scripts/hero_table.py
+
+    # print tables (suppress rows with fewer than 3 strategies)
+    uv run scripts/hero_table.py --min-cols 3
+
+    # scatter plot: workflow vs react correctness
+    uv run scripts/hero_table.py --format plot-correct --min-cols 3
+
+    # scatter plot: workflow vs pot correctness
+    uv run scripts/hero_table.py --format plot-correct --x pot --min-cols 3
+
+    # scatter plot: workflow vs react cost
+    uv run scripts/hero_table.py --format plot-cost --output cost_plot.png
 """
 
 import sys

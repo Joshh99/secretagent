@@ -2,10 +2,12 @@
 
 ## Experimental improvements
 
+ * musr checked in experiments are with deepseek v3, not v3.1
+ * saved configs
+   * maybe evaluate.interface should be in conf.yaml - right now it's hard to find
+   * 
  * add `result.py rename --to '%O_oss2b' results/*` - to help cleanup results
  * look at pot failures and see if there is an easy way to improve them
- * add `result.py replay --case-name NAME results/*` - like quick-test
-   but loads the config, turns up all the logging, and reruns that case.
  * look at finding ICL examples for pot, workflow, ... ?
 
 ## Tracking extensions
@@ -24,11 +26,9 @@
    - need to add filtering for iscorrect examples
  * make orchestrate a Learner
  * should check if rulearena tests drop's stuff in results_dir or not
- * should move common LLM values out of CLAUDE.me
 
 ## Core issues/bugs
 
- * output processing code is so fragile and messy, is there a way to fix that?
  * boxes should wrap text
 
 ## Caching
