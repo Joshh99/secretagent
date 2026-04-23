@@ -3,6 +3,8 @@
 ## Experimental improvements
 
  * musr checked in experiments are with deepseek v3, not v3.1
+ * some bbh issues
+   * geometric_shapes has examples in the ptool code - should it?
  * saved configs
    * maybe evaluate.interface should be in conf.yaml - right now it's hard to find
    * 
