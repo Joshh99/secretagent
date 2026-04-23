@@ -9,6 +9,12 @@ docker-stop:
 unstructured-baseline:
 	uv run python expt.py run --config-file conf/unstructured_baseline.yaml
 
+structured-baseline:
+	uv run python expt.py run --config-file conf/structured_baseline.yaml
+
+workflow:
+	uv run python expt.py run --config-file conf/workflow.yaml
+
 react:
 	uv run python expt.py run --config-file conf/react.yaml
 
