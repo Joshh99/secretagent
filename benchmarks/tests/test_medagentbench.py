@@ -7,12 +7,12 @@ pot / react); medagentbench's two unique strategies (codeact and the
 orchestrate family) keep their own names.
 
 Strategy -> config mapping:
-  test_unstructured_baseline  -> paper_baseline.yaml    (direct -> medagent_loop)
-  test_react                  -> structured_tools.yaml  (simulate_pydantic + tools)
-  test_pot                    -> pot.yaml               (program_of_thought)
-  test_codeact                -> codeact.yaml           (direct -> codeact_loop)
-  test_orchestrate            -> orchestrate.yaml       (auto-composed pipeline)
-  test_orchestrate_evolve     -> orchestrate_evolve.yaml (compose + evolve)
+  test_unstructured_baseline  -> unstructured_baseline.yaml (direct -> medagent_loop)
+  test_react                  -> react.yaml                 (simulate_pydantic + tools)
+  test_pot                    -> pot.yaml                   (program_of_thought)
+  test_codeact                -> codeact.yaml               (direct -> codeact_loop)
+  test_orchestrate            -> orchestrate.yaml           (auto-composed pipeline)
+  test_orchestrate_evolve     -> orchestrate_evolve.yaml    (compose + evolve)
 
 Prerequisites:
   - An LLM API key (ANTHROPIC_API_KEY or TOGETHER_AI_API_KEY)
@@ -122,11 +122,11 @@ class TestBasics:
     """Integration tests for the 5 base strategies, 2 examples each."""
 
     def test_unstructured_baseline(self, tmp_path):
-        df = _run_eval(tmp_path, 'paper_baseline.yaml')
+        df = _run_eval(tmp_path, 'unstructured_baseline.yaml')
         assert 'correct' in df.columns
 
     def test_react(self, tmp_path):
-        df = _run_eval(tmp_path, 'structured_tools.yaml')
+        df = _run_eval(tmp_path, 'react.yaml')
         assert 'correct' in df.columns
 
     def test_pot(self, tmp_path):

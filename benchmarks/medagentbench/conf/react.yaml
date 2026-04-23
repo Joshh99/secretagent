@@ -1,7 +1,7 @@
-# L1 Structured Tools: pydantic-ai agent with native tool calling.
-# Same FHIR tools as paper_baseline, but uses structured function calls
-# instead of raw text parsing. Tests whether native tool calling improves
-# accuracy over the paper's text-based protocol.
+# L1 React: pydantic-ai agent with native tool calling (structured tools).
+# Same FHIR tools as the unstructured_baseline, but uses structured function
+# calls instead of raw text parsing. Tests whether native tool calling
+# improves accuracy over the paper's text-based protocol.
 #
 # Note: simulate_pydantic wraps the prompt in "imagine this function was
 # implemented" framing (from simulate_pydantic.txt). The ptools docstring
@@ -19,7 +19,7 @@ fhir:
 
 evaluate:
   result_dir: results
-  expt_name: structured_tools
+  expt_name: react
   record_details: true
 
 dataset:
