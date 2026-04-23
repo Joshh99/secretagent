@@ -195,6 +195,10 @@ class IterationRecord(BaseModel):
     kept: bool = False
     code_snapshot: str = ''
     config_overrides: list[str] = []
+    train_result_dir: str | None = None
+    eval_result_dir: str | None = None
+    config_before_path: str | None = None
+    config_after_path: str | None = None
 
 
 class SupervisorReport(BaseModel):
@@ -205,6 +209,7 @@ class SupervisorReport(BaseModel):
     total_supervisor_cost: float = 0.0
     best_code: str = ''
     best_config_overrides: list[str] = []
+    config_snapshot_path: str | None = None
 
 
 def _format_failure_traces(
@@ -368,7 +373,9 @@ def _save_running_report(output_dir, iterations, best_accuracy,
         total_supervisor_cost=total_supervisor_cost,
         best_code=f'# See ptools_evolved.py ({len(best_source)} chars)',
         best_config_overrides=best_config_overrides,
+        config_snapshot_path='config.yaml',
     )
+    config.save(output_dir / 'config.yaml')
     (output_dir / 'report.json').write_text(report.model_dump_json(indent=2))
     (output_dir / 'ptools_evolved.py').write_text(best_source)
 
@@ -411,6 +418,7 @@ def improve_with_supervisor(
     if output_dir:
         output_dir.mkdir(parents=True, exist_ok=True)
         (output_dir / 'iterations').mkdir(exist_ok=True)
+        config.save(output_dir / 'config.yaml')
 
     # --- Setup evolved ptools file ---
     # Derive evolved path from the module's actual file, supporting any
@@ -528,6 +536,8 @@ def improve_with_supervisor(
             eval_accuracy=baseline_eval_acc, eval_cost=baseline_eval_cost,
             eval_failures=eval_fail, eval_timeouts=eval_to,
             code_snapshot=f'# ptools_evolved.py ({len(current_source)} chars)',
+            train_result_dir=str(result_dir),
+            eval_result_dir=str(eval_csv.parent) if baseline_eval_acc is not None else None,
         )
         iterations.append(rec0)
 
@@ -541,6 +551,11 @@ def improve_with_supervisor(
             iter_dir = output_dir / 'iterations' / 'iter_000_baseline'
             iter_dir.mkdir(exist_ok=True)
             (iter_dir / 'ptools_evolved.py').write_text(current_source)
+            config.save(iter_dir / 'config.yaml')
+            (iter_dir / 'result_dirs.json').write_text(json.dumps({
+                'train_result_dir': str(result_dir),
+                'eval_result_dir': str(eval_csv.parent) if baseline_eval_acc is not None else None,
+            }, indent=2))
 
     # --- Improvement loop ---
     no_improve_count = 0
@@ -606,6 +621,7 @@ def improve_with_supervisor(
                 (iter_dir / 'config_overrides.txt').write_text(
                     '\n'.join(cfg_overrides)
                 )
+            config.save(iter_dir / 'config_before.yaml')
 
         # 3. Check if anything changed
         if new_source.strip() == current_source.strip() and not cfg_overrides:
@@ -651,6 +667,8 @@ def improve_with_supervisor(
             if cfg_overrides:
                 print(f'[supervisor] applying config: {cfg_overrides}')
                 config.configure(dotlist=cfg_overrides)
+            if output_dir:
+                config.save(iter_dir / 'config_after.yaml')
 
         except Exception as e:
             print(f'[supervisor] reload failed: {e}')
@@ -783,6 +801,16 @@ def improve_with_supervisor(
             eval_accuracy=eval_acc, eval_cost=eval_cost_val,
             eval_failures=iter_eval_fail, eval_timeouts=iter_eval_to,
             config_overrides=cfg_overrides,
+            train_result_dir=str(new_result_dir),
+            eval_result_dir=str(eval_csv.parent) if eval_acc is not None else None,
+            config_before_path=(
+                f'iterations/iter_{i:03d}/config_before.yaml'
+                if output_dir else None
+            ),
+            config_after_path=(
+                f'iterations/iter_{i:03d}/config_after.yaml'
+                if output_dir and cfg_overrides else None
+            ),
         ))
 
         # Save outcome and running report
@@ -794,6 +822,11 @@ def improve_with_supervisor(
                 f'cost: ${profile.avg_cost:.4f} -> ${new_profile.avg_cost:.4f}\n'
                 f'best so far: {best_accuracy:.1%}\n'
             )
+            (iter_dir / 'result_dirs.json').write_text(json.dumps({
+                'train_result_dir': str(new_result_dir),
+                'eval_result_dir': str(eval_csv.parent) if eval_acc is not None else None,
+                'kept': kept,
+            }, indent=2))
             # Save running report so progress is visible if run is interrupted
             _save_running_report(output_dir, iterations, best_accuracy,
                                  best_source, best_config_overrides,
@@ -824,10 +857,12 @@ def improve_with_supervisor(
         total_supervisor_cost=total_supervisor_cost,
         best_code=f'# See ptools_evolved.py ({len(best_source)} chars)',
         best_config_overrides=best_config_overrides,
+        config_snapshot_path='config.yaml',
     )
 
     # Save report and best evolved file
     if output_dir:
+        config.save(output_dir / 'config.yaml')
         (output_dir / 'ptools_evolved.py').write_text(best_source)
         (output_dir / 'report.json').write_text(
             report.model_dump_json(indent=2)

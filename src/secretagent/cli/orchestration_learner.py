@@ -707,6 +707,24 @@ def run(
 
     # Set evaluate.result_dir so per-iteration eval results also go in the subfolder
     config.configure(evaluate=dict(result_dir=str(results_base)))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    config.save(output_dir / 'config.yaml')
+    run_metadata = {
+        'benchmark': benchmark_dir.name,
+        'benchmark_dir': str(benchmark_dir),
+        'config_file': str(cfg_path),
+        'entry_point': entry_point_name,
+        'results_base': str(results_base),
+        'resume_from': resume or None,
+        'n_train': len(train_dataset.cases),
+        'n_eval': len(eval_dataset.cases) if eval_dataset else 0,
+        'max_iterations': max_iterations,
+        'target_accuracy': target_accuracy,
+        'supervisor_model': supervisor_model,
+    }
+    (output_dir / 'run_metadata.json').write_text(
+        json.dumps(run_metadata, indent=2)
+    )
 
     # --- Print setup summary ---
     print('\n=== Orchestration Learner ===')
