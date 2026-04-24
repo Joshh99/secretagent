@@ -9,7 +9,9 @@
    * maybe evaluate.interface should be in conf.yaml - right now it's hard to find
    * 
  * add `result.py rename --to '%O_oss2b' results/*` - to help cleanup results
- * look at pot failures and see if there is an easy way to improve them
+ * look at pot failures and see if there is an easy way to improve them - 
+ * Current 2026-04-24  Several easy POT losses appear to be plumbing fixes rather than reasoning failures: eg. sandbox/code-extraction issues - eg. typing imports being blocked, fixable by replaying the cached generated code with typing allowed. Some runs can often return tuples like ("E", "04/11/1985") when the evaluator wants just (E). There are smaller similar issues from blocked json/fractions imports and no-code-block outputs. The low hanging fruits seem to be generic PoT robustness fixes: allow a few safe imports, improve code-block extraction, and normalize final answer shape. MUSR, NatPlan and Medcalc Rule failures look like strategy misses, as opposed to plumbing
+ 
  * look at finding ICL examples for pot, workflow, ... ?
 
 ## Tracking extensions
