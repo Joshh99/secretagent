@@ -29,18 +29,9 @@ if str(FINQA_DIR) not in sys.path:
 
 
 def _import_finqa():
-    """Import ptools and evaluator from benchmarks/finqa/."""
-    import importlib
-    prev_cwd = os.getcwd()
-    try:
-        os.chdir(FINQA_DIR)
-        import ptools
-        import evaluator
-        importlib.reload(ptools)
-        importlib.reload(evaluator)
-        return ptools, evaluator
-    finally:
-        os.chdir(prev_cwd)
+    """Import ptools and evaluator from benchmarks/finqa/ deterministically."""
+    from conftest import load_benchmark_modules
+    return load_benchmark_modules(FINQA_DIR, "ptools", "evaluator")
 
 
 def _run_eval(tmp_path, extra_dotlist, n=4):
