@@ -41,6 +41,7 @@ TASKS = [
     "designbench/vanilla",
     "designbench/react",
     "designbench/vue",
+    "designbench/angular",
     "finqa/finqa",
     "medagentbench/medagentbench",
     "medcalc/equation",

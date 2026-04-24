@@ -235,3 +235,4 @@ paper/
 docs/superpowers/
 benchmarks/designbench/data/
 benchmarks/designbench/results/
+benchmarks/results/designbench/*/*/artifacts/
