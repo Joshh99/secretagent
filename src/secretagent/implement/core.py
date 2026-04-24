@@ -222,7 +222,18 @@ class PromptLLMFactory(Implementation.Factory):
             raise ValueError(
                 'Exactly one of prompt_template_str or prompt_template_file must be given')
         if prompt_template_file is not None:
-            prompt_template_str = pathlib.Path(prompt_template_file).read_text()
+            # Relative paths resolve against config.get('root') when set,
+            # falling back to the current working directory. This lets a
+            # caller that has already called config.set_root() load
+            # templates without relying on cwd — the historical behavior.
+            path = pathlib.Path(prompt_template_file)
+            if not path.is_absolute() and not path.exists():
+                root = config.get('root')
+                if root is not None:
+                    root_path = pathlib.Path(root) / prompt_template_file
+                    if root_path.exists():
+                        path = root_path
+            prompt_template_str = path.read_text()
         self.template = Template(dedent(prompt_template_str))
         self.answer_pattern = answer_pattern
         self.prompt_kw = prompt_kw

@@ -77,6 +77,7 @@ def set_root(new_root):
     """
     from pathlib import Path
     new_root = Path(new_root)
+    OmegaConf.update(GLOBAL_CONFIG, 'root', str(new_root))
 
     def _resolve(cfg, prefix=''):
         for key in cfg:
