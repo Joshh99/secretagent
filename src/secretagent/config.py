@@ -9,6 +9,17 @@ import warnings
 
 GLOBAL_CONFIG: DictConfig = OmegaConf.create()
 
+def reset():
+    """Drop all accumulated configuration state.
+
+    OmegaConf.merge is additive, so calling configure() repeatedly piles
+    keys onto GLOBAL_CONFIG indefinitely. Tests and drivers that want to
+    start a fresh scope should call reset() first.
+    """
+    global GLOBAL_CONFIG
+    GLOBAL_CONFIG = OmegaConf.create()
+
+
 def configure(yaml_file=None, cfg=None, dotlist=None, **kw):
     """Merge in config from a DictConfig, YAML file path, or keyword args.
 
