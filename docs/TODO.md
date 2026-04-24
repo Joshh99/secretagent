@@ -28,6 +28,9 @@
    - It should be a Learner
    - maybe a Learner should output an implementation config? that's more general
    - need to add filtering for iscorrect examples
+ * Done 2026-04-24: make orchestrate a Learner — OrchestrationLearner in
+   learn/orchestrate_learner.py, CLI slimmed to a thin wrapper, implementation.yaml
+   emitted and consumable via `direct` + `fn: __learned__.<attr>, learner: orch_learner`
  * should check if rulearena tests drop's stuff in results_dir or not
 
 ## Core issues/bugs
