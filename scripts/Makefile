@@ -17,3 +17,8 @@ summarize-cost:
 	uv run hero_table.py --min-cols 3 --format plot-cost --x structured_baseline --output summary/correct_structured_baseline.png; open summary/correct_structured_baseline.png
 	uv run hero_table.py --min-cols 3 --format plot-cost --x unstructured_baseline --output summary/correct_unstructured_baseline.png; open summary/correct_unstructured_baseline.png
 
+check_models:
+	uv run benchmark_config.py --check llm.model
+
+count_ptools:
+	uv run benchmark_config.py --strategy react --check '*.tools' --len
