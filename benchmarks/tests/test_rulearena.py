@@ -16,7 +16,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from omegaconf import OmegaConf
 
 from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent import config
@@ -54,7 +53,7 @@ def _import_rulearena():
 
 class TestConfig:
     def setup_method(self):
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
 
     def test_conf_yaml_loads(self):
         """conf.yaml loads and has required top-level keys."""
@@ -117,7 +116,7 @@ class TestCalculators:
 
 class TestSchema:
     def setup_method(self):
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
 
     def test_case_has_required_fields(self):
         c = Case(name="test", input_args=("a",), expected_output=42)
@@ -241,7 +240,7 @@ def _run_eval(domain, extra_dotlist, n=4):
         os.chdir(RULEARENA_DIR)
         expt, pt = _import_rulearena()
         # Reset so a prior benchmark's ptools.* keys don't merge into this run.
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
         config.configure(
             yaml_file=CONF_FILE,
             dotlist=[f"dataset.domain={domain}"] + extra_dotlist,
