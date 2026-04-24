@@ -108,7 +108,7 @@ def _unstructured_dotlist(task):
     return [
         f"evaluate.expt_name=test_{task}_unstructured",
         f"ptools.{iface}.method=prompt_llm",
-        f"ptools.{iface}.prompt_template_file=prompt_templates/zeroshot.txt",
+        f"ptools.{iface}.prompt_template_file=prompt_templates/zeroshot_{task}.txt",
     ]
 
 
