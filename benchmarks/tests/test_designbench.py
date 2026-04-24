@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from omegaconf import OmegaConf
 
 from conftest import CI_TEST_MODEL, needs_api_key
 from secretagent import config
@@ -39,7 +38,7 @@ def _run_eval(tmp_path, framework: str, n: int = 1):
         ptools, expt = _import_modules()
 
         # Reset global config to avoid cross-test contamination.
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
 
         config.configure(
             yaml_file=str(CONF_FILE),
