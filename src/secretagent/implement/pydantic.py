@@ -23,13 +23,14 @@ from secretagent.llm_util import echo_boxed
 def _run_agent_hashkey(_, kwds):
     """Create a hashkey for the arguments of _run_agent.
     """
+    retries = config.get('pydantic.retries', 1)
     hashable = (
         (kwds['interface'].name,  # use the interface name
          kwds['model_name'],  # a string
          str(kwds['return_type']), # convert type to str
          kwds['prompt'], # a string
          tuple(tool.__name__ for tool in kwds['tools']),  # use function names
-         config.get('pydantic.retries', 1)))  # retries affects agent behavior
+         ) + (() if retries == 1 else (retries,)))
     # convert the tuple to a string and encode it to hash
     return hashlib.sha256(str(hashable).encode('utf-8')).hexdigest()
 
