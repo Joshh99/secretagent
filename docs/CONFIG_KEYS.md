@@ -22,6 +22,7 @@
  * `echo.code_eval_output` — print result of executing LLM-generated code
  * `echo.service` — print service information
  * `echo.call` — print function call signatures
+ * `echo.box_width` — max width for terminal debug boxes printed by `echo_boxed()`. If `0` (default) the width is auto-detected from the terminal (`shutil.get_terminal_size`, fallback 120 columns), minus the box frame. Long lines wrap; existing newlines are preserved.
  * `evaluate.expt_name` — name tag for the experiment (used in result filenames and dataframes)
  * `evaluate.result_dir` — directory to save results CSV and config YAML snapshot
  * `evaluate.record_details` — if `True`, include full rollout recordings in JSONL output (default `False`)
