@@ -1,6 +1,7 @@
 """Access an LLM model, and monitor cost, latency, etc.
 """
 
+import shutil
 import sys
 import textwrap
 import time
@@ -11,13 +12,25 @@ from secretagent.cache_util import cached
 from litellm import completion, completion_cost, token_counter
 
 def echo_boxed(text: str, tag:str = ''):
-    """Echo some text in a pretty box."""
-    lines = text.split('\n')
+    """Echo some text in a pretty box.
+
+    Long lines are wrapped to fit within `echo.box_width` (if set) or the
+    current terminal width. Existing newlines in `text` are preserved so
+    structured content (prompts, code, JSON) keeps its shape.
+    """
     box_width = config.get('echo.box_width', 0)
-    if box_width and max(len(line) for line in lines) > box_width:
-        lines = textwrap.fill(text, width=box_width).split('\n')
-    width = max(len(line) for line in lines)
-    print('┌' + tag.center(width+2, '─') + '┐')
+    if not box_width:
+        box_width = shutil.get_terminal_size(fallback=(120, 24)).columns - 4
+    lines: list[str] = []
+    for raw in text.split('\n'):
+        if not raw:
+            lines.append('')
+        elif len(raw) <= box_width:
+            lines.append(raw)
+        else:
+            lines.extend(textwrap.wrap(raw, width=box_width))
+    width = max((len(l) for l in lines), default=0)
+    print('┌' + tag.center(width + 2, '─') + '┐')
     for line in lines:
         print('│ ' + line.ljust(width) + ' │')
     print('└' + '─' * (width + 2) + '┘')
