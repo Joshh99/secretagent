@@ -10,13 +10,16 @@ Usage:
     # print tables (suppress rows with fewer than 3 strategies)
     uv run scripts/hero_table.py --min-cols 3
 
-    # scatter plot: workflow vs react correctness
+    # scatter plot: workflow (y) vs react (x) correctness
     uv run scripts/hero_table.py --format plot-correct --min-cols 3
 
-    # scatter plot: workflow vs pot correctness
+    # scatter plot: workflow (y) vs pot (x) correctness
     uv run scripts/hero_table.py --format plot-correct --x pot --min-cols 3
 
-    # scatter plot: workflow vs react cost
+    # scatter plot: react (y) vs pot (x) correctness
+    uv run scripts/hero_table.py --format plot-correct --x pot --y react --min-cols 3
+
+    # scatter plot: workflow (y) vs react (x) cost
     uv run scripts/hero_table.py --format plot-cost --output cost_plot.png
 """
 
@@ -139,7 +142,7 @@ def _parse_cell(cell: str) -> tuple[float, float] | None:
 
 
 def _plot_comparison(df: pd.DataFrame, metric: str, x_strategy: str = "react",
-                     output: str = "hero_plot.png"):
+                     y_strategy: str = "workflow", output: str = "hero_plot.png"):
     """Plot workflow vs another strategy on a given metric with error boxes."""
     import matplotlib
     matplotlib.use("Agg")
@@ -149,7 +152,7 @@ def _plot_comparison(df: pd.DataFrame, metric: str, x_strategy: str = "react",
     fig, ax = plt.subplots(figsize=(10, 7))
 
     for task in df.index:
-        wf = _parse_cell(df.loc[task, "workflow"])
+        wf = _parse_cell(df.loc[task, y_strategy])
         xs = _parse_cell(df.loc[task, x_strategy])
         if wf is None or xs is None:
             continue
@@ -172,8 +175,8 @@ def _plot_comparison(df: pd.DataFrame, metric: str, x_strategy: str = "react",
     ax.plot([lo, hi], [lo, hi], "k--", linewidth=0.8, alpha=0.5)
 
     ax.set_xlabel(f"{x_strategy} {metric}")
-    ax.set_ylabel(f"workflow {metric}")
-    ax.set_title(f"workflow vs {x_strategy} {metric}")
+    ax.set_ylabel(f"{y_strategy} {metric}")
+    ax.set_title(f"{y_strategy} vs {x_strategy} {metric}")
     ax.legend(fontsize=8, loc="best")
     fig.tight_layout()
     fig.savefig(output, dpi=150)
@@ -191,8 +194,11 @@ def main():
     parser.add_argument("--output", default="hero_plot.png",
                         help="Output PNG file path (for plot-correct)")
     parser.add_argument("--x", default="react",
-                        choices=["react", "pot", "structured_baseline", "unstructured_baseline"],
-                        help="Strategy for x-axis in plot-correct (default: react)")
+                        choices=STRATEGY_ORDER,
+                        help="Strategy for x-axis in plot modes (default: react)")
+    parser.add_argument("--y", default="workflow",
+                        choices=STRATEGY_ORDER,
+                        help="Strategy for y-axis in plot modes (default: workflow)")
     args = parser.parse_args()
 
     cost_df, correct_df = build_tables()
@@ -202,11 +208,11 @@ def main():
         correct_df = _filter_min_cols(correct_df, args.min_cols)
 
     if args.format == "plot-correct":
-        _plot_comparison(correct_df, "correctness", x_strategy=args.x, output=args.output)
+        _plot_comparison(correct_df, "correctness", x_strategy=args.x, y_strategy=args.y, output=args.output)
         return
 
     if args.format == "plot-cost":
-        _plot_comparison(cost_df, "cost", x_strategy=args.x, output=args.output)
+        _plot_comparison(cost_df, "cost", x_strategy=args.x, y_strategy=args.y, output=args.output)
         return
 
     correct_df = pd.concat([correct_df, _avg_row(correct_df, "AVERAGE")])
