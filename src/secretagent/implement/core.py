@@ -45,6 +45,21 @@ class DirectFactory(Implementation.Factory):
             if not hasattr(mod, attr):
                 raise AttributeError(
                     f'{path} does not define an attribute named {attr!r}')
+            # Bind implementations on the learned module's own Interface objects
+            # so that the learned function can call its co-module tools. Without
+            # this, workflow() would fail with NotImplementedError because the
+            # evolved module's Interface objects are distinct from the base
+            # ptools module's and have no implementations bound to them.
+            # Skip the entry point itself — re-binding it would recurse here.
+            from secretagent.core import implement_via_config
+            ptools_cfg = config.get('ptools') or {}
+            entry_name = self.bound_interface.name if self.bound_interface else None
+            sub_cfg = {
+                name: cfg for name, cfg in ptools_cfg.items()
+                if name != entry_name and hasattr(mod, name)
+            }
+            if sub_cfg:
+                implement_via_config(mod, sub_cfg)
             self.direct_fn = getattr(mod, attr)
         elif isinstance(fn, str):
             self.direct_fn = resolve_dotted(fn)

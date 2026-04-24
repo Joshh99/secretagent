@@ -305,3 +305,36 @@ def test_direct_factory_non_learned_still_works(tmp_path):
     iface = _make_interface('some_entry4')
     iface.implement_via('direct', fn='json.loads')
     assert iface('{"a": 1}') == {'a': 1}
+
+
+def test_direct_factory_learned_binds_sub_interfaces(tmp_path):
+    """When loading a learned module that has its own @interface-decorated
+    tools, those tools' implementations should be bound from the current
+    `ptools` config so the learned entry-point can call them."""
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    # The learned module exposes a `workflow` function that calls a tool
+    # Interface `helper_tool`. With sub-binding, helper_tool gets bound
+    # to a direct implementation pulled from the ptools config.
+    (tmp_path / '20260101.120000.orch_learner').mkdir()
+    (tmp_path / '20260101.120000.orch_learner' / 'ptools_evolved.py').write_text(
+        'from secretagent.core import interface\n'
+        '\n'
+        '@interface\n'
+        'def helper_tool(x: str) -> str:\n'
+        '    """Help with x."""\n'
+        '    ...\n'
+        '\n'
+        'def workflow(x: str) -> str:\n'
+        '    return "wf:" + helper_tool(x)\n'
+    )
+    # Provide a ptools config that tells the resolver how to bind helper_tool.
+    # json.dumps turns 'hello' into '"hello"' — deterministic and no LLM needed.
+    config.configure(ptools=dict(
+        helper_tool=dict(method='direct', fn='json.dumps'),
+    ))
+    iface = _make_interface('the_entry')
+    iface.implement_via(
+        'direct', fn='__learned__.workflow', learner='orch_learner',
+    )
+    # helper_tool was bound via sub-binding, so workflow('hello') returns 'wf:"hello"'.
+    assert iface('hello') == 'wf:"hello"'
