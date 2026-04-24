@@ -37,22 +37,15 @@ def _first_record(domain: str) -> dict:
 
 
 def _import_rulearena():
-    """Import expt and ptools from benchmarks/rulearena/.
+    """Import expt and ptools from benchmarks/rulearena/ deterministically.
 
-    Temporarily chdirs to RULEARENA_DIR so that relative paths in
-    @implement_via (e.g. prompt_templates/airline_cot.txt) resolve correctly.
+    Delegates to conftest.load_benchmark_modules so bare-name imports inside
+    rulearena/expt.py (which does `import ptools`) resolve to rulearena's
+    files even when another benchmark test has polluted sys.path /
+    sys.modules in the same pytest process.
     """
-    import importlib
-    prev_cwd = os.getcwd()
-    try:
-        os.chdir(RULEARENA_DIR)
-        import expt
-        import ptools
-        importlib.reload(ptools)
-        importlib.reload(expt)
-        return expt, ptools
-    finally:
-        os.chdir(prev_cwd)
+    from conftest import load_benchmark_modules
+    return load_benchmark_modules(RULEARENA_DIR, "expt", "ptools")
 
 
 # ===================================================================
