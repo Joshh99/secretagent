@@ -35,7 +35,10 @@
 
 ## Caching
 
- * Check if disabling caching from the command-line works
+ * Done 2026-04-24: checked command-line caching overrides with a one-example
+   `secretagent.cli.expt` run using Gemini and isolated temp cache dirs.
+   `cachier.enable_caching=true` wrote 1 cache file; `false` wrote 0, so
+   disabling caching from the command line works.
 
 ## Code quality/etc
 
