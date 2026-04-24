@@ -49,7 +49,19 @@
 
 ## Core issues/bugs
 
- * boxes should wrap text
+ * Done 2026-04-24: boxes should wrap text. `echo_boxed()` in
+   `src/secretagent/llm_util.py` defaulted to `echo.box_width=0` (no
+   wrap), and when wrap did kick in it called `textwrap.fill()` on the
+   whole string — which collapsed pre-existing newlines because
+   `replace_whitespace=True` is the default. Prompts, code, and JSON
+   came out as one run-on paragraph. Fixed by auto-detecting terminal
+   width via `shutil.get_terminal_size` when `echo.box_width` is
+   unset/zero, and wrapping per-line with `textwrap.wrap` while keeping
+   blank rows as-is so embedded newlines survive. Added
+   `tests/test_llm_util.py` (28 cases: frame geometry, width
+   boundaries, newline preservation, structured/unicode content,
+   terminal-width fallback) and documented `echo.box_width` in
+   `docs/CONFIG_KEYS.md`.
 
 ## Caching
 
