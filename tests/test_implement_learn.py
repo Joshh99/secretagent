@@ -6,6 +6,7 @@ from secretagent.core import interface, _FACTORIES
 from secretagent.implement.learnedcode import (
     _find_learned_path, _build_backoff_impl, LearnedCodeFactory,
 )
+from secretagent.implement.util import _find_learned_module_path
 
 
 @pytest.fixture(autouse=True)
@@ -203,3 +204,104 @@ def test_backoff_consistent_configs_ok(tmp_path):
     iface = _make_interface('my_func10')
     impl = _build_backoff_impl(iface, workdir)
     assert impl.implementing_fn is not None
+
+
+# --- __learned__.<attr> resolution in direct factory ---
+
+
+def _write_ptools_evolved(workdir, body):
+    """Write a ptools_evolved.py with a simple module-level function."""
+    workdir.mkdir(parents=True, exist_ok=True)
+    (workdir / 'ptools_evolved.py').write_text(body)
+
+
+def test_find_learned_module_path_with_interface(tmp_path):
+    """Original per-interface glob pattern still works for interface-scoped learners."""
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.my_func__ptool_editer',
+        'def my_func(x): return x\n',
+    )
+    path = _find_learned_module_path(
+        'ptool_editer', 'ptools_evolved.py', interface_name='my_func',
+    )
+    assert path.name == 'ptools_evolved.py'
+    assert 'my_func__ptool_editer' in str(path.parent.name)
+
+
+def test_find_learned_module_path_by_tag_only(tmp_path):
+    """Tag-only mode for orch_learner-style dirs (no interface prefix)."""
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.orch_learner',
+        'def calculate_medical_value(note, q): return "42"\n',
+    )
+    path = _find_learned_module_path('orch_learner', 'ptools_evolved.py')
+    assert path.name == 'ptools_evolved.py'
+    assert path.parent.name.endswith('.orch_learner')
+
+
+def test_find_learned_module_path_picks_most_recent(tmp_path):
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.orch_learner',
+        'def my_fn(): return "old"\n',
+    )
+    _write_ptools_evolved(
+        tmp_path / '20260201.120000.orch_learner',
+        'def my_fn(): return "new"\n',
+    )
+    path = _find_learned_module_path('orch_learner', 'ptools_evolved.py')
+    assert '20260201' in str(path)
+
+
+def test_find_learned_module_path_no_match(tmp_path):
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    with pytest.raises(FileNotFoundError):
+        _find_learned_module_path('nobody_here', 'ptools_evolved.py')
+
+
+def test_direct_factory_resolves_learned_attr(tmp_path):
+    """direct factory with fn='__learned__.<attr>' loads ptools_evolved.py."""
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.orch_learner',
+        'def evolved_entry(x: str) -> str:\n'
+        '    return f"evolved:{x}"\n',
+    )
+    iface = _make_interface('some_entry')
+    iface.implement_via(
+        'direct', fn='__learned__.evolved_entry', learner='orch_learner',
+    )
+    assert iface('hi') == 'evolved:hi'
+
+
+def test_direct_factory_learned_attr_requires_learner(tmp_path):
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.orch_learner',
+        'def evolved_entry(x): return x\n',
+    )
+    iface = _make_interface('some_entry2')
+    with pytest.raises(ValueError, match='learner'):
+        iface.implement_via('direct', fn='__learned__.evolved_entry')
+
+
+def test_direct_factory_learned_attr_missing(tmp_path):
+    config.configure(learn=dict(train_dir=str(tmp_path)))
+    _write_ptools_evolved(
+        tmp_path / '20260101.120000.orch_learner',
+        'def evolved_entry(x): return x\n',
+    )
+    iface = _make_interface('some_entry3')
+    with pytest.raises(AttributeError, match='does_not_exist'):
+        iface.implement_via(
+            'direct', fn='__learned__.does_not_exist', learner='orch_learner',
+        )
+
+
+def test_direct_factory_non_learned_still_works(tmp_path):
+    """Non-__learned__ fn strings resolve via resolve_dotted (backwards compatible)."""
+    iface = _make_interface('some_entry4')
+    iface.implement_via('direct', fn='json.loads')
+    assert iface('{"a": 1}') == {'a': 1}

@@ -86,15 +86,33 @@ def _load_module_from_file(filepath, module_name='learned_ptools'):
     return mod
 
 
-def _find_learned_ptools_path(interface_name, learner):
-    """Find the most recent learned_ptools.py matching the interface and learner."""
+def _find_learned_module_path(learner, filename, interface_name=None):
+    """Find the most recent learned module file matching the learner tag.
+
+    When interface_name is provided, matches directories named like
+    {TS}.{interface_name}__{learner} (e.g. rote/ptool_inducer outputs).
+    When interface_name is None, matches directories named like
+    {TS}.{learner} (e.g. orch_learner outputs, where no per-interface
+    prefix is used).
+    """
     train_dir = config.require('learn.train_dir')
-    pattern = str(Path(train_dir) / f'*{interface_name}__{learner}' / 'learned_ptools.py')
+    if interface_name is not None:
+        tag = f'{interface_name}__{learner}'
+    else:
+        tag = learner
+    pattern = str(Path(train_dir) / f'*{tag}' / filename)
     matches = sorted(glob(pattern))
     if not matches:
         raise FileNotFoundError(
-            f'no learned ptools found matching {pattern}')
+            f'no learned file found matching {pattern}')
     return Path(matches[-1])
+
+
+def _find_learned_ptools_path(interface_name, learner):
+    """Find the most recent learned_ptools.py matching the interface and learner."""
+    return _find_learned_module_path(
+        learner, 'learned_ptools.py', interface_name=interface_name,
+    )
 
 
 def load_tool_module(tool_module_spec, interface_name=None, learner=None):

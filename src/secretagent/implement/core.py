@@ -20,6 +20,7 @@ from secretagent.core import Interface, Implementation, register_factory, all_in
 from secretagent.implement.util import (
     resolve_dotted, resolve_tools, load_tool_module,
     load_template, format_examples_as_doctests,
+    _find_learned_module_path, _load_module_from_file,
 )
 
 
@@ -33,7 +34,19 @@ class DirectFactory(Implementation.Factory):
     direct_fn: Any = None
 
     def setup(self, fn: Callable | str | None = None, **_kw):
-        if isinstance(fn, str):
+        if isinstance(fn, str) and fn.startswith('__learned__.'):
+            attr = fn[len('__learned__.'):]
+            learner = _kw.get('learner')
+            if learner is None:
+                raise ValueError(
+                    "fn='__learned__.<attr>' requires a 'learner' argument")
+            path = _find_learned_module_path(learner, 'ptools_evolved.py')
+            mod = _load_module_from_file(path, module_name=f'learned_{learner}')
+            if not hasattr(mod, attr):
+                raise AttributeError(
+                    f'{path} does not define an attribute named {attr!r}')
+            self.direct_fn = getattr(mod, attr)
+        elif isinstance(fn, str):
             self.direct_fn = resolve_dotted(fn)
         elif fn is not None:
             self.direct_fn = fn
