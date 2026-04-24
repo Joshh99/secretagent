@@ -101,7 +101,7 @@ test:
 	cd ../tests && uv run python -m pytest test_finqa.py -v
 
 export:
-	uv run python -m secretagent.cli.results export --as finqa results/*
+	uv run python -m secretagent.cli.results export --as finqa/finqa results/*
 
 plot:
 	uv run python -m secretagent.cli.results plot --latest 1 --metric cost- --metric correct --output results_plot.png results/*/
