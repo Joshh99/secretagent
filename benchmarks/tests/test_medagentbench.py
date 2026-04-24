@@ -46,10 +46,8 @@ FHIR_BASE = os.environ.get('FHIR_BASE', 'http://localhost:8080/fhir/')
 
 def _fhir_reachable() -> bool:
     """Cheap reachability probe — same method the benchmark uses."""
-    if str(MAB_DIR) not in sys.path:
-        sys.path.insert(0, str(MAB_DIR))
-    import fhir_tools
-    importlib.reload(fhir_tools)
+    from conftest import load_benchmark_modules
+    (fhir_tools,) = load_benchmark_modules(MAB_DIR, "fhir_tools")
     fhir_tools.set_api_base(FHIR_BASE)
     try:
         return fhir_tools.verify_fhir_server()
@@ -67,15 +65,15 @@ needs_fhir = pytest.mark.skipif(
 
 
 def _fresh_expt():
-    """Reload the medagentbench expt module so each test gets fresh bindings.
+    """Reload medagentbench expt + ptools so each test gets fresh bindings.
 
     Without this, Interface registrations from a previous test leak into the
     next, and implement_via_config hits a pre-bound interface with stale state.
+    Returns (expt, ptools) — caller should not `import ptools` separately,
+    since calling load_benchmark_modules again would purge the first reference.
     """
-    for name in ('ptools', 'ptool_impls', 'fhir_tools', 'expt'):
-        sys.modules.pop(name, None)
-    import expt as mab_expt  # noqa: F401  (re-imported for side effects)
-    return importlib.import_module('expt')
+    from conftest import load_benchmark_modules
+    return load_benchmark_modules(MAB_DIR, "expt", "ptools")
 
 
 def _run_eval(tmp_path, config_file, extra_dotlist=None, n=2):
@@ -83,8 +81,7 @@ def _run_eval(tmp_path, config_file, extra_dotlist=None, n=2):
     prev_cwd = os.getcwd()
     try:
         os.chdir(MAB_DIR)
-        mab_expt = _fresh_expt()
-        import ptools  # refreshed by _fresh_expt
+        mab_expt, ptools = _fresh_expt()
 
         config.configure(
             yaml_file=MAB_DIR / 'conf' / config_file,
@@ -159,8 +156,7 @@ class TestOrchestrateEvolve:
         prev_cwd = os.getcwd()
         try:
             os.chdir(MAB_DIR)
-            mab_expt = _fresh_expt()
-            import ptools
+            mab_expt, ptools = _fresh_expt()
 
             config.configure(
                 yaml_file=MAB_DIR / 'conf' / 'orchestrate_evolve.yaml',
