@@ -20,9 +20,23 @@
 
 ## Cleanups
 
- * fix ptools.py loading dependencies in benchmarks/tests
-   * tests run independently but running all together in one pytest
-	 call causes problems.
+ * Done 2026-04-24: fix ptools.py loading dependencies in benchmarks/tests.
+   Root cause was two independent forms of cross-test contamination —
+   (a) `sys.path` / `sys.modules` collisions between benchmark dirs that
+   share top-level module names (ptools, expt, evaluator, ...), so bare
+   `import ptools` inside `_import_*()` helpers could resolve to the
+   wrong benchmark's file; and (b) `config.GLOBAL_CONFIG` leakage across
+   `_run_eval` calls, which `OmegaConf.merge` kept accumulating. Fixed
+   by adding a `load_benchmark_modules()` helper in
+   `benchmarks/tests/conftest.py` that re-pins `sys.path[0]`, purges
+   colliding `sys.modules` entries, and chdirs for import-time template
+   reads; plus `GLOBAL_CONFIG = OmegaConf.create()` resets in
+   rulearena/tabmwp/sports_understanding `_run_eval` (matching the
+   pattern already in designbench/natural_plan). Also fixed a stale
+   `zeroshot.txt` path in natural_plan's unstructured dotlist and made
+   designbench smoke tests skip when the dataset is unbuilt.
+   Full `benchmarks/tests` suite now runs 75 passed / 10 skipped / 0
+   failed in one pytest process; previously ~17 failed when mixed.
  * move subprocess out of optimizer and use expt
  * cleanup learn/examples.py, and traces.py
    - It should be a Learner
