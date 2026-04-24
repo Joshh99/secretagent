@@ -5,7 +5,6 @@ that results are written successfully. Mirrors the integration style used
 by other benchmark test modules.
 """
 
-import importlib
 import os
 import sys
 from pathlib import Path
@@ -23,17 +22,9 @@ CONF_FILE = DESIGNBENCH_DIR / "conf" / "conf.yaml"
 
 
 def _import_modules():
-    """Import benchmark-local modules with a clean module state."""
-    if str(DESIGNBENCH_DIR) not in sys.path:
-        sys.path.insert(0, str(DESIGNBENCH_DIR))
-    for module_name in ["ptools", "expt"]:
-        if module_name in sys.modules:
-            del sys.modules[module_name]
-    ptools = importlib.import_module("ptools")
-    expt = importlib.import_module("expt")
-    importlib.reload(ptools)
-    importlib.reload(expt)
-    return ptools, expt
+    """Import ptools and expt from benchmarks/designbench/ deterministically."""
+    from conftest import load_benchmark_modules
+    return load_benchmark_modules(DESIGNBENCH_DIR, "ptools", "expt")
 
 
 def _run_eval(tmp_path, framework: str, n: int = 1):
