@@ -35,7 +35,7 @@ AIRLINE_METHODS = {
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow",
     ],
-    "structured_baseline": [
+    "workflow": [
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow",
     ],
@@ -57,7 +57,7 @@ NBA_METHODS = {
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow",
     ],
-    "structured_baseline": [
+    "workflow": [
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow",
     ],
@@ -79,7 +79,7 @@ TAX_METHODS = {
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l0f_cot_workflow",
     ],
-    "structured_baseline": [
+    "workflow": [
         "ptools.compute_rulearena_answer.method=direct",
         "ptools.compute_rulearena_answer.fn=ptools.l1_extract_workflow",
     ],

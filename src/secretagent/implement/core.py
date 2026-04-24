@@ -297,7 +297,7 @@ class PoTFactory(Implementation.Factory):
                 generated_code = _extract_answer(
                     str,
                     llm_output,
-                    answer_pattern='```python\n([^`]*)\n```')
+                    answer_pattern='```python\n(.*?)\n```')
                 if config.get('echo.code_eval_input'):
                     llm_util.echo_boxed(generated_code, 'code_eval_input')
                 code_output = self.python_executor(generated_code)
