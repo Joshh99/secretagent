@@ -23,12 +23,9 @@ CONF_FILE = SPORTS_DIR / "conf" / "conf.yaml"
 
 
 def _import_ptools():
-    """Import ptools from the sports_understanding benchmark directory."""
-    import importlib
-    if str(SPORTS_DIR) not in sys.path:
-        sys.path.insert(0, str(SPORTS_DIR))
-    import ptools
-    importlib.reload(ptools)
+    """Import ptools from benchmarks/bbh/sports_understanding/ deterministically."""
+    from conftest import load_benchmark_modules
+    (ptools,) = load_benchmark_modules(SPORTS_DIR, "ptools")
     return ptools
 
 
