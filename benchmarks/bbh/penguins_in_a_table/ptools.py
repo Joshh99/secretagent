@@ -84,6 +84,15 @@ def answer_penguin_question_orchestrated(input_str: str) -> str:
     """
     ...
 
+@interface
+def react_answer_penguin_question(question: str) -> str:
+    """Given a penguins-in-a-table multiple-choice question, return a freeform
+    answer string. Intended to be bound via simulate_pydantic with the sub-tools
+    as the tool list (ReAct); its output is post-processed by
+    extract_option_letter in penguins_react_workflow.
+    """
+    ...
+
 
 # ── hand-coded workflow ───────────────────────────────────────────────────────
 
@@ -123,3 +132,17 @@ def zeroshot_unstructured_workflow(input_str: str) -> str:
     """
     llm_output = zeroshot_answer_penguin_question(input_str)
     return extract_option_letter(llm_output)
+
+
+def penguins_react_workflow(input_str: str) -> str:
+    """Workflow that runs ReAct over the sub-tools and extracts the option
+    letter from its freeform final answer.
+
+    To use:
+        ptools.answer_penguin_question.method=direct
+        ptools.answer_penguin_question.fn=ptools.penguins_react_workflow
+        ptools.react_answer_penguin_question.method=simulate_pydantic
+        ptools.react_answer_penguin_question.tools=[...]
+    """
+    react_answer = react_answer_penguin_question(input_str)
+    return extract_option_letter(react_answer)

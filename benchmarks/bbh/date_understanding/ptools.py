@@ -119,6 +119,15 @@ def answer_date_question_orchestrated(question: str) -> str:
     """
     ...
 
+@interface
+def react_answer_date_question(question: str) -> str:
+    """Given a date understanding multiple-choice question, return a freeform
+    answer string. Intended to be bound via simulate_pydantic with the sub-tools
+    as the tool list (ReAct); its output is post-processed by
+    extract_option_letter in date_understanding_react_workflow.
+    """
+    ...
+
 
 # ── hand-coded workflow ───────────────────────────────────────────────────────
 
@@ -159,6 +168,20 @@ def extract_option_letter(llm_output: str) -> str:
     in parentheses, e.g. '(A)'.
     """
     ...
+
+def date_understanding_react_workflow(input_str: str) -> str:
+    """Workflow that runs ReAct over the sub-tools and extracts the option
+    letter from its freeform final answer.
+
+    To use:
+        ptools.answer_date_question.method=direct
+        ptools.answer_date_question.fn=ptools.date_understanding_react_workflow
+        ptools.react_answer_date_question.method=simulate_pydantic
+        ptools.react_answer_date_question.tools=[...]
+    """
+    react_answer = react_answer_date_question(input_str)
+    return extract_option_letter(react_answer)
+
 
 def zeroshot_unstructured_workflow(question: str) -> str:
     """Workflow for using a zero-shot prompt and coercing the answer to a letter.

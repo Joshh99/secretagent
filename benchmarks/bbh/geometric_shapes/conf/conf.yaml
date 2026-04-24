@@ -1,5 +1,5 @@
 llm:
-  # model: together_ai/deepseek-ai/DeepSeek-V3.1
+  model: together_ai/deepseek-ai/DeepSeek-V3.1
   # model: together_ai/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
   # model: together_ai/meta-llama/Llama-4-Scout-17B-16E-Instruct
   # model: together_ai/Qwen/Qwen3-235B-A22B-fp8
@@ -9,7 +9,7 @@ llm:
   # model: gemini/gemini-2.5-flash
   # model: gemini/gemini-2.5-pro
   # model: gemini/gemini-2.0-flash
-  model: claude-haiku-4-5-20251001
+  # model: claude-haiku-4-5-20251001
 
 cachier:
   cache_dir: llm_cache
