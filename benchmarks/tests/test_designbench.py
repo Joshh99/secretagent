@@ -29,6 +29,10 @@ def _import_modules():
 
 def _run_eval(tmp_path, framework: str, n: int = 1):
     """Configure and run a tiny DesignBench evaluation."""
+    data_root = DESIGNBENCH_DIR / "data" / "generation" / framework
+    if not data_root.exists():
+        pytest.skip(f"DesignBench dataset not built for framework={framework}; "
+                    "run make build inside benchmarks/designbench/")
     prev_cwd = os.getcwd()
     try:
         os.chdir(DESIGNBENCH_DIR)
