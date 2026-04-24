@@ -14,7 +14,6 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from omegaconf import OmegaConf
 
 from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent import config
@@ -49,7 +48,7 @@ def _run_eval(tmp_path, conf_file, extra_dotlist=None, n=4):
         TabMWPEvaluator = expt_mod.TabMWPEvaluator
 
         # Reset so a prior benchmark's ptools.* keys don't merge into this run.
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
         config.configure(
             yaml_file=TABMWP_DIR / "conf" / conf_file,
             dotlist=[
