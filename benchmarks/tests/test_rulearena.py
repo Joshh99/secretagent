@@ -240,6 +240,8 @@ def _run_eval(domain, extra_dotlist, n=4):
     try:
         os.chdir(RULEARENA_DIR)
         expt, pt = _import_rulearena()
+        # Reset so a prior benchmark's ptools.* keys don't merge into this run.
+        config.GLOBAL_CONFIG = OmegaConf.create()
         config.configure(
             yaml_file=CONF_FILE,
             dotlist=[f"dataset.domain={domain}"] + extra_dotlist,
