@@ -26,13 +26,8 @@ class Pipeline:
         self._fn = self._compile(code, entry_signature, namespace)
 
     @staticmethod
-    def _compile(code: str, entry_signature: str,
-                 namespace: dict[str, Any]) -> Callable:
-        """Compile generated code into a callable function.
-
-        Wraps the code body in the entry_signature to create a proper
-        function, then exec's it in a namespace containing the ptools.
-        """
+    def _normalized_body(code: str) -> str:
+        """Return generated code as a valid indented function body."""
         # Normalize indentation: LLMs sometimes return code where the
         # first line has no indent but subsequent lines do.  dedent only
         # strips *common* whitespace, so it won't help in that case.
@@ -51,7 +46,17 @@ class Pipeline:
             if second_indent > first_indent:
                 lines[0] = ' ' * second_indent + lines[0].lstrip()
                 code = '\n'.join(lines)
-        indented_body = textwrap.indent(textwrap.dedent(code), '    ')
+        return textwrap.indent(textwrap.dedent(code), '    ')
+
+    @staticmethod
+    def _compile(code: str, entry_signature: str,
+                 namespace: dict[str, Any]) -> Callable:
+        """Compile generated code into a callable function.
+
+        Wraps the code body in the entry_signature to create a proper
+        function, then exec's it in a namespace containing the ptools.
+        """
+        indented_body = Pipeline._normalized_body(code)
         func_src = f'{entry_signature}\n{indented_body}'
 
         func_name = entry_signature.split('(')[0].replace('def ', '').strip()
@@ -67,7 +72,7 @@ class Pipeline:
     @property
     def source(self) -> str:
         """Full source code of the generated function."""
-        indented_body = textwrap.indent(textwrap.dedent(self.code), '    ')
+        indented_body = self._normalized_body(self.code)
         return f'{self.entry_signature}\n{indented_body}'
 
 

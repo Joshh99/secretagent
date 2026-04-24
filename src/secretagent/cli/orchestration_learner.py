@@ -25,6 +25,9 @@ Usage (from benchmark directory, e.g. benchmarks/medcalc/):
 import json
 import os
 import sys
+import inspect
+import random
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -65,6 +68,293 @@ def _load_model_choices(path_str: str) -> str:
         cout = m.get('output_cost', m.get('cost_out', '?'))
         lines.append(f'| {name} | ${cin} | ${cout} |')
     return '\n'.join(lines)
+
+
+def _infer_ptools_module_name(
+    benchmark_dir: Path,
+    split: str,
+    requested: str = '',
+) -> str:
+    """Infer the ptools module for benchmarks with per-task modules."""
+    if requested:
+        return requested
+    if (benchmark_dir / 'ptools.py').exists():
+        return 'ptools'
+    if benchmark_dir.name == 'musr':
+        if split.startswith('murder_mysteries'):
+            return 'ptools_murder'
+        if split.startswith('object_placements'):
+            return 'ptools_object'
+        if split.startswith('team_allocation'):
+            return 'ptools_team'
+    if benchmark_dir.name == 'natural_plan':
+        for task in ('calendar', 'meeting', 'trip'):
+            if split == task or split.startswith(f'{task}_'):
+                return f'ptools_{task}'
+    raise FileNotFoundError(
+        f'Could not infer ptools module in {benchmark_dir}. '
+        'Pass --ptools-module explicitly.'
+    )
+
+
+def _canonical_task_name(benchmark_dir: Path, split: str) -> str:
+    """Map split aliases like meeting_train to evaluator task names."""
+    if benchmark_dir.name == 'natural_plan':
+        for task in ('calendar', 'meeting', 'trip'):
+            if split == task or split.startswith(f'{task}_'):
+                return task
+    return split
+
+
+def _copy_seed_resources(benchmark_dir: Path, scratch_dir: Path) -> None:
+    """Copy small module-local resources needed by scratch ptools modules."""
+    for dirname in ('prompt_templates',):
+        src = benchmark_dir / dirname
+        dst = scratch_dir / dirname
+        if src.exists() and not dst.exists():
+            shutil.copytree(src, dst)
+
+
+def _module_interfaces(module):
+    """Return Interface objects exposed by a module, avoiding global registry drift."""
+    from secretagent.core import Interface
+
+    interfaces = []
+    seen = set()
+    for name in dir(module):
+        obj = getattr(module, name)
+        if isinstance(obj, Interface) and id(obj) not in seen:
+            interfaces.append(obj)
+            seen.add(id(obj))
+    return interfaces
+
+
+def _dataset_from_cases(dataset, cases: list, suffix: str):
+    """Return a dataset copy with a replacement case list."""
+    return dataset.model_copy(update={
+        'name': f'{dataset.name}{suffix}',
+        'cases': list(cases),
+    })
+
+
+def _load_dataset_for_split(load_dataset, split: str):
+    """Call benchmark load_dataset with supported dataset.* config keys."""
+    from secretagent import config
+
+    sig = inspect.signature(load_dataset)
+    kwargs = {}
+    actual_split = split
+    cfg_map = {
+        'prompt_mode': 'dataset.prompt_mode',
+        'stratified': 'dataset.stratified',
+        'sample_n': 'dataset.sample_n',
+        'sample_seed': 'dataset.sample_seed',
+        'partition': 'dataset.partition',
+    }
+    for param, cfg_key in cfg_map.items():
+        if param in sig.parameters:
+            value = config.get(cfg_key)
+            if value is not None:
+                kwargs[param] = value
+
+    # NaturalPlan load_dataset(task, partition=...) uses task names
+    # (meeting/trip/calendar) rather than split filenames. Accept convenient
+    # split aliases like meeting_train and trip_valid in the generic CLI.
+    if 'partition' in sig.parameters:
+        for task in ('calendar', 'meeting', 'trip'):
+            prefix = f'{task}_'
+            if split.startswith(prefix):
+                actual_split = task
+                kwargs['partition'] = split[len(prefix):]
+                break
+
+    return load_dataset(actual_split, **kwargs)
+
+
+def _plain_sample(cases: list, n: int, seed: int | None) -> list:
+    """Deterministically sample cases without replacement."""
+    sampled = list(cases)
+    if seed is not None:
+        random.Random(seed).shuffle(sampled)
+    return sampled[:min(n, len(sampled))]
+
+
+def _case_stratified_sample_fn(evaluator_module):
+    """Return stratified_sample if it accepts (cases, n, seed)."""
+    sampler = getattr(evaluator_module, 'stratified_sample', None)
+    if sampler is None:
+        return None
+    params = list(inspect.signature(sampler).parameters)
+    if len(params) >= 2 and params[1] == 'n':
+        return sampler
+    return None
+
+
+def _resolve_train_eval_datasets(
+    evaluator_module,
+    load_dataset,
+    train_split: str,
+    eval_split: str,
+    n_train: int,
+    n_eval: int,
+    seed: int | None,
+):
+    """Load train/eval datasets, keeping same-split samples disjoint."""
+    full_dataset = _load_dataset_for_split(load_dataset, train_split)
+    case_stratified_sample = _case_stratified_sample_fn(evaluator_module)
+
+    if n_eval > 0 and hasattr(evaluator_module, 'stratified_split'):
+        from expt import stratified_split
+        train_cases, eval_cases = stratified_split(
+            full_dataset.cases, n_train, n_eval, seed=seed or 42)
+        train_dataset = _dataset_from_cases(full_dataset, train_cases, '_train')
+        eval_dataset = _dataset_from_cases(full_dataset, eval_cases, '_eval')
+        return train_dataset, eval_dataset, f'disjoint stratified split from {train_split}'
+
+    if n_eval > 0 and train_split == eval_split:
+        cases = list(full_dataset.cases)
+        if seed is not None:
+            random.Random(seed).shuffle(cases)
+        train_cases = cases[:min(n_train, len(cases))]
+        eval_cases = cases[len(train_cases):len(train_cases) + n_eval]
+        train_dataset = _dataset_from_cases(full_dataset, train_cases, '_train')
+        eval_dataset = _dataset_from_cases(full_dataset, eval_cases, '_eval')
+        return train_dataset, eval_dataset, f'disjoint plain split from {train_split}'
+
+    if case_stratified_sample is not None:
+        train_cases = case_stratified_sample(
+            full_dataset.cases, n_train, seed=seed or 42)
+        train_dataset = _dataset_from_cases(full_dataset, train_cases, '_train')
+    else:
+        train_dataset = _dataset_from_cases(
+            full_dataset, _plain_sample(full_dataset.cases, n_train, seed), '_train')
+
+    eval_dataset = None
+    if n_eval > 0:
+        eval_full = _load_dataset_for_split(load_dataset, eval_split)
+        if case_stratified_sample is not None:
+            eval_cases = case_stratified_sample(
+                eval_full.cases, n_eval, seed=seed or 42)
+        else:
+            eval_cases = _plain_sample(eval_full.cases, n_eval, seed)
+        eval_dataset = _dataset_from_cases(eval_full, eval_cases, '_eval')
+
+    return train_dataset, eval_dataset, 'separate splits'
+
+
+def _seed_task_description(tools_cfg, entry_point_name: str,
+                           override: str, entry_interface) -> str:
+    """Choose task description for first workflow generation."""
+    if override:
+        return _load_custom_instructions(override)
+    entry_cfg = tools_cfg.get(entry_point_name) if hasattr(tools_cfg, 'get') else None
+    if entry_cfg and entry_cfg.get('task_description'):
+        return str(entry_cfg.get('task_description'))
+    return (entry_interface.doc or '').strip()
+
+
+def _rename_def_signature(signature: str, new_name: str) -> str:
+    """Rename a one-line Python def signature."""
+    return 'def ' + new_name + '(' + signature.split('(', 1)[1]
+
+
+def _seed_orchestrated_workflow(
+    *,
+    evolved_path: Path,
+    ptools_module,
+    ptools_module_name: str,
+    tools_cfg,
+    entry_point_name: str,
+    task_description_override: str,
+    model: str,
+) -> str:
+    """Generate an initial workflow from ptools and append it to the module."""
+    from secretagent import config
+    from secretagent.core import implement_via_config
+    from secretagent.orchestrate.catalog import PtoolCatalog
+    from secretagent.orchestrate.composer import compose
+    from secretagent.orchestrate.pipeline import (
+        Pipeline, _entry_signature_from_interface,
+    )
+
+    entry_interface = getattr(ptools_module, entry_point_name)
+    tools_only_cfg = {
+        name: cfg for name, cfg in tools_cfg.items()
+        if name != entry_point_name
+    }
+    allowed_tool_names = set(tools_only_cfg)
+    implement_via_config(ptools_module, tools_only_cfg)
+
+    tool_interfaces = [
+        iface for iface in _module_interfaces(ptools_module)
+        if iface.name in allowed_tool_names and iface.implementation is not None
+    ]
+    catalog = PtoolCatalog.from_interfaces(tool_interfaces)
+    if not catalog.ptools:
+        raise ValueError(
+            f'No implemented tools available to seed {entry_point_name}. '
+            'Check the ptools config or pass a config with non-entry tools.'
+        )
+
+    entry_signature = _entry_signature_from_interface(entry_interface)
+    task_description = _seed_task_description(
+        tools_cfg, entry_point_name, task_description_override, entry_interface)
+
+    print(f'[seed] composing initial workflow for {entry_point_name} '
+          f'from {len(catalog)} tools with {model}')
+    code = compose(task_description, catalog, entry_signature, model=model)
+
+    # Compile-check before writing it into the ptools file.
+    namespace = {iface.name: iface for iface in tool_interfaces}
+    Pipeline(code, entry_signature, namespace)
+
+    seed_fn_name = f'{entry_point_name}_orchestrated_seed'
+    seed_signature = _rename_def_signature(entry_signature, seed_fn_name)
+    seed_pipeline = Pipeline(code, seed_signature, namespace)
+    seed_source = (
+        '\n\n# --- Auto-generated by orchestration_learner --seed-orchestrate ---\n'
+        f'{seed_pipeline.source}\n'
+    )
+    evolved_path.write_text(evolved_path.read_text().rstrip() + seed_source)
+    config.configure(dotlist=[
+        f'ptools.{entry_point_name}.method=direct',
+        f'ptools.{entry_point_name}.fn={ptools_module_name}.{seed_fn_name}',
+    ])
+    print(f'[seed] wrote {seed_fn_name} to {evolved_path}')
+    return seed_fn_name
+
+
+def _load_local_json_dataset(benchmark_dir: Path, split: str):
+    """Fallback loader for benchmarks storing Dataset JSON in data/{split}.json."""
+    from secretagent.dataset import Dataset
+
+    dataset_path = benchmark_dir / 'data' / f'{split}.json'
+    if not dataset_path.exists():
+        raise FileNotFoundError(
+            f'No load_dataset() in expt.py and no local dataset at {dataset_path}'
+        )
+    return Dataset.model_validate_json(dataset_path.read_text())
+
+
+def _find_evaluator_cls(evaluator_module, benchmark_dir: Path):
+    """Find a benchmark-specific Evaluator class from expt.py or evaluator.py."""
+    from secretagent.evaluate import Evaluator
+
+    modules = [evaluator_module]
+    try:
+        import importlib
+        modules.append(importlib.import_module('evaluator'))
+    except ImportError:
+        pass
+
+    for module in modules:
+        for name in dir(module):
+            obj = getattr(module, name)
+            if isinstance(obj, type) and issubclass(obj, Evaluator) and obj is not Evaluator:
+                return obj
+
+    from secretagent.evaluate import ExactMatchEvaluator
+    return ExactMatchEvaluator
 
 
 def _generate_html_report(report, output_dir: Path):
@@ -504,7 +794,10 @@ def _on_iteration(output_dir: Path):
 @app.command('run', context_settings=_EXTRA_ARGS)
 def run(
     ctx: typer.Context,
-    config_file: str = typer.Option(..., help='Starting config YAML'),
+    config_file: str = typer.Option('', help='Starting config YAML'),
+    benchmark: str = typer.Option(
+        '', help='Benchmark name from orchestrate/benchmarks.yaml',
+    ),
     n_train: int = typer.Option(110, help='Training set size'),
     n_eval: int = typer.Option(110, help='Eval set size'),
     max_iterations: int = typer.Option(10, help='Max improvement iterations'),
@@ -518,8 +811,19 @@ def run(
     model_change: str = typer.Option(
         '', help='JSON file with model choices for supervisor',
     ),
-    train_split: str = typer.Option('train', help='HF split for training'),
-    eval_split: str = typer.Option('test', help='HF split for evaluation'),
+    train_split: str = typer.Option('', help='Dataset split for training'),
+    eval_split: str = typer.Option('', help='Dataset split for evaluation'),
+    ptools_module: str = typer.Option(
+        '', help='Ptools module name, e.g. ptools_murder or ptools_meeting',
+    ),
+    seed_orchestrate: bool = typer.Option(
+        False,
+        help='Generate an initial workflow from ptools before supervisor iteration',
+    ),
+    orchestrate_task_description: str = typer.Option(
+        '',
+        help='Task description text, or @file, for --seed-orchestrate',
+    ),
     debug: bool = typer.Option(False, help='Full transparency: echo supervisor I/O'),
     resume: str = typer.Option('', help='Resume from a previous .orch_learner run directory'),
 ):
@@ -534,7 +838,7 @@ def run(
     """
     benchmark_dir = Path.cwd()
 
-    # Add benchmark dir to path so we can import ptools, expt, etc.
+    # Add cwd and project src/ to path so we can import secretagent first.
     sys.path.insert(0, str(benchmark_dir))
     project_root = benchmark_dir
     while project_root != project_root.parent:
@@ -544,9 +848,33 @@ def run(
         project_root = project_root.parent
 
     from secretagent import config
-    from secretagent.core import all_interfaces, implement_via_config
+    from secretagent.core import implement_via_config
     from secretagent.orchestrate.catalog import PtoolCatalog
     from secretagent.orchestrate.improve import improve_with_supervisor
+
+    adapter = None
+    adapter_train_split = None
+    adapter_eval_split = None
+    if benchmark:
+        from secretagent.orchestrate.benchmark_adapter import BenchmarkAdapter
+        adapter = BenchmarkAdapter(benchmark)
+        adapter.setup_sys_path()
+        benchmark_dir = adapter.benchmark_dir
+        if str(benchmark_dir) not in sys.path:
+            sys.path.insert(0, str(benchmark_dir))
+        os.chdir(benchmark_dir)
+        if not config_file:
+            config_file = str(adapter.config_file)
+        if not ptools_module:
+            ptools_module = adapter.spec['ptools_module']
+        adapter_train_split = adapter.spec.get('train', {}).get('split')
+        adapter_eval_split = adapter.spec.get('eval', {}).get('split')
+
+    if not config_file:
+        print('Error: --config-file is required unless --benchmark is provided')
+        raise typer.Exit(1)
+
+    timestamp = datetime.now().strftime('%Y%m%d.%H%M%S')
 
     # --- Load config ---
     cfg_path = Path(config_file)
@@ -554,6 +882,21 @@ def run(
         cfg_path = benchmark_dir / cfg_path
     config.configure(yaml_file=str(cfg_path), dotlist=ctx.args)
     config.set_root(benchmark_dir)
+
+    if adapter is not None:
+        adapter_overrides = []
+        extra_keys = [arg.split('=', 1)[0] for arg in ctx.args if '=' in arg]
+        if 'evaluate.entry_point' not in extra_keys:
+            adapter_overrides.append(
+                f'evaluate.entry_point={adapter.entry_point_name}')
+        if 'dataset.shuffle_seed' not in extra_keys:
+            adapter_overrides.append(
+                f'dataset.shuffle_seed={adapter.shuffle_seed}')
+        agent_model = adapter.spec.get('agent_model')
+        if agent_model and 'llm.model' not in extra_keys:
+            adapter_overrides.append(f'llm.model={agent_model}')
+        if adapter_overrides:
+            config.configure(dotlist=adapter_overrides)
 
     # Enable caching by default
     if config.get('cachier.enable_caching') is None:
@@ -563,95 +906,120 @@ def run(
     if debug:
         config.configure(echo=dict(orchestrate_llm=True))
 
-    # --- Create/load ptools_evolved.py ---
-    evolved_path = benchmark_dir / 'ptools_evolved.py'
-    if not evolved_path.exists():
-        import shutil
-        base_path = benchmark_dir / 'ptools.py'
-        shutil.copy2(base_path, evolved_path)
-        print('Created ptools_evolved.py from ptools.py')
-    else:
-        print('Using existing ptools_evolved.py')
+    configured_split = config.get('dataset.split')
+    train_split = train_split or adapter_train_split or configured_split or 'train'
+    eval_split = eval_split or adapter_eval_split or (
+        'test' if train_split == 'train' else train_split)
 
-    # Import ptools_evolved as the ptools module
-    import importlib.util
-    spec = importlib.util.spec_from_file_location('ptools', str(evolved_path))
-    ptools_module = importlib.util.module_from_spec(spec)
-    sys.modules['ptools'] = ptools_module
-    spec.loader.exec_module(ptools_module)
+    ptools_module_name = _infer_ptools_module_name(
+        benchmark_dir, train_split, ptools_module)
 
-    # Try to import benchmark-specific evaluator and dataset loader
-    try:
-        from expt import load_dataset, stratified_sample
-        evaluator_module = __import__('expt')
-    except ImportError as e:
-        print(f'Error: could not import expt module from {benchmark_dir}: {e}')
+    # --- Create/load evolved ptools module ---
+    base_path = benchmark_dir / f'{ptools_module_name}.py'
+    if not base_path.exists():
+        print(f'Error: base ptools module not found: {base_path}')
         raise typer.Exit(1)
 
-    # Get evaluator class
-    evaluator_cls = None
-    for name in dir(evaluator_module):
-        obj = getattr(evaluator_module, name)
-        if (isinstance(obj, type) and issubclass(obj, __import__(
-                'secretagent.evaluate', fromlist=['Evaluator']).Evaluator)
-                and name != 'Evaluator'):
-            evaluator_cls = obj
-            break
-    if evaluator_cls is None:
-        from secretagent.evaluate import ExactMatchEvaluator
-        evaluator_cls = ExactMatchEvaluator
+    if seed_orchestrate and not resume:
+        scratch_dir = benchmark_dir / '.orchestration_learner'
+        scratch_dir.mkdir(exist_ok=True)
+        _copy_seed_resources(benchmark_dir, scratch_dir)
+        evolved_path = scratch_dir / f'{ptools_module_name}_{timestamp}_seed.py'
+        shutil.copy2(base_path, evolved_path)
+        print(f'Created seed module {evolved_path.relative_to(benchmark_dir)} '
+              f'from {base_path.name}')
+    else:
+        evolved_path = benchmark_dir / f'{ptools_module_name}_evolved.py'
+        if not evolved_path.exists():
+            shutil.copy2(base_path, evolved_path)
+            print(f'Created {evolved_path.name} from {base_path.name}')
+        else:
+            print(f'Using existing {evolved_path.name}')
 
-    evaluator = evaluator_cls()
+    # Import evolved source under the original module name so dotted config
+    # paths like ptools.workflow or ptools_meeting.meeting_workflow resolve
+    # to the evolving module rather than the immutable base file.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(ptools_module_name, str(evolved_path))
+    ptools_module_obj = importlib.util.module_from_spec(spec)
+    sys.modules[ptools_module_name] = ptools_module_obj
+    spec.loader.exec_module(ptools_module_obj)
 
-    # --- Bind interfaces ---
-    implement_via_config(ptools_module, config.require('ptools'))
+    if adapter is not None:
+        evaluator_module = None
+        load_dataset = None
+        evaluator = adapter.get_evaluator()
+    else:
+        # Try to import benchmark-specific evaluator and dataset loader
+        try:
+            evaluator_module = __import__('expt')
+        except ImportError as e:
+            print(f'Error: could not import expt module from {benchmark_dir}: {e}')
+            raise typer.Exit(1)
+        load_dataset = getattr(evaluator_module, 'load_dataset', None)
+        if load_dataset is None:
+            load_dataset = lambda split: _load_local_json_dataset(benchmark_dir, split)
+
+        # Get evaluator class
+        evaluator_cls = _find_evaluator_cls(evaluator_module, benchmark_dir)
+
+        evaluator_sig = inspect.signature(evaluator_cls)
+        if 'task' in evaluator_sig.parameters:
+            evaluator = evaluator_cls(_canonical_task_name(benchmark_dir, train_split))
+        else:
+            evaluator = evaluator_cls()
 
     entry_point_name = config.get('evaluate.entry_point', 'calculate_medical_value')
-    entry_interface = getattr(ptools_module, entry_point_name)
+    if not hasattr(ptools_module_obj, entry_point_name):
+        print(f'Error: entry point {entry_point_name!r} not found in '
+              f'{ptools_module_name}')
+        raise typer.Exit(1)
+
+    if seed_orchestrate and not resume:
+        seed_model = config.get('orchestrate.model') or supervisor_model
+        _seed_orchestrated_workflow(
+            evolved_path=evolved_path,
+            ptools_module=ptools_module_obj,
+            ptools_module_name=ptools_module_name,
+            tools_cfg=config.require('ptools'),
+            entry_point_name=entry_point_name,
+            task_description_override=orchestrate_task_description,
+            model=seed_model,
+        )
+        spec = importlib.util.spec_from_file_location(
+            ptools_module_name, str(evolved_path))
+        spec.loader.exec_module(ptools_module_obj)
+
+    # --- Bind interfaces ---
+    implement_via_config(ptools_module_obj, config.require('ptools'))
+    if adapter is not None:
+        adapter.run_setup_hook(ptools_module_obj)
+    entry_interface = getattr(ptools_module_obj, entry_point_name)
 
     # --- Load datasets (disjoint train/eval from same split) ---
     print('\n=== Loading datasets ===')
-    full_dataset = load_dataset(train_split)
     seed = config.get('dataset.shuffle_seed', 42)
-
-    if n_eval > 0 and hasattr(evaluator_module, 'stratified_split'):
-        # Disjoint stratified split from a single pool
-        from expt import stratified_split
-        train_cases, eval_cases = stratified_split(
-            full_dataset.cases, n_train, n_eval, seed=seed)
-        train_dataset = full_dataset
-        train_dataset.cases = train_cases
-        eval_dataset = type(full_dataset)(
-            name=full_dataset.name + '_eval', cases=eval_cases)
-        print(f'Train: {len(train_cases)} cases (disjoint split from {train_split})')
-        print(f'Eval: {len(eval_cases)} cases (disjoint split from {train_split})')
+    if adapter is not None:
+        train_dataset, eval_dataset = adapter.load_train_eval(n_train, n_eval)
+        split_note = f'adapter:{benchmark}'
     else:
-        # Fallback: separate splits or no stratified_split available
-        if hasattr(evaluator_module, 'stratified_sample'):
-            train_dataset = full_dataset
-            train_dataset.cases = stratified_sample(
-                full_dataset.cases, n_train, seed=seed)
-        else:
-            train_dataset = full_dataset.configure(n=n_train)
-        print(f'Train: {len(train_dataset.cases)} cases from {train_split}')
-
-        eval_dataset = None
-        if n_eval > 0:
-            eval_dataset = load_dataset(eval_split)
-            if hasattr(evaluator_module, 'stratified_sample'):
-                eval_dataset.cases = stratified_sample(
-                    eval_dataset.cases, n_eval, seed=seed)
-            else:
-                eval_dataset = eval_dataset.configure(n=n_eval)
-            print(f'Eval: {len(eval_dataset.cases)} cases from {eval_split}')
+        train_dataset, eval_dataset, split_note = _resolve_train_eval_datasets(
+            evaluator_module, load_dataset, train_split, eval_split,
+            n_train, n_eval, seed,
+        )
+    print(f'Train: {len(train_dataset.cases)} cases')
+    if eval_dataset:
+        print(f'Eval: {len(eval_dataset.cases)} cases')
+    print(f'Sampling: {split_note}')
 
     # --- Build catalog ---
+    allowed_tool_names = set(config.require('ptools')) - {entry_point_name}
     tool_interfaces = [
-        iface for iface in all_interfaces()
-        if iface.name != entry_point_name and iface.implementation is not None
+        iface for iface in _module_interfaces(ptools_module_obj)
+        if iface.name in allowed_tool_names and iface.implementation is not None
     ]
     catalog = PtoolCatalog.from_interfaces(
-        all_interfaces(), exclude=[entry_point_name],
+        tool_interfaces,
     )
 
     # --- Load optional args ---
@@ -689,10 +1057,11 @@ def run(
             evolved_path.write_text(prev_evolved.read_text())
             # Reload the module so it picks up the resumed code
             import importlib.util
-            spec = importlib.util.spec_from_file_location('ptools', str(evolved_path))
-            spec.loader.exec_module(ptools_module)
-            implement_via_config(ptools_module, config.require('ptools'))
-            entry_interface = getattr(ptools_module, entry_point_name)
+            spec = importlib.util.spec_from_file_location(
+                ptools_module_name, str(evolved_path))
+            spec.loader.exec_module(ptools_module_obj)
+            implement_via_config(ptools_module_obj, config.require('ptools'))
+            entry_interface = getattr(ptools_module_obj, entry_point_name)
             print(f'Loaded ptools_evolved.py from {resume_dir.name}')
 
         last_iter = resume_iterations[-1].iteration if resume_iterations else 0
@@ -701,7 +1070,6 @@ def run(
               f'supervisor cost: ${resume_supervisor_cost:.4f})')
 
     # --- Output directory (results/orchestration_learner/TIMESTAMP) ---
-    timestamp = datetime.now().strftime('%Y%m%d.%H%M%S')
     results_base = benchmark_dir / 'results' / 'orchestration_learner'
     output_dir = results_base / f'{timestamp}.orch_learner'
 
@@ -714,8 +1082,12 @@ def run(
         'benchmark_dir': str(benchmark_dir),
         'config_file': str(cfg_path),
         'entry_point': entry_point_name,
+        'ptools_module': ptools_module_name,
+        'seed_orchestrate': seed_orchestrate,
         'results_base': str(results_base),
         'resume_from': resume or None,
+        'train_split': train_split,
+        'eval_split': eval_split,
         'n_train': len(train_dataset.cases),
         'n_eval': len(eval_dataset.cases) if eval_dataset else 0,
         'max_iterations': max_iterations,
@@ -730,6 +1102,7 @@ def run(
     print('\n=== Orchestration Learner ===')
     print(f'Benchmark: {benchmark_dir.name}')
     print(f'Config: {cfg_path.name}')
+    print(f'Ptools module: {ptools_module_name} ({evolved_path.name})')
     print(f'Entry point: {entry_point_name}')
     print(f'Supervisor: {supervisor_model}')
     print(f'Train: {len(train_dataset.cases)} cases, Eval: {len(eval_dataset.cases) if eval_dataset else 0} cases')
@@ -758,7 +1131,7 @@ def run(
         custom_instructions=instructions,
         model_choices=model_choices_text,
         output_dir=output_dir,
-        ptools_module=ptools_module,
+        ptools_module=ptools_module_obj,
         resume_iterations=resume_iterations,
         resume_best_accuracy=resume_best_accuracy,
         resume_best_eval_accuracy=resume_best_eval_accuracy,
@@ -768,7 +1141,7 @@ def run(
 
     # --- Final eval on held-out set ---
     # Re-get entry_interface from the (possibly reloaded) ptools module
-    entry_interface = getattr(ptools_module, entry_point_name)
+    entry_interface = getattr(ptools_module_obj, entry_point_name)
     if eval_dataset:
         print(f'\n=== Final Evaluation on Held-Out Set ({len(eval_dataset.cases)} cases) ===')
         final_dir = output_dir / 'final_eval'
