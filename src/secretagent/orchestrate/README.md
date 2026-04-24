@@ -89,6 +89,33 @@ uv run python -m secretagent.cli.orchestration_learner view \
 Reads `report.json` and regenerates `report.html` without re-running
 anything.
 
+### Reusing a learned pipeline at eval time
+
+Each run now emits `implementation.yaml` under its output directory with
+the shape:
+
+```yaml
+calculate_medical_value:
+  method: direct
+  fn: __learned__.workflow    # actual fn name, derived from ptools.<entry>.fn
+  learner: orch_learner
+```
+
+The `direct` factory resolves `fn: __learned__.<attr>` by globbing
+`{learn.train_dir}/*.orch_learner/ptools_evolved.py` and binding the
+attribute. It also binds the evolved module's sub-Interfaces from the
+current `ptools` config so the learned entry-point can call its
+co-module tools.
+
+To eval a learned pipeline, override the binding like so:
+
+```
+ptools.calculate_medical_value.method=direct \
+ptools.calculate_medical_value.fn=__learned__.workflow \
+ptools.calculate_medical_value.learner=orch_learner \
+learn.train_dir=results/orchestration_learner
+```
+
 ## How It Works
 
 ### The improvement loop (step by step)
@@ -172,6 +199,8 @@ results/orchestration_learner/
     report.json              # Full structured report (SupervisorReport model)
     report.html              # Self-contained interactive HTML report
     ptools_evolved.py        # Best version of the evolved ptools file
+    implementation.yaml      # Eval-time binding: `direct` + __learned__.<fn> + learner:orch_learner
+    prompt_templates/        # Copied from benchmark so the run is self-contained
     plots/                   # Matplotlib plots (if available)
       accuracy_over_iterations.png
       cost_over_iterations.png

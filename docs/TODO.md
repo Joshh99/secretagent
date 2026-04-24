@@ -28,7 +28,6 @@
    - It should be a Learner
    - maybe a Learner should output an implementation config? that's more general
    - need to add filtering for iscorrect examples
- * make orchestrate a Learner
  * should check if rulearena tests drop's stuff in results_dir or not
 
 ## Core issues/bugs
