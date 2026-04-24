@@ -18,11 +18,11 @@ dataset:
 
 ptools:
   extract_airline_params:
-    method: simulate
+    method: simulate_pydantic
   extract_tax_params:
-    method: simulate
+    method: simulate_pydantic
   extract_nba_params:
-    method: simulate
+    method: simulate_pydantic
   compute_airline_calculator:
     method: direct
     fn: ptools._airline_calc_fn

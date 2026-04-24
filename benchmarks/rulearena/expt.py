@@ -31,7 +31,7 @@ import math
 import re
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -192,13 +192,18 @@ CONFIG_DIR = Path(__file__).parent / "conf"
 
 
 @app.command(context_settings={"allow_extra_args": True, "allow_interspersed_args": False})
-def run(ctx: typer.Context, expt_name: str = typer.Option(None, help="Set evaluate.expt_name")):
+def run(
+      ctx: typer.Context,
+      config_file: Optional[Path] = typer.Option(None, help="Path to YAML config (default: conf/conf.yaml)"),
+      expt_name: str = typer.Option(None, help="Set evaluate.expt_name"),
+  ):
     """Run RuleArena evaluation.
 
     Extra args are parsed as config overrides in dot notation, e.g.:
         uv run python expt.py run llm.model=gpt-4o dataset.domain=nba dataset.n=10
     """
-    config_file = Path(__file__).parent / "conf" / "conf.yaml"
+    if config_file is None:
+        config_file = Path(__file__).parent / "conf" / "conf.yaml"
     config.configure(yaml_file=config_file, dotlist=ctx.args)
     config.set_root(Path(__file__).parent)
 
@@ -222,11 +227,15 @@ def run(ctx: typer.Context, expt_name: str = typer.Option(None, help="Set evalua
     print()
     print(df.select_dtypes(include='number').mean())
 
-
 @app.command(context_settings={"allow_extra_args": True, "allow_interspersed_args": False})
-def quick_test(ctx: typer.Context, expt_name: str = typer.Option(None, help="Set evaluate.expt_name")):
+def quick_test(
+      ctx: typer.Context,
+      config_file: Optional[Path] = typer.Option(None, help="Path to YAML config (default: conf/conf.yaml)"),
+      expt_name: str = typer.Option(None, help="Set evaluate.expt_name"),
+  ):
     """Run a single instance with full trace output for debugging."""
-    config_file = Path(__file__).parent / "conf" / "conf.yaml"
+    if config_file is None:
+        config_file = Path(__file__).parent / "conf" / "conf.yaml"
     config.configure(yaml_file=config_file, dotlist=ctx.args)
     config.set_root(Path(__file__).parent)
     pprint.pprint(config.GLOBAL_CONFIG)

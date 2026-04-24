@@ -16,45 +16,130 @@ Example CLI commands:
 
 import importlib.util
 import json
+# from math import e
 import re
 import sys
 from pathlib import Path
 from typing import Any
+from pydantic import BaseModel
 
+# from secretagent.benchmarks.rulearena.search_spaces import tax_space
 from secretagent.core import interface, implement_via
 
 _DATA_DIR = Path(__file__).parent / "data"
 
+class BagItem(BaseModel):
+    id: int
+    name: str
+    size: list[int]  # [length, width, height] in inches
+    weight: int       # pounds
 
-def _parse_json_result(raw: str) -> dict:
-    """Parse JSON from LLM output using ptp's {"result": ...} format.
+class AirlineParams(BaseModel):
+    base_price: int         # ticket price in USD
+    customer_class: str     # e.g "Main Cabin", "Business"
+    routine: str            # destination region, e.g. "U.S", "Japan"
+    direction: int          # 0 for departing from US, 1 for arriving to US
+    bag_list: list[BagItem] 
 
-    Handles: {"result": {...}}, bare {...}, code-fenced JSON, and
-    strips // comments that the LLM may copy from the prompt template.
-    """
-    text = raw.strip()
-    # Strip markdown code fences if present
-    if text.startswith("```"):
-        text = re.sub(r'^```(?:json)?\s*', '', text)
-        text = re.sub(r'\s*```\s*$', '', text)
-    # Strip // line comments (but not inside strings)
-    cleaned = re.sub(r'(?<=[,\n{}\[\]])\s*//[^\n]*', '', text)
-    try:
-        parsed = json.loads(cleaned)
-    except json.JSONDecodeError:
-        # Try finding outermost { ... }
-        start = cleaned.find('{')
-        end = cleaned.rfind('}')
-        if start != -1 and end != -1:
-            parsed = json.loads(cleaned[start:end + 1])
-        else:
-            raise
-    # Unwrap {"result": ...} envelope if present
-    if isinstance(parsed, dict) and "result" in parsed and len(parsed) == 1:
-        parsed = parsed["result"]
-    if not isinstance(parsed, dict):
-        raise RuntimeError(f"Expected dict, got {type(parsed).__name__}")
-    return parsed
+class StudentRecord(BaseModel):
+    qualified_student_expenses: int = 0
+    f8863_part_iii_23: str = "No"
+    f8863_part_iii_24: str = "No"
+    f8863_part_iii_25: str = "No"
+    f8863_part_iii_26: str = "No"
+
+class TaxParams(BaseModel):
+    # Basic Info
+    name: str = ""
+    age: int = 0
+    spouse_age: int = 0
+    filing_status: str = "single"  # single/married filing jointly/married filing separately/head of household/qualifying surviving spouse
+    blind: bool = False
+    spouse_blind: bool = False
+    itemized: bool = False
+    self_employed: bool = False
+    has_student_loans_or_education_expenses: bool = False
+    num_qualifying_children: int = 0
+    num_other_dependents: int = 0
+
+    # Form 1040
+    wage_tip_compensation: float = 0.0             # Line 1a
+    household_employee_wage: float = 0.0           # Line 1b
+    unreported_tip: float = 0.0                    # Line 1c
+    nontaxable_combat_pay: float = 0.0             # Line 1d
+    tax_exempt_interest: float = 0.0               # Line 2a
+    taxable_interest: float = 0.0                  # Line 2b
+    qualified_dividends: float = 0.0               # Line 3a
+    ordinary_dividends: float = 0.0                # Line 3b
+    ira_distributions: float = 0.0                 # Line 4a
+    taxable_ira_distributions: float = 0.0         # Line 4b
+    all_pensions: float = 0.0                      # Line 5a
+    taxable_pensions: float = 0.0                  # Line 5b
+    social_security_benefits: float = 0.0          # Line 6a
+    taxable_social_security_benefits: float = 0.0  # Line 6b
+    qualified_business_income: float = 0.0         # Line 13
+    federal_income_tax_withheld: float = 0.0       # Line 25
+    earned_income_credit: float = 0.0              # Line 27
+
+    # Schedule 1
+    taxable_state_refunds: float = 0.0                 # Line 1
+    alimony_income: float = 0.0                        # Line 2a
+    sale_of_business: float = 0.0                      # Line 4
+    rental_real_estate_sch1: float = 0.0               # Line 5
+    farm_income: float = 0.0                           # Line 6
+    unemployment_compensation: float = 0.0             # Line 7
+    other_income: float = 0.0                          # Line 8
+    educator_expenses: float = 0.0                     # Line 11
+    hsa_deduction: float = 0.0                         # Line 13
+    ira_deduction: float = 0.0                         # Line 20
+    student_loan_interest_deduction: float = 0.0       # Line 21
+    other_adjustments: float = 0.0                     # Line 24
+
+    # Schedule 2
+    amt_f6251: float = 0.0                            # Line 1
+    credit_repayment: float = 0.0                     # Line 2
+    other_additional_taxes: float = 0.0               # Line 17
+
+    # Schedule 3
+    foreign_tax_credit: float = 0.0                  # Line 1
+    dependent_care: float = 0.0                     # Line 2
+    retirement_savings: float = 0.0                 # Line 4
+    elderly_disabled_credits: float = 0.0           # Line 6d
+    plug_in_motor_vehicle: float = 0.0              # Line 6i
+    alt_motor_vehicle: float = 0.0                 # Line 6j
+
+    # Schedule A (when itemized=true) 
+    medical_dental_expenses: float = 0.0            # Line 1
+    state_local_income_or_sales_tax: float = 0.0   # Line 5a
+    state_local_real_estate_tax: float = 0.0       # Line 5b
+    state_local_personal_property_tax: float = 0.0 # Line 5c
+    other_taxes_paid: float = 0.0                    # Line 5d
+    home_mortgage_interest_and_points: float = 0.0 # Line 8a
+    home_mortgage_interest_unreported: float = 0.0 # Line 8b
+    home_mortgage_points_unreported: float = 0.0   # Line 8c
+    investment_interest: float = 0.0                # Line 9
+    charity_cash: float = 0.0                      # Line 11
+    charity_non_cash: float = 0.0                  # Line 12
+    casualty_and_theft_loss: float = 0.0           # Line 15
+    other_itemized_deductions: float = 0.0        # Line 16
+
+    # Schedule C (when self_employed=true)
+    gross_receipts: float = 0.0                   # Line 1
+    returns_and_allowances: float = 0.0           # Line 2
+    cost_of_goods_sold: float = 0.0              # Line 4
+    other_inc_sched_c: float = 0.0               # Line 5
+    total_expenses: float = 0.0                          # Line 10
+    expenses_of_home: float = 0.0                         # Line 30
+    total_social_security_wages: float = 0.0              # Line 31
+
+    # Form 8863 (when has_student_loans_or_education_expenses=true)
+    student_list: list[StudentRecord] = []
+
+class NbaResult(BaseModel):
+    verdict: bool = False          # true if any operation violates rules
+    illegal_operation: str = ""    # letter of the violating operation
+    problematic_team: str = ""     # letter of the violating team
+    reasoning: str = ""            # brief explanation
 
 
 # ---------------------------------------------------------------------------
@@ -62,128 +147,25 @@ def _parse_json_result(raw: str) -> dict:
 # ---------------------------------------------------------------------------
 
 @interface
-def extract_airline_params(query: str) -> dict:
-    """Extract structured baggage parameters from an airline fee query.
-
-    Return a JSON object with these exact fields:
-    {
-        "base_price": <integer ticket price in USD>,
-        "customer_class": <one of: "Basic Economy", "Main Cabin", "Main Plus",
-                           "Premium Economy", "Business", "First">,
-        "routine": <destination region, e.g. "U.S.", "Japan", "Europe">,
-        "direction": <0 for departing from US, 1 for arriving to US>,
-        "bag_list": [
-            {"id": 1, "name": "<item>", "size": [length, width, height], "weight": <lbs>},
-            ...
-        ]
-    }
-
-    Requirements:
-    - customer_class must be an exact match from the list above
-    - routine must match the fee table region names (e.g. "U.S." with period)
-    - direction: 0=from US, 1=to US
-    - size: array of 3 integers [length, width, height] in inches
-    - weight: integer in pounds
-
-    Examples:
-    >>> extract_airline_params("A Main Cabin passenger flies Chicago to Tokyo, $1200 ticket. Carry-on 22x14x9 15lbs, checked suitcase 28x20x12 45lbs.")
-    {"base_price": 1200, "customer_class": "Main Cabin", "routine": "Japan", "direction": 0, "bag_list": [{"id": 1, "name": "carry-on", "size": [22, 14, 9], "weight": 15}, {"id": 2, "name": "suitcase", "size": [28, 20, 12], "weight": 45}]}
-    """
+def extract_airline_params(query: str) -> AirlineParams:
+    """Extract structured baggage parameters from an airline fee query."""
+    ...
 
 
 @interface
-def extract_tax_params(query: str) -> dict:
+def extract_tax_params(query: str) -> TaxParams:
     """Extract taxpayer parameters from filled IRS forms.
 
-    The input is a set of IRS forms with dollar values filled in and
-    computed fields marked [__]. Extract ONLY the filled-in INPUT values
-    (lines with dollar amounts like "$1,234"). Skip computed fields
-    marked [__] -- those are calculated, not inputs.
-    Dollar values appear as "$1,234" -- extract as numeric (1234.0).
-    Match each value to the correct field using the line numbers below.
-
-    Return a dict with these keys (set to 0, 0.0, false, or [] if absent):
-
-    Basic: name (str), age (int), spouse_age (int),
-    filing_status (str: single/married filing jointly/married filing separately/
-    head of household/qualifying surviving spouse),
-    blind (bool), spouse_blind (bool), itemized (bool), self_employed (bool),
-    has_student_loans_or_education_expenses (bool),
-    num_qualifying_children (int), num_other_dependents (int).
-
-    Form 1040 fields (all float):
-    wage_tip_compensation (Line 1a), household_employee_wage (Line 1b),
-    unreported_tip (Line 1c), nontaxable_combat_pay (Line 1d),
-    tax_exempt_interest (Line 2a), taxable_interest (Line 2b),
-    qualified_dividends (Line 3a), ordinary_dividends (Line 3b),
-    ira_distributions (Line 4a), taxable_ira_distributions (Line 4b),
-    all_pensions (Line 5a), taxable_pensions (Line 5b),
-    social_security_benefits (Line 6a), taxable_social_security_benefits (Line 6b),
-    qualified_business_income (Line 13), federal_income_tax_withheld (Line 25),
-    earned_income_credit (Line 27).
-
-    Schedule 1 fields (all float):
-    taxable_state_refunds (Line 1), alimony_income (Line 2a),
-    sale_of_business (Line 4), rental_real_estate_sch1 (Line 5),
-    farm_income (Line 6), unemployment_compensation (Line 7),
-    other_income (Line 8), educator_expenses (Line 11),
-    hsa_deduction (Line 13), ira_deduction (Line 20),
-    student_loan_interest_deduction (Line 21), other_adjustments (Line 24).
-
-    Schedule 2 fields (all float):
-    amt_f6251 (Line 1), credit_repayment (Line 2),
-    other_additional_taxes (Line 17).
-
-    Schedule 3 fields (all float):
-    foreign_tax_credit (Line 1), dependent_care (Line 2),
-    retirement_savings (Line 4), elderly_disabled_credits (Line 6d),
-    plug_in_motor_vehicle (Line 6i), alt_motor_vehicle (Line 6j).
-
-    Schedule A fields (when itemized=true, all float):
-    medical_dental_expenses, state_local_income_or_sales_tax,
-    state_local_real_estate_tax, state_local_personal_property_tax,
-    other_taxes_paid, home_mortgage_interest_and_points,
-    home_mortgage_interest_unreported, home_mortgage_points_unreported,
-    investment_interest, charity_cash, charity_non_cash,
-    casualty_and_theft_loss, other_itemized_deductions.
-
-    Schedule C fields (when self_employed=true, all float):
-    gross_receipts, returns_and_allowances, cost_of_goods_sold,
-    other_inc_sched_c, total_expenses, expenses_of_home,
-    total_social_security_wages.
-
-    Form 8863 fields (when has_student_loans_or_education_expenses=true):
-    student_list (list of dicts with: qualified_student_expenses (int),
-    f8863_part_iii_23, f8863_part_iii_24, f8863_part_iii_25,
-    f8863_part_iii_26 (all "Yes" or "No")).
-
-    Examples:
-    >>> extract_tax_params("Name: Jane, Age: 35, Filing Status: single, Line 1a W-2: $50,000")
-    {"name": "Jane", "age": 35, "filing_status": "single", "wage_tip_compensation": 50000.0, "blind": false, "itemized": false, "self_employed": false, "has_student_loans_or_education_expenses": false, "num_qualifying_children": 0, "num_other_dependents": 0}
+    Extract the filled-in INPUT values from IRS forms. Skip computed
+    fields marked [__]. Dollar values like "$1,234" become numeric (1234.0).
     """
+    ...
 
 
 @interface
-def extract_nba_params(query: str) -> dict:
-    """Determine whether any NBA team operation violates CBA salary cap rules.
-
-    Given reference rules, team situations, player situations, and proposed
-    operations, analyze each operation against the CBA rules.
-
-    Return a JSON object:
-    {
-        "verdict": <true if any operation violates rules, false if all compliant>,
-        "illegal_operation": "<letter of the violating operation, or empty string>",
-        "problematic_team": "<letter of the violating team, or empty string>",
-        "reasoning": "<brief explanation>"
-    }
-
-    Examples:
-    >>> extract_nba_params("Rules: [cap $140M] Team A salary $130M. Operations: A. Team A signs Player A at $15M/year.")
-    {"verdict": false, "illegal_operation": "", "problematic_team": "", "reasoning": "Within cap"}
-    """
-
-
+def extract_nba_params(query: str) -> NbaResult:
+    """Determine whether any NBA team operation violates CBA salary cap rules."""
+    ...
 # ---------------------------------------------------------------------------
 # Calculator interfaces (always Python via direct method)
 # ---------------------------------------------------------------------------
@@ -238,27 +220,6 @@ def _cot_tax(forms_text: str) -> str:
 def _cot_nba(problem_text: str, rules_text: str) -> str:
     ...
 
-
-# ---------------------------------------------------------------------------
-# L1 extraction interfaces (prompt_llm with direct framing, returns raw str)
-# ---------------------------------------------------------------------------
-
-@implement_via('prompt_llm', prompt_template_file='prompt_templates/airline_extract.txt',
-               answer_pattern=None)
-def _extract_airline_raw(query: str) -> str:
-    ...
-
-
-@implement_via('prompt_llm', prompt_template_file='prompt_templates/tax_extract.txt',
-               answer_pattern=None)
-def _extract_tax_raw(query: str) -> str:
-    ...
-
-
-@implement_via('prompt_llm', prompt_template_file='prompt_templates/nba_extract.txt',
-               answer_pattern=None)
-def _extract_nba_raw(query: str) -> str:
-    ...
 
 
 @implement_via('simulate')
@@ -563,33 +524,22 @@ def l1_extract_workflow(
 ) -> float:
     """L1 PTool workflow: LLM extracts structured params, Python computes answer.
 
-    Uses prompt_llm extraction interfaces with direct framing (replicating
-    ptp's prompt structure) for reliable structured extraction, then feeds
-    the result to deterministic Python calculators.
+    LLM extracts structured params via simulate_pydantic, Python computes answer.
     """
     metadata = json.loads(metadata_json)
     if domain == "airline":
         query = f"RULES:\n{rules_text}\n\nQUERY:\n{problem_text}"
-        raw = _extract_airline_raw(query)
-        params = _parse_json_result(raw)
-        return float(_airline_calc_fn(params))
+        params = extract_airline_params(query=query)
+        return float(_airline_calc_fn(params.model_dump()))
 
     if domain == "tax":
-        raw = _extract_tax_raw(forms_text)
-        params = _parse_json_result(raw)
-        return _tax_calc_fn(params)
+        params = extract_tax_params(query=forms_text)
+        return _tax_calc_fn(params.model_dump())
 
     if domain == "nba":
         query = _build_nba_query(problem_text, rules_text, metadata)
-        raw = _extract_nba_raw(query)
-        result = _parse_json_result(raw)
-        if "verdict" in result:
-            return float(bool(result["verdict"]))
-        # Fallback: regex on raw LLM output
-        m = re.search(r'"verdict"\s*:\s*(true|false)', raw, re.IGNORECASE)
-        if m:
-            return float(m.group(1).lower() == "true")
-        return float(bool(result))
+        result = extract_nba_params(query=query)
+        return float(result.verdict)
 
     raise ValueError(f"Unknown domain: {domain!r}")
 
@@ -619,3 +569,5 @@ def compute_rulearena_answer(
         forms_text: Pre-built IRS forms text for tax domain; empty for others.
     """
     ...
+
+
