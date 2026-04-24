@@ -11,6 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from omegaconf import OmegaConf
 
 from conftest import needs_api_key, CI_TEST_MODEL
 from secretagent import config
@@ -38,6 +39,8 @@ def _run_eval(tmp_path, extra_dotlist, n=4):
     try:
         os.chdir(SPORTS_DIR)
         ptools = _import_ptools()
+        # Reset so a prior benchmark's ptools.* keys don't merge into this run.
+        config.GLOBAL_CONFIG = OmegaConf.create()
         config.configure(
             yaml_file=CONF_FILE,
             dotlist=[
