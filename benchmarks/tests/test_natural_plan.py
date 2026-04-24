@@ -13,7 +13,6 @@ import pandas as pd
 import pytest
 
 from conftest import needs_api_key, CI_TEST_MODEL
-from omegaconf import OmegaConf
 from secretagent import config
 from secretagent.core import implement_via_config
 
@@ -63,7 +62,7 @@ def _run_eval(tmp_path, task, extra_dotlist, n=2):
         tc = TASK_CONFIG[task]
 
         # Reset global config to avoid cross-task contamination
-        config.GLOBAL_CONFIG = OmegaConf.create()
+        config.reset()
 
         conf_path = NATURAL_PLAN_DIR / tc["config_file"]
         config.configure(
