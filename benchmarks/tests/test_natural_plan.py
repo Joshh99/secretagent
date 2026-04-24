@@ -45,16 +45,13 @@ TASK_CONFIG = {
 
 
 def _import_modules(task):
-    """Import ptools and expt modules from the natural_plan benchmark directory."""
-    if str(NATURAL_PLAN_DIR) not in sys.path:
-        sys.path.insert(0, str(NATURAL_PLAN_DIR))
+    """Import ptools, eval_utils, and expt from benchmarks/natural_plan/."""
+    from conftest import load_benchmark_modules
     tc = TASK_CONFIG[task]
-    ptools_mod = importlib.import_module(tc["ptools_module"])
-    importlib.reload(ptools_mod)
-    import eval_utils
-    importlib.reload(eval_utils)
-    from expt import NaturalPlanEvaluator, load_dataset
-    return ptools_mod, NaturalPlanEvaluator, load_dataset
+    ptools_mod, _eval_utils, expt_mod = load_benchmark_modules(
+        NATURAL_PLAN_DIR, tc["ptools_module"], "eval_utils", "expt",
+    )
+    return ptools_mod, expt_mod.NaturalPlanEvaluator, expt_mod.load_dataset
 
 
 def _run_eval(tmp_path, task, extra_dotlist, n=2):
