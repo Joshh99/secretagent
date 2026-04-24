@@ -25,28 +25,27 @@ if str(TABMWP_DIR) not in sys.path:
 
 
 def _import_ptools():
-    import importlib
-    import ptools
-    importlib.reload(ptools)
+    """Import ptools from benchmarks/tabmwp/ deterministically."""
+    from conftest import load_benchmark_modules
+    (ptools,) = load_benchmark_modules(TABMWP_DIR, "ptools")
     return ptools
 
 
 def _run_eval(tmp_path, conf_file, extra_dotlist=None, n=4):
     """Load config, set up table store, run n examples, return DataFrame."""
     import json
-    import importlib
+    from conftest import load_benchmark_modules
     from secretagent.dataset import Dataset, Case
-    from secretagent.evaluate import Evaluator
-    from typing import Any
 
     prev_cwd = os.getcwd()
     try:
         os.chdir(TABMWP_DIR)
 
-        # Need fresh ptools each test to avoid stale interface registrations
-        if 'ptools' in sys.modules:
-            del sys.modules['ptools']
-        import ptools
+        # Load ptools and expt together so the second call does not purge
+        # the first: load_benchmark_modules clears colliding sys.modules
+        # entries, so grabbing them in one call keeps both references live.
+        ptools, expt_mod = load_benchmark_modules(TABMWP_DIR, "ptools", "expt")
+        TabMWPEvaluator = expt_mod.TabMWPEvaluator
 
         config.configure(
             yaml_file=TABMWP_DIR / "conf" / conf_file,
@@ -82,7 +81,6 @@ def _run_eval(tmp_path, conf_file, extra_dotlist=None, n=4):
         dataset = Dataset(name="tabmwp", split=split, cases=cases)
         dataset.configure(shuffle_seed=42, n=n)
 
-        from expt import TabMWPEvaluator
         entry_point = config.get("evaluate.entry_point", "tabmwp_solve")
         interface = getattr(ptools, entry_point)
 
