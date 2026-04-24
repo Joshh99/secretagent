@@ -21,11 +21,22 @@ pot:
 	  ptools.answer_penguin_question.method=program_of_thought \
 	  ptools.answer_penguin_question.tools=[ptools.analyze_input,ptools.table_operation,ptools.answer_question,ptools.choose_response]
 
-# ReAct using simulate_pydantic (which runs ReAct if there are tools)
+# ReAct using simulate_pydantic (which runs ReAct if there are tools),
+# wrapped with extract_option_letter so the final output is the bare letter.
 react:
 	$(EXPT) run $(INTERFACE) $(EVALUATOR) evaluate.expt_name=react $(DOTPAIRS) \
-	  ptools.answer_penguin_question.method=simulate_pydantic \
-	  ptools.answer_penguin_question.tools=[ptools.analyze_input,ptools.table_operation,ptools.answer_question,ptools.choose_response]
+	  ptools.answer_penguin_question.method=direct \
+	  ptools.answer_penguin_question.fn=ptools.penguins_react_workflow \
+	  ptools.react_answer_penguin_question.method=simulate_pydantic \
+	  ptools.react_answer_penguin_question.tools=[ptools.analyze_input,ptools.table_operation,ptools.answer_question,ptools.choose_response]
+
+# quick test of react on a single example
+quick-test-react:
+	$(EXPT) quick-test $(INTERFACE) \
+	  ptools.answer_penguin_question.method=direct \
+	  ptools.answer_penguin_question.fn=ptools.penguins_react_workflow \
+	  ptools.react_answer_penguin_question.method=simulate_pydantic \
+	  ptools.react_answer_penguin_question.tools=[ptools.analyze_input,ptools.table_operation,ptools.answer_question,ptools.choose_response]
 
 # zero-shot structured queries
 structured_baseline:

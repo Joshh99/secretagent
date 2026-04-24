@@ -31,11 +31,22 @@ pot:
 	  ptools.identify_shape.method=program_of_thought \
 	  ptools.identify_shape.tools=[ptools.extract_path_and_options,ptools.decompose_path,ptools.describe_command,ptools.compute_angle,ptools.describe_shape,ptools.select_option]
 
-# ReAct using simulate_pydantic (which runs ReAct if there are tools)
+# ReAct using simulate_pydantic (which runs ReAct if there are tools),
+# wrapped with extract_option_letter so the final output is the bare letter.
 react:
 	$(EXPT) run $(INTERFACE) evaluate.expt_name=react $(DOTPAIRS) \
-	  ptools.identify_shape.method=simulate_pydantic \
-	  ptools.identify_shape.tools=[ptools.extract_path_and_options,ptools.decompose_path,ptools.describe_command,ptools.compute_angle,ptools.describe_shape,ptools.select_option]
+	  ptools.identify_shape.method=direct \
+	  ptools.identify_shape.fn=ptools.geometric_shapes_react_workflow \
+	  ptools.react_identify_shape.method=simulate_pydantic \
+	  ptools.react_identify_shape.tools=[ptools.extract_path_and_options,ptools.decompose_path,ptools.describe_command,ptools.compute_angle,ptools.describe_shape,ptools.select_option]
+
+# quick test of react on a single example
+quick-test-react:
+	$(EXPT) quick-test $(INTERFACE) \
+	  ptools.identify_shape.method=direct \
+	  ptools.identify_shape.fn=ptools.geometric_shapes_react_workflow \
+	  ptools.react_identify_shape.method=simulate_pydantic \
+	  ptools.react_identify_shape.tools=[ptools.extract_path_and_options,ptools.decompose_path,ptools.describe_command,ptools.compute_angle,ptools.describe_shape,ptools.select_option]
 
 # quick test on a single example
 quick-test:

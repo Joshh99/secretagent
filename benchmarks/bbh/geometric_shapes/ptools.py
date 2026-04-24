@@ -206,6 +206,15 @@ def identify_shape(input: str) -> str:
     """
     ...
 
+@interface
+def react_identify_shape(input: str) -> str:
+    """Given an SVG path multiple-choice question, return a freeform answer
+    string. Intended to be bound via simulate_pydantic with the sub-tools as
+    the tool list (ReAct); its output is post-processed by
+    extract_option_letter in geometric_shapes_react_workflow.
+    """
+    ...
+
 # ── hand-coded workflow ───────────────────────────────────────────────────────
 
 def geometric_shapes_workflow(input: str) -> str:
@@ -261,3 +270,17 @@ def zeroshot_unstructured_workflow(input: str) -> str:
     """
     llm_output = zeroshot_identify_shape(input)
     return extract_option_letter(llm_output)
+
+
+def geometric_shapes_react_workflow(input: str) -> str:
+    """Workflow that runs ReAct over the sub-tools and extracts the option
+    letter from its freeform final answer.
+
+    To use:
+        ptools.identify_shape.method=direct
+        ptools.identify_shape.fn=ptools.geometric_shapes_react_workflow
+        ptools.react_identify_shape.method=simulate_pydantic
+        ptools.react_identify_shape.tools=[...]
+    """
+    react_answer = react_identify_shape(input)
+    return extract_option_letter(react_answer)

@@ -1,5 +1,5 @@
 llm:
-  # model: together_ai/deepseek-ai/DeepSeek-V3.1
+  model: together_ai/deepseek-ai/DeepSeek-V3.1
   # model: together_ai/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8
   # model: together_ai/meta-llama/Llama-4-Scout-17B-16E-Instruct
   # model: together_ai/Qwen/Qwen3-235B-A22B-fp8
@@ -9,7 +9,7 @@ llm:
   # model: together_ai/google/gemma-3-1b-it
   # model: together_ai/mistralai/Mistral-Small-24B-Instruct-2501
   # model: together_ai/openai/gpt-oss-20b
-  model: gemini/gemini-2.5-pro
+  # model: gemini/gemini-2.5-pro
   # model: gemini/gemini-2.0-flash
   # model: gemini/gemini-2.5-flash
 
