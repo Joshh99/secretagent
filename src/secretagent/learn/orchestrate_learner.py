@@ -506,6 +506,19 @@ def _copy_seed_resources(benchmark_dir: Path, scratch_dir: Path) -> None:
             shutil.copytree(src, dst)
 
 
+def _copy_benchmark_resources(benchmark_dir: Path, run_dir: Path) -> None:
+    """Copy small resource dirs the evolved ptools may reference via __file__.
+
+    Keeps the run dir self-contained so `fn: __learned__.<entry>` can
+    import ptools_evolved.py without the original benchmark dir on disk.
+    """
+    for dirname in ('prompt_templates',):
+        src = benchmark_dir / dirname
+        dst = run_dir / dirname
+        if src.exists() and not dst.exists():
+            shutil.copytree(src, dst)
+
+
 def _module_interfaces(module):
     from secretagent.core import Interface
     interfaces = []
@@ -1160,6 +1173,13 @@ class OrchestrationLearner(Learner):
         generate_plots(report, self.out_dir)
         generate_html_report(report, self.out_dir)
 
+        # --- Copy benchmark-local resource dirs adjacent to ptools_evolved.py ---
+        # Some benchmarks' evolved ptools use `__file__` at import time to
+        # reach local template directories. Copy prompt_templates/ into the
+        # run dir so `fn: __learned__.<entry>` can import the evolved file
+        # standalone, without needing the original benchmark dir on disk.
+        _copy_benchmark_resources(benchmark_dir, self.out_dir)
+
         self.report_obj = report
         self._entry_point_name = entry_point_name
         return self
@@ -1173,20 +1193,43 @@ class OrchestrationLearner(Learner):
 
         The yaml has one top-level key (the interface name) with:
             method: direct
-            fn: __learned__.<entry_point>
+            fn: __learned__.<implementing_fn_name>
             learner: orch_learner
 
-        which the `direct` factory resolves at eval time by looking up the
-        most recent `.orch_learner` dir under `learn.train_dir` and loading
-        `<entry_point>` from `ptools_evolved.py`.
+        where <implementing_fn_name> is the bare name of the actual function
+        that implements the entry point in `ptools_evolved.py` (not the
+        interface stub).
+
+        How <implementing_fn_name> is chosen:
+          1. If the original config bound the entry_point via
+             `ptools.<entry>.method=direct, fn=<module>.<fn_name>`, use
+             `<fn_name>`. This is the common case (e.g. medcalc binds
+             `calculate_medical_value` to `ptools.workflow`, so we emit
+             `fn: __learned__.workflow`).
+          2. Otherwise fall back to the entry_point name itself — works
+             when the evolved module exposes the entry point as a regular
+             function rather than an @interface stub.
         """
         entry_point = getattr(self, '_entry_point_name', None)
         if entry_point is None:
             entry_point = config.get('evaluate.entry_point') or self.interface_name
+
+        fn_name = entry_point
+        entry_cfg = config.get(f'ptools.{entry_point}')
+        if entry_cfg:
+            try:
+                entry_cfg_dict = dict(entry_cfg)
+            except (TypeError, ValueError):
+                entry_cfg_dict = {}
+            if entry_cfg_dict.get('method') == 'direct':
+                fn_path = entry_cfg_dict.get('fn')
+                if isinstance(fn_path, str) and fn_path:
+                    fn_name = fn_path.rsplit('.', 1)[-1]
+
         impl = {
             self.interface_name: {
                 'method': 'direct',
-                'fn': f'__learned__.{entry_point}',
+                'fn': f'__learned__.{fn_name}',
                 'learner': LEARNER_TAG,
             }
         }

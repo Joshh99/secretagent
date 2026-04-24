@@ -78,14 +78,13 @@ def test_init_file_under_is_orch_learner(tmp_path):
     assert learner.file_under == LEARNER_TAG
 
 
-def test_save_implementation_shape(tmp_path):
-    """implementation.yaml should use direct + __learned__.<entry> + learner tag."""
+def test_save_implementation_shape_no_ptools_cfg(tmp_path):
+    """Without ptools.<entry> config, falls back to using entry_point as fn."""
     learner = OrchestrationLearner(
         interface_name='calculate_medical_value',
         train_dir=str(tmp_path),
         config_file='conf/x.yaml',
     )
-    # Simulate fit() having set _entry_point_name.
     learner._entry_point_name = 'calculate_medical_value'
     path = learner.save_implementation()
     assert path.exists()
@@ -95,6 +94,43 @@ def test_save_implementation_shape(tmp_path):
     assert entry['method'] == 'direct'
     assert entry['fn'] == '__learned__.calculate_medical_value'
     assert entry['learner'] == LEARNER_TAG
+
+
+def test_save_implementation_uses_config_fn_name(tmp_path):
+    """When the original config bound entry_point via `direct, fn=X.Y`,
+    the learner should emit `fn: __learned__.Y` (not __learned__.<entry>).
+    This matches the medcalc case where calculate_medical_value is an
+    Interface stub and `workflow` is the actual implementation function."""
+    config.configure(ptools=dict(
+        calculate_medical_value=dict(method='direct', fn='ptools.workflow'),
+    ))
+    learner = OrchestrationLearner(
+        interface_name='calculate_medical_value',
+        train_dir=str(tmp_path),
+        config_file='conf/x.yaml',
+    )
+    learner._entry_point_name = 'calculate_medical_value'
+    path = learner.save_implementation()
+    data = yaml.safe_load(path.read_text())
+    assert data['calculate_medical_value']['fn'] == '__learned__.workflow'
+
+
+def test_save_implementation_non_direct_method_ignored(tmp_path):
+    """If the original config was `simulate` (not `direct`), don't try to
+    extract a fn name from the config — the learned implementation is
+    always a direct-style call to the learned function."""
+    config.configure(ptools=dict(
+        my_entry=dict(method='simulate'),
+    ))
+    learner = OrchestrationLearner(
+        interface_name='my_entry',
+        train_dir=str(tmp_path),
+        config_file='conf/x.yaml',
+    )
+    learner._entry_point_name = 'my_entry'
+    path = learner.save_implementation()
+    data = yaml.safe_load(path.read_text())
+    assert data['my_entry']['fn'] == '__learned__.my_entry'
 
 
 def test_save_implementation_fallback_entry_point(tmp_path):
