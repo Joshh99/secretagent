@@ -43,6 +43,37 @@ llm.model=gemini/gemini-2.5-flash llm.reasoning_effort=low llm.max_tokens=16384
 
 ---
 
+## Unstructured prompt biases the model toward unsigned `Amount you owe`
+
+**What.** `prompt_templates/unstructured.txt` line 1 frames the task as *"calculate the income tax **owed** by the taxpayer"* and only mentions *"negative if overpaid/refunded"* at the end of line 6. On refund cases, DeepSeek-V3.1 walks Form 1040 to **Line 37 ("Amount you owe")** and reports that value as **positive** — i.e., the dataset's sign convention (positive=owed, negative=refund, per `compute_tax_calculator` docstring) is contradicted by the model's natural reading of the prompt.
+
+**Evidence** (`results/20260425.063518.unstructured_baseline/`, DeepSeek-V3.1, 4 calculation_error cases):
+
+| Case | Level | predicted | expected | Diagnosis |
+|---|---|---|---|---|
+| `tax_1_44` | L1 (refund) | +2076.10 | -2089.20 | **Pure sign-flip**: \|pred + exp\|/\|exp\| = 0.6%, would be `correct=1.0` if negated. Model's chain ends *"Line 37 = $18,120.30 - $16,044.20 = $2,076.10. So tax owed = $2,076.10. <answer>2076.10</answer>"*. |
+| `tax_1_17` | L1 (refund) | +5444.01 | -6600.99 | Sign-flip + 18% magnitude error (real reasoning error in addition to sign). |
+| `tax_2_56` | L2 (refund) | -3299.21 | -9570.32 | Correct sign, 65% magnitude error. Not a sign-flip case. |
+| `tax_2_59` | L2 (owed)   | +10316.15 | +6745.74 | Correct sign, 53% magnitude error. Not a sign-flip case. |
+
+So sign-flip is **1 of 4** calculation errors in the only run with non-cached DeepSeek data on this strategy. Smaller than first suspected but real and deterministic (reproduced on cache replay 2026-04-25 14:44).
+
+**Why it happens.** The prompt's opening sentence ("tax owed") and the Form 1040 worksheet itself both report the result as a **positive amount** (Line 37). The instruction to negate refunds is a single trailing clause; the model finishes a long arithmetic chain and emits the last number it computed without revisiting the sign convention.
+
+**Caveats.**
+- Only the unstructured baseline is exposed: the other 4 strategies (`structured_baseline`, `workflow`, `pot`, `react`) bypass `unstructured.txt` and route through `extract_tax_params` + `compute_tax_calculator`, where the sign is produced by the deterministic Python calculator (`calculators.tax.compute_tax_fee`).
+- Airline doesn't have an analogous failure surface (its outputs are always non-negative fees).
+- Affects DeepSeek-V3.1 (production model). Other models may or may not exhibit the same bias — not measured.
+
+**Mitigation candidates (not yet applied — pending discussion with advisor).**
+- Move the sign convention to the front of the prompt, e.g. *"Compute the **net** federal tax: positive if the taxpayer owes, negative if a refund is due."*
+- Or post-hoc: detect "refund"/"overpaid" keywords in the model's reasoning and negate; mirrors the existing `_parse_numeric_answer` fallback-1 path.
+- Either change invalidates cached unstructured calls and would require re-running airline's unstructured baseline for parity.
+
+**Action.** Documented; defer fix to advisor discussion. Production run kept with current prompt for cross-domain comparability with airline.
+
+---
+
 ## `simulate` factory parser doesn't strip commas before `float()`
 
 **What.** With `compute_tax_answer.method=simulate` (`structured_baseline`), the LLM may emit comma-formatted dollar amounts inside `<answer>...</answer>` (e.g. `-25,502.0`). `simulate`'s parser calls `float()` on the extracted string, which raises `ValueError: could not convert string to float: '-25,502.0'`. The whole case is lost as an exception.
