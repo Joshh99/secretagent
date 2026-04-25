@@ -2,7 +2,8 @@
 
 import re
 from pathlib import Path
-from pydantic import BaseModel
+from typing import Literal
+from pydantic import BaseModel, Field
 
 from secretagent.core import interface, implement_via
 
@@ -19,11 +20,31 @@ class BagItem(BaseModel):
 
 
 class AirlineParams(BaseModel):
-    base_price: int
-    customer_class: str
-    routine: str
-    direction: int
-    bag_list: list[BagItem]
+    base_price: int = Field(..., description="Ticket price in dollars (no decimals).")
+    customer_class: Literal[
+        "Basic Economy", "Main Cabin", "Main Plus",
+        "Premium Economy", "Business", "First",
+    ] = Field(..., description="Travel class — must be one of the six listed values.")
+    routine: str = Field(
+        ...,
+        description=(
+            "The non-U.S. country/region of the flight. Use one of: U.S., Canada, "
+            "Mexico, Cuba, Haiti, Panama, Colombia, Ecuador, Peru, South America, "
+            "Israel, Qatar, Europe, India, China, Japan, South Korea, Hong Kong, "
+            "Australia, New Zealand, Puerto Rico. Use 'U.S.' only for fully domestic "
+            "flights between two U.S. cities."
+        ),
+    )
+    direction: Literal[0, 1] = Field(
+        ...,
+        description=(
+            "0 if the U.S. city is the place of DEPARTURE (passenger flies FROM the U.S. "
+            "to the foreign region); 1 if the U.S. city is the place of ARRIVAL "
+            "(passenger flies FROM the foreign region TO the U.S.). For domestic U.S. "
+            "flights use 0."
+        ),
+    )
+    bag_list: list[BagItem] = Field(..., description="Checked and carry-on items.")
 
 
 # -- Interfaces bound via conf.yaml --
