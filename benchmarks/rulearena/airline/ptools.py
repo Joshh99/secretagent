@@ -63,12 +63,12 @@ def _parse_numeric_answer(llm_output: str) -> float:
     is still measured when the model ignores the output format.
     Raises ValueError if no amount is found at all.
     """
-    m = re.search(
-        r'total\s+cost\s+is\s+\$?([\d,]+(?:\.\d+)?)',
+    matches = re.findall(
+        r'total\s+cost\s*(?:is|=|:)\s*\$?([\d,]+(?:\.\d+)?)',
         llm_output, re.IGNORECASE,
     )
-    if m:
-        return float(m.group(1).replace(',', ''))
+    if matches:
+        return float(matches[-1].replace(',', ''))
     amounts = re.findall(r'\$\s*([\d,]+(?:\.\d+)?)', llm_output)
     if amounts:
         return float(amounts[-1].replace(',', ''))
