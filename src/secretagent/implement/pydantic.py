@@ -18,7 +18,7 @@ from secretagent.cache_util import cached
 from secretagent.core import register_factory
 from secretagent.implement.core import SimulateFactory, ToolUsingFactory
 from secretagent.implement.util import load_template
-from secretagent.llm_util import echo_boxed
+from secretagent.llm_util import echo_boxed, _retry_with_backoff
 
 def _run_agent_hashkey(_, kwds):
     """Create a hashkey for the arguments of _run_agent.
@@ -55,10 +55,12 @@ def _run_agent_impl(interface, model_name, return_type, prompt, tools):
     # timeout the whole pipeline hangs indefinitely.
     timeout = config.get('llm.timeout', None)
     start_time = time.time()
+    def _do_run_sync():
+        return agent.run_sync(prompt)
     if timeout is not None:
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(agent.run_sync, prompt)
+            future = executor.submit(_retry_with_backoff, _do_run_sync)
             try:
                 result = future.result(timeout=float(timeout))
             except concurrent.futures.TimeoutError as ex:
@@ -66,7 +68,7 @@ def _run_agent_impl(interface, model_name, return_type, prompt, tools):
                     f'pydantic-ai agent exceeded llm.timeout={timeout}s'
                 ) from ex
     else:
-        result = agent.run_sync(prompt)
+        result = _retry_with_backoff(_do_run_sync)
     latency = time.time() - start_time
 
     # get the answer and maybe echo it
