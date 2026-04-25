@@ -188,7 +188,16 @@ def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
 
   See cache_util.py for why this weird process is necessary.
   """
-  model_output, stats = cached(_llm_impl)(prompt, model)
+  result = cached(_llm_impl)(prompt, model)
+  if result is None:
+    # cachier on Windows occasionally returns None instead of the cached
+    # tuple; bypass the cache once. Don't swallow silently — log so we
+    # can track frequency and chase the root cause in cache_util.
+    sys.stderr.write(
+        f'[warn] cached(_llm_impl) returned None for model={model}; '
+        f'bypassing cache once.\n')
+    result = _llm_impl(prompt, model)
+  model_output, stats = result
   if config.get('echo.llm_output'):
     echo_boxed(model_output, 'llm_output')
   return model_output, stats
