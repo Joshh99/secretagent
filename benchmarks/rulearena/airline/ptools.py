@@ -85,19 +85,37 @@ _VALID_REGIONS = {
 }
 
 _REGION_FIXES = {
-    "asia": "China", "north america": "U.S.", "us": "U.S.", "usa": "U.S.",
-    "united states": "U.S.", "domestic": "U.S.", "tokyo": "Japan",
-    "beijing": "China", "shanghai": "China", "seoul": "South Korea",
-    "sydney": "Australia", "london": "Europe", "paris": "Europe",
-    "berlin": "Europe",
+    # Order matters: city tokens come before short abbreviations like "us"
+    # (substring of "austin"/"houston") so the substring scan picks the more
+    # specific match first.
+    "tokyo": "Japan", "osaka": "Japan", "nagoya": "Japan",
+    "beijing": "China", "shanghai": "China", "chengdu": "China",
+    "wuhan": "China", "guangzhou": "China",
+    "seoul": "South Korea", "busan": "South Korea",
+    "sydney": "Australia",
+    "mumbai": "India",
+    "london": "Europe", "paris": "Europe", "berlin": "Europe",
+    "barcelona": "Europe", "stockholm": "Europe", "helsinki": "Europe",
+    "athens": "Europe", "amsterdam": "Europe",
+    "buenos aires": "South America",
+    "bogotá": "Colombia", "bogota": "Colombia",
+    "port-au-prince": "Haiti",
+    "asia": "China", "north america": "U.S.",
+    "united states": "U.S.", "domestic": "U.S.", "usa": "U.S.", "us": "U.S.",
 }
 
 
 def _normalize_region(routine: str) -> str:
     if routine in _VALID_REGIONS:
         return routine
-    fixed = _REGION_FIXES.get(routine.lower().strip())
-    return fixed if fixed else "U.S."
+    rt_lower = routine.lower().strip()
+    fixed = _REGION_FIXES.get(rt_lower)
+    if fixed:
+        return fixed
+    for token, region in _REGION_FIXES.items():
+        if token in rt_lower:
+            return region
+    return "U.S."
 
 
 _VALID_CLASSES = {
