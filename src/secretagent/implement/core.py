@@ -157,7 +157,7 @@ class SimulateFactory(Implementation.Factory):
         if match_result:
             final_answer = match_result.group(1).strip()
             if return_type in [int, str, float]:
-                return return_type(final_answer)
+                return _coerce_numeric(final_answer, return_type)
             try:
                 return json.loads(final_answer)
             except json.JSONDecodeError:
@@ -259,6 +259,18 @@ class PromptLLMFactory(Implementation.Factory):
             return answer
 
 
+def _coerce_numeric(s: str, t: type):
+    """Cast s to t, stripping commas and $ for numeric types.
+
+    LLMs naturally emit dollar amounts as `$25,502.0` or `-25,502.0`;
+    bare float()/int() rejects those. Strip the formatting before
+    coercing for int/float; pass through unchanged for str.
+    """
+    if t in (int, float):
+        s = s.strip().replace(',', '').replace('$', '')
+    return t(s)
+
+
 def _extract_answer(return_type, text, answer_pattern):
     """Extract and type-cast the answer from LLM output."""
     if answer_pattern is None and return_type is str:
@@ -272,7 +284,7 @@ def _extract_answer(return_type, text, answer_pattern):
         raise ValueError(f'cannot find answer matching pattern {answer_pattern!r}')
     final_answer = match_result.group(1).strip()
     if return_type in [int, str, float]:
-        return return_type(final_answer)
+        return _coerce_numeric(final_answer, return_type)
     return ast.literal_eval(final_answer)
 
 class ToolUsingFactory(Implementation.Factory):
