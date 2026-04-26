@@ -95,8 +95,15 @@ def _run_agent_impl(interface, model_name, return_type, prompt, tools):
 
 def _run_agent(interface, model_name, return_type, prompt, tools):
     """Run a pydantic agent, with optional cachier caching via config."""
-    return cached(_run_agent_impl, hash_func=_run_agent_hashkey)(
+    result = cached(_run_agent_impl, hash_func=_run_agent_hashkey)(
         interface, model_name, return_type, prompt, tools)
+    if result is None:
+        import sys
+        sys.stderr.write(
+            f'[warn] cached(_run_agent_impl) returned None for model={model_name}; '
+            f'bypassing cache once.\n')
+        result = _run_agent_impl(interface, model_name, return_type, prompt, tools)
+    return result
 
 class SimulatePydanticFactory(SimulateFactory, ToolUsingFactory):
     """Simulate a function call using a pydantic-ai Agent.
