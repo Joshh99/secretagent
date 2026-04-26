@@ -193,6 +193,14 @@ class SimulateFactory(Implementation.Factory):
         if return_type is str:
             return text.strip()
 
+        # Fence-fallback: model emitted ```python\nClassName(...)\n``` without
+        # <answer> tags. Recoverable when return_type is a pydantic BaseModel.
+        fence_match = re.search(r'```(?:python|json)?\s*\n?(.*?)\n?```', text, re.DOTALL)
+        if fence_match:
+            candidate = fence_match.group(1).strip()
+            pydantic_result = _parse_pydantic_constructor(candidate, return_type)
+            if pydantic_result is not None:
+                return pydantic_result
         raise ValueError('cannot find final answer')
 
 
