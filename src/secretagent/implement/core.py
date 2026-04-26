@@ -163,9 +163,10 @@ class SimulateFactory(Implementation.Factory):
             if pydantic_result is not None:
                 return pydantic_result
             try:
-                return json.loads(final_answer)
+                parsed = json.loads(final_answer)
             except json.JSONDecodeError:
-                return ast.literal_eval(final_answer)
+                parsed = ast.literal_eval(final_answer)
+            return _maybe_model_validate(parsed, return_type)
 
         # Fallback for dict/list: extract JSON from the raw output
         if return_type in [dict, list] or (hasattr(return_type, '__origin__')
@@ -329,6 +330,20 @@ def _parse_pydantic_constructor(text: str, return_type):
     return return_type.model_validate(kwargs)
 
 
+def _maybe_model_validate(parsed, return_type):
+    """If return_type is a pydantic BaseModel and parsed is a dict-like,
+    coerce via model_validate so missing/renamed fields surface as
+    ValidationError instead of being returned as a raw dict.
+    """
+    try:
+        from pydantic import BaseModel
+    except ImportError:
+        return parsed
+    if isinstance(return_type, type) and issubclass(return_type, BaseModel):
+        return return_type.model_validate(parsed)
+    return parsed
+
+
 def _extract_answer(return_type, text, answer_pattern):
     """Extract and type-cast the answer from LLM output."""
     if answer_pattern is None and return_type is str:
@@ -347,7 +362,8 @@ def _extract_answer(return_type, text, answer_pattern):
     pydantic_result = _parse_pydantic_constructor(final_answer, return_type)
     if pydantic_result is not None:
         return pydantic_result
-    return ast.literal_eval(final_answer)
+    parsed = ast.literal_eval(final_answer)
+    return _maybe_model_validate(parsed, return_type)
 
 class ToolUsingFactory(Implementation.Factory):
     """Abstract base for factories that use resolved tool lists.
