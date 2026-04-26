@@ -137,11 +137,14 @@ class SimulateFactory(Implementation.Factory):
         examples_text = ""
         if examples:
             examples_text = format_examples_as_doctests(interface.name, examples)
+        return_type = interface.annotations.get('return', str)
+        schema_block = _format_pydantic_schema(return_type)
         prompt = template.substitute(
             dict(stub_src=interface.src,
                  input_args=input_args,
                  thoughts=thoughts,
-                 examples=examples_text))
+                 examples=examples_text,
+                 schema_block=schema_block))
         return prompt
 
     def parse_output(self, return_type, text):
@@ -336,6 +339,30 @@ def _parse_pydantic_constructor(text: str, return_type):
         return None
     kwargs = {kw.arg: _eval_ast_node(kw.value) for kw in tree.body.keywords}
     return return_type.model_validate(kwargs)
+
+
+def _format_pydantic_schema(model_cls) -> str:
+    """Build a schema block to embed in simulate prompts.
+
+    Returns an empty string for non-pydantic return types so the prompt
+    template substitution stays a no-op.  When the return type is a
+    pydantic BaseModel, embeds the JSON Schema so the LLM sees the
+    actual field names and types instead of inferring them from the
+    function signature alone.
+    """
+    try:
+        from pydantic import BaseModel
+    except ImportError:
+        return ""
+    if not (isinstance(model_cls, type) and issubclass(model_cls, BaseModel)):
+        return ""
+    schema = model_cls.model_json_schema()
+    return (
+        f"\nThe return value must be a `{model_cls.__name__}` matching this JSON Schema:\n\n"
+        f"```json\n{json.dumps(schema, indent=2)}\n```\n\n"
+        f"Use EXACTLY the field names and types shown above. Return a single JSON object\n"
+        f"matching this schema (no extra fields, no renamed fields).\n"
+    )
 
 
 def _maybe_model_validate(parsed, return_type):

@@ -16,7 +16,8 @@ from litellm import cost_per_token
 from secretagent import config, record
 from secretagent.cache_util import cached
 from secretagent.core import register_factory
-from secretagent.implement.core import SimulateFactory, ToolUsingFactory
+from secretagent.implement.core import (
+    SimulateFactory, ToolUsingFactory, _format_pydantic_schema)
 from secretagent.implement.util import load_template
 from secretagent.llm_util import echo_boxed, _retry_with_backoff
 
@@ -178,10 +179,13 @@ class SimulatePydanticFactory(SimulateFactory, ToolUsingFactory):
             thoughts = "<thought>\nANY THOUGHTS\n</thought>\n"
         else:
             thoughts = ""
+        return_type = interface.annotations.get('return', str)
+        schema_block = _format_pydantic_schema(return_type)
         prompt = template.substitute(
             dict(stub_src=interface.src,
                  args=input_args,
-                 thoughts=thoughts))
+                 thoughts=thoughts,
+                 schema_block=schema_block))
         return prompt
 
 def _summarize_messages(messages):
