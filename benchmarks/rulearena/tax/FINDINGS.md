@@ -186,3 +186,154 @@ Translating airline's effects to tax (no claim of precision; orientation only):
 - Whether the `tax_1_17` complex case (with `self_employed=True` triggering Schedule C) shifts from `extraction_failure` to `KeyError` after F4 — that is, whether F4 gives the LLM enough schema to recover or just makes the bug visible at a deeper layer.
 
 Source data and full analysis: `benchmarks/rulearena/airline/FINDINGS.md` Phase C postscript and the working sheet at `/c/tmp/react_followups.md`.
+
+---
+
+## Phase C results: tax 5-strategy V3.1 sweep (2026-04-27)
+
+All runs: `together_ai/deepseek-ai/DeepSeek-V3.1`, n=50, seed=137, `cachier.enable_caching=false` (cache-busted for F4 prompt change). Branch `experiment/tax-work` at `bd182d3` (all 8 Phase B+C framework commits).
+
+### Headline
+
+| strategy | correct | % | mean cost/case | failure breakdown |
+|---|---|---|---|---|
+| unstructured_baseline | 29/50 | **58%** | $0.0094 | 21 calc_error |
+| structured_baseline | 5/50 | **10%** | $0.0066 | 45 calc_error |
+| **workflow** | 30/50 | **60%** | $0.0101 | 20 calc_error |
+| pot | 24/50 | **48%** | $0.0170 | 20 calc_error, 6 extraction_failure |
+| react (V3.1) | 7/50 | **14%** | $0.0399 | 19 calc_error, 24 extraction_failure |
+
+Per-level:
+
+| strategy | L0 (17) | L1 (16) | L2 (17) |
+|---|---|---|---|
+| unstr | 14 (82%) | 9 (56%) | 6 (35%) |
+| struct | 4 (24%) | 1 (6%) | 0 (0%) |
+| workflow | 11 (65%) | 10 (62%) | 9 (53%) |
+| pot | 9 (53%) | 9 (56%) | 6 (35%) |
+| react | 4 (24%) | 2 (12%) | 1 (6%) |
+
+Oracle (any-of-5): **46/50 (92%)**. Best pair: workflow + unstr = 41/50 (82%) = workflow + pot. Only 4 cases no strategy solves (tax_0_49, tax_1_17, tax_1_82, tax_2_40).
+
+### Comparison with airline Phase C followups
+
+| strategy | airline | tax | gap | explanation |
+|---|---|---|---|---|
+| unstr | 60% | 58% | −2 pp | Comparable — both are raw LLM reasoning |
+| struct | 42% | 10% | −32 pp | Tax's 75-field complexity overwhelms one-shot simulate |
+| **workflow** | **94%** | **60%** | **−34 pp** | Extraction quality on 75 fields is the bottleneck, not the calculator |
+| pot | 62% | 48% | −14 pp | No dict-asymmetry crashes on tax (see below); calc errors dominate |
+| react | 58% | 14% | −44 pp | `simulate` parser breaks on 75-field extraction (see below) |
+
+**Tax is universally harder than airline** except on unstr (which bypasses extraction). The gap scales with extraction complexity: strategies that extract a pydantic model (workflow, pot, react) all underperform their airline counterparts, and the gap widens with parser fragility (react worst, workflow least bad).
+
+### Predictions from "Cross-domain Phase C lessons" — scorecard
+
+| Prediction | Result |
+|---|---|
+| "F4's lever should be bigger on tax" | **Partially confirmed.** F4 eliminated the schema-hallucination `KeyError` patterns that dominated airline branch-B react (0%) and pot. But tax's improvement is capped by a *different* bottleneck: extraction quality on 75 fields. Workflow reached 60% (not 94%), and react only 14%. |
+| "Workflow should approach airline's 94% ceiling" | **Falsified.** 60%, not 94%. The 75-field TaxParams extraction via simulate_pydantic succeeds on all 50 cases (no extraction_failure), but extracts wrong param values on 20/50. Airline's 5-field AirlineParams was easier to extract correctly. |
+| "PoT will hit `params['X'] = Y` dict-assignment crashes" | **Falsified.** 0/50 dict-assignment crashes (airline had 7/50). With 75 fields, the LLM calls tools wholesale (`params = extract_tax_params(forms_text)`) rather than manipulating individual fields. Schema complexity suppresses the dict-asymmetry bug. |
+| "struct/unstr: small gain at best" | **Confirmed.** No prior tax n=50 baseline exists for direct comparison, but struct at 10% and unstr at 58% are consistent with "F4 doesn't fire on numeric return types." |
+
+### Per-strategy residual analysis
+
+#### Unstructured baseline (29/50 = 58%)
+
+21 calculation errors, 0 extraction failures, 0 transport. Clean run.
+
+Error magnitude: 3 under 5%, 6 at 5-10%, 3 at 10-25%, 2 at 25-50%, 4 at 50-100%, 3 over 100%.
+
+The sign-flip finding (documented earlier in this file) persists: `tax_1_44` predicted +2076.10 vs GT -2089.20 (pure sign-flip, 0.6% magnitude error if negated). The prompt's "tax owed" framing still biases the model on refund cases.
+
+Steep level gradient: L0 82% → L1 56% → L2 35%. Unstr dominates on L0 (highest of all strategies) because simple cases are easy to reason about in one shot; complex cases (L2 with multiple schedules) expose the model's arithmetic limits.
+
+#### Structured baseline (5/50 = 10%)
+
+45 calculation errors, 0 extraction failures. INFRA #1 (comma coercion) is working — no comma-format parsing failures, confirming that finding is resolved.
+
+Catastrophically bad: 22/45 errors exceed 100% relative error. Many cases show 12-13 output_tokens with ~1s latency — the model emits a terse hallucinated number with no visible reasoning (computation goes to `reasoning_content`). The model cannot one-shot a 75-field tax calculation. This was expected from the airline comparison (airline struct = 42%, already the weakest pipeline strategy) but the magnitude is worse: tax struct is bounded by compute-layer quality and **not improvable by framework changes**.
+
+Level gradient: L0 24% → L1 6% → L2 0%.
+
+#### Workflow (30/50 = 60%)
+
+20 calculation errors, 0 extraction failures, 0 transport. All 50 cases completed clean.
+
+**Extraction succeeds 50/50** (simulate_pydantic for extract_tax_params), meaning the pydantic-ai Agent returns a valid TaxParams object for every case. The 20 errors are all calculation errors where the extracted param values were wrong, not where extraction failed. The calculator is deterministic; every error traces to wrong params.
+
+Error shape is bimodal:
+- 5 catastrophic failures (>95% rel error): `tax_0_49` (pred=0.0), `tax_1_99` (pred=0.0), `tax_2_2` (pred=-61.50 vs GT 26495.50), `tax_2_27` (pred=-6391.80 vs GT 17209.84), `tax_1_92` (sign wrong). These likely have fundamentally wrong filing_status or income fields.
+- 12 bounded errors (2-45% rel error): wrong deduction amounts, missed credits, or schedule-level extraction errors. The calculator faithfully computes the wrong answer from slightly-wrong params.
+- 3 borderline misses (<5%): `tax_0_24` (1.9%), `tax_1_47` (4.7%), `tax_2_4` (4.9%).
+
+Level gradient is flatter than unstr: L0 65% → L1 62% → L2 53%. The calculator backstop normalizes difficulty across levels — when extraction succeeds, the answer is exact.
+
+**Key shared-extraction evidence:** `tax_1_17` produces **identical** wrong predictions in both workflow (-3648.75) and pot (-3648.75). Both call the same `extract_tax_params`, get the same wrong params, and the calculator deterministically computes the same wrong answer. The extraction layer is shared and load-bearing.
+
+#### PoT (24/50 = 48%)
+
+20 calculation errors, 6 extraction failures.
+
+**Extraction failure sub-shapes (6):**
+
+| Shape | Count | Cases |
+|---|---|---|
+| pydantic_retry_exhausted | 3 | tax_0_37, tax_0_30, tax_1_82 |
+| code_parsing_syntax (`<answer>` instead of Python) | 2 | tax_1_44, tax_2_56 |
+| sandbox_import_blocked (`from typing`) | 1 | tax_0_85 |
+
+**Zero dict-assignment-on-pydantic crashes.** Airline pot had 7/50 `params["X"] = Y` crashes (the canonical INFRA #2.C/D bug). Tax pot has none. With 75 fields, the LLM generates `params = extract_tax_params(forms_text)` → `result = compute_tax_calculator(params)` as wholesale function calls. The `inject_args=true` Makefile flag keeps `forms_text` in the sandbox, reinforcing this pattern. The dict-asymmetry bug's failure surface **depends on schema complexity**: small schema → LLM manipulates individual fields → crashes; large schema → LLM calls tools wholesale → no crash. INFRA #2.C/D is still the correct fix but is not blocking tax pot.
+
+Calculation errors: 14/20 exceed 50% relative error, with 6 over 100%. PoT's error distribution is heavier-tailed than workflow's because the generated code can compound extraction mistakes with its own logic errors.
+
+Cross-strategy complementarity with workflow: only 13 cases both get right, 9 both get wrong. 17 cases workflow-only, 11 cases pot-only. 5 cases pot uniquely gets right that both workflow and unstr miss (tax_2_59, tax_2_23, tax_2_77, tax_0_44, tax_1_47) — all because PoT's code execution is exact when extraction succeeds, recovering borderline cases where workflow's slightly-wrong params push it over tolerance.
+
+#### React V3.1 (7/50 = 14%)
+
+19 calculation errors, 24 extraction failures, 0 transport.
+
+**The headline failure: 48% extraction failure rate, entirely from parser fragility on 75-field TaxParams.**
+
+Extraction failure sub-shapes (24):
+
+| Shape | Count | Description |
+|---|---|---|
+| `cannot find final answer` | 15 | No `<answer>` tag, no parseable fence block in simulate output |
+| `expression expected after dictionary key and ':'` | 5 | `<answer>` found but dict syntax malformed |
+| `invalid decimal literal` | 2 | `<answer>` found but number formatting invalid |
+| `malformed node or string` | 1 | ast.literal_eval choked on constructor |
+| `unterminated string literal` | 1 | LLM output has unclosed string |
+
+**Root cause: `simulate` parser cannot reliably handle 75-field TaxParams.**
+
+React overrides `extract_tax_params.method=simulate` (from `simulate_pydantic`) because pydantic-ai cannot nest agents — the outer `compute_tax_answer` agent calls extraction as a tool, and registering a `simulate_pydantic` interface as a pydantic-ai tool would create a nested `Agent.run_sync()` call (event loop collision). The `simulate` factory's parser relies on `<answer>` tags + json/literal_eval/constructor fallbacks. For airline's 5-field AirlineParams this works (airline react = 58%). For tax's 75-field TaxParams — where the LLM output is 2000+ chars of field/value pairs — the parser hits edge cases 48% of the time.
+
+The 15 "cannot find final answer" cases include **easy L0 cases that every other strategy gets right** (tax_0_12, tax_0_22, tax_0_37, tax_0_85). The model likely produces correct params but formats them in a way the parser doesn't recognize. This is a pipeline failure, not a reasoning failure.
+
+**Contrast with workflow:** In workflow, `extract_tax_params.method=simulate_pydantic` handles extraction natively through pydantic-ai's structured output with validation and retries → **extraction succeeds 50/50.** Same model, same schema, same F4 injection. The only difference is the parser. React's extraction success rate is 26/50 = 52%; among those 26 parseable cases, 7/26 = 27% get the right answer. The parser failure is the dominant loss channel.
+
+**Fix candidates (not applied — pending discussion):**
+- **(a) Two-phase react.** Extract params first via `simulate_pydantic`, then pass to the react agent which only has `compute_tax_calculator` as a tool. Eliminates the nested-agent constraint entirely. No framework change needed — just a different Makefile wiring.
+- **(b) Structured-output factory.** New factory using litellm's native JSON-mode or function-calling for extraction, bypassing both simulate's parser and pydantic-ai nesting. Framework change, but broadly useful.
+- **(c) Parser hardening.** Extend simulate's `parse_output` to try `{...}` block extraction (like the existing dict/list fallback at line 174-193 of `core.py`) for BaseModel return types when `<answer>` tags are missing. Incremental improvement; doesn't solve the format-diversity problem for very long outputs.
+
+**Cost:** React is by far the most expensive at $0.040/case (4× workflow). Individual cases reach $0.10+ (tax_2_59: $0.104, 157K input tokens, 341s latency).
+
+### What this confirms for the paper
+
+1. **Schema complexity is a first-order variable.** The same framework + model + strategy produces dramatically different results on airline (5 fields) vs tax (75 fields). The gap is NOT uniform across strategies — it scales with parser fragility: unstr (no extraction) is comparable, workflow (pydantic-ai extraction) loses 34 pp, react (simulate extraction) loses 44 pp.
+
+2. **The extraction layer is the universal bottleneck for pipeline strategies on tax.** Workflow, pot, and react all funnel through `extract_tax_params`. When extraction succeeds, the calculator is deterministic and exact. When extraction fails (wrong params or parser failure), no downstream step can recover. The 46/50 oracle ceiling confirms that the information is in the problem — the strategies just can't reliably extract it.
+
+3. **Parser robustness matters more than we predicted.** The "Cross-domain Phase C lessons" section predicted F4 would be the primary lever. It was — for airline. For tax, the *parser* downstream of F4 became the bottleneck, because F4 gives the LLM the right field names but the parser must then handle a 75-field output. The simulate parser's regex-based approach doesn't scale.
+
+4. **PoT dict-asymmetry is schema-size-dependent.** Airline's 7/50 dict-assignment crashes didn't reproduce on tax (0/50). The LLM's code generation strategy shifts from field-level manipulation to tool-level delegation when the schema is too complex to manipulate directly. INFRA #2.C/D is still correct but not the bottleneck here.
+
+### Next interventions (post this measurement)
+
+- **React fix (a) above** — two-phase react would be the cheapest test of whether react can approach workflow-level extraction quality on tax.
+- **Extraction quality** — workflow's 20/50 wrong-params cases are the next ceiling after parser issues. Auditing the extracted TaxParams values (via `record_details=true` rerun) would reveal which fields are systematically wrong and whether domain-specific prompt engineering (field descriptions, examples) can help.
+- **Tolerance analysis** — 3 workflow cases miss by <5% (tax_0_24 at 1.9%, tax_1_47 at 4.7%, tax_2_4 at 4.9%). A 5% tolerance threshold would flip these, pushing workflow to 33/50 = 66%.
+
+Source data: `benchmarks/rulearena/tax/results/20260427.{154642.workflow,165952.pot,174646.react}_v31_followups/`, `../secretagent/benchmarks/rulearena/tax/results/20260426.{021836.unstructured_baseline,133847.structured_baseline}/`.
