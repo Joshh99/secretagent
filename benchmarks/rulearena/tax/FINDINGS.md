@@ -135,3 +135,54 @@ The two collide only for **(Gemini-flash × tax × react)**. DeepSeek-V3.1 (prod
 ## Cache key is `(prompt, model)` only
 
 Tuning `max_tokens` / `reasoning_effort` / `temperature` via DOTPAIRS does NOT bust the cache (key is computed in `src/secretagent/llm_util.py:163` from `_llm_impl(prompt, model)` args only). Telltale of a stale-cache hit: re-run completes in <1s with bit-identical predictions and stats. Force a fresh call with `cachier.enable_caching=false`.
+
+---
+
+## Cross-domain Phase C lessons from airline (2026-04-27)
+
+The airline benchmark completed a full Phase C followup cycle on `experiment/infra-fixes` (post-merge with `experiment/infra-followups`). Four framework commits landed on top of the existing INFRA #1/#3/#4/#6 fixes:
+
+| Sha | Tag | Summary |
+|---|---|---|
+| `c850231` | F1 | defensive None bypass on pydantic `_run_agent` cache (mirrors INFRA #6 into the pydantic-ai path) |
+| `863a259` | F2 | `model_validate` dicts when `return_type` is a BaseModel — surfaces ValidationError at parser boundary |
+| `1cc91fa` | F3 | fence-block fallback when `<answer>` tag is missing (recovers ` ```python ClassName(...) ``` ` shapes) |
+| `fd84417` | **F4** | **pydantic schema injection** into `simulate` / `simulate_pydantic` prompts — embeds `model_json_schema()` so the LLM sees actual field names instead of inferring from the function signature |
+
+Airline n=50 / seed=137 / V3.1 / `cachier.enable_caching=false`:
+
+| strategy | branch B | followups | Δ |
+|---|---|---|---|
+| unstr | 44% | 60% | +16 pp |
+| struct | 40% | 42% | +2 pp |
+| **workflow** | 76% | **94%** | **+18 pp** |
+| pot | 60% | 62% | +2 pp |
+| **react V3.1** | 0% | **58%** | **+58 pp** |
+| react gemini-2.5 | 6% | 52% | +46 pp |
+
+### What this means for tax
+
+1. **F4 is the primary lever, and tax should benefit MORE than airline.** TaxParams is ~75 fields vs AirlineParams's 5. The PoT entry in this FINDINGS already documents that schema hallucination on rich pydantic models is severe for tax (e.g. `tax_params.get("Schedule C (Form 1040)_Line 1 - Gross receipts or sales", 0.0)`). F4 puts the actual field names directly in the prompt — for tax, this is a prediction of large lift on react and workflow.
+
+2. **PoT pydantic/dict asymmetry is now visible, not invisible.** Airline's pot run on followups produced 7/50 cases of `Code execution failed at line 'params["X"] = Y'` — F4 helped the LLM use the *correct* field names, but the LLM still emits dict-assignment code that crashes on a pydantic instance. The asymmetry IS the bug; F4 doesn't fix it. **INFRA #2.C** (sandbox preamble `params = params.model_dump() if hasattr(params, 'model_dump') else params`) or **#2.A** (re-type `compute_tax_calculator(params: TaxParams)`) is the unblocker for pot. Existing tax FINDINGS entry "PoT: schema hallucination on rich pydantic models" gets validated by airline's data — pursue both #2.E (now done as F4) AND #2.C/D for tax pot.
+
+3. **Workflow on tax should approach a similar ceiling to airline (94%).** Airline workflow uses `extract_airline_params` (simulate) → `compute_airline_calculator` (simulate). Both calls return a pydantic model in extraction's case → F4 fires. Tax has the same structure. Note: the 2026-04-26 15:05 tax workflow run hit a 50/50 wipe from a sustained TogetherAI 500-burst (NOT a framework regression — INFRA #4's 3-attempt retry budget got swamped). Rerun when TogetherAI is healthy.
+
+4. **Transport noise is bursty on TogetherAI.** INFRA #4's 3-attempt budget is too thin for sustained outages — airline's V3.1 react lost 12/50 to 5xx, and tax workflow lost 50/50 in one stretch. If a tax run shows a 5xx cluster, treat as environmental and rerun rather than diagnosing further. INFRA #4 retry-bump is now a known followup (filed for post-Mon meeting).
+
+5. **`<answer>` tag scaffold reliability differs by model.** Airline's gemini followups run still left 20/50 cases as "cannot find final answer" — F3 fence-fallback didn't catch gemini's verbose multi-fence chain-of-thought shape. The existing tax FINDINGS entry "React + Gemini-flash + extract_*_params.method=simulate is broken" describes the same symptom from the smoke run; F4 reduces the rate but doesn't eliminate it on gemini. Keep that FINDINGS entry's caveat live.
+
+### Predicted Phase C tax numbers
+
+Translating airline's effects to tax (no claim of precision; orientation only):
+- **react** — biggest expected gain. Airline V3.1 baseline 0% → followups 58%. Tax react with V3.1 likely lifts substantially from current branch B baseline (whatever the existing tax FINDINGS records — probably also near 0%).
+- **workflow** — large gain expected. Airline 76% → 94%. Tax workflow currently has no clean post-followups data point (the 04-26 run is the 50/50 transport wipe). Re-run priority.
+- **pot** — modest gain expected, capped by the dict-assignment asymmetry. Without INFRA #2.C/D, tax pot will hit `tax_params["X"] = Y` crashes the same way airline did.
+- **struct / unstr** — small gain at best. Both return numeric types where F4 doesn't fire on the top-level call.
+
+### Things tax-specific NOT yet known
+
+- Whether tax exhibits gemini's "verbose multi-fence" parser shape that F3 missed on airline. If gemini is in scope for tax experiments, that residual will likely resurface.
+- Whether the `tax_1_17` complex case (with `self_employed=True` triggering Schedule C) shifts from `extraction_failure` to `KeyError` after F4 — that is, whether F4 gives the LLM enough schema to recover or just makes the bug visible at a deeper layer.
+
+Source data and full analysis: `benchmarks/rulearena/airline/FINDINGS.md` Phase C postscript and the working sheet at `/c/tmp/react_followups.md`.

@@ -1,8 +1,24 @@
 # RuleArena infrastructure fixes
 
-Cross-domain framework-level changes encountered while building per-domain benchmarks. Not yet applied. Living list — finalize with Prof.
+Cross-domain framework-level changes encountered while building per-domain benchmarks. Living list — finalize with Prof.
 
 Each entry: **What** (symptom) / **Where** (file:line) / **Fix** / **Risk** / **Evidence**.
+
+## Status (as of 2026-04-27)
+
+All on `experiment/infra-fixes` (single shipping branch; `experiment/infra-followups` was FF-merged in and deleted on 2026-04-27).
+
+| Item | Status | Commit |
+|---|---|---|
+| #1 numeric coercion (commas/$) | **DONE** (Phase B) | `d29195c` |
+| #2.A/B/C/D PoT pydantic/dict asymmetry | pending | — |
+| **#2.E PoT/simulate schema injection** | **DONE** (Phase C, "F4") — load-bearing fix | `fd84417` |
+| #3 simulate parser layered (constructor + fence) | **DONE** (Phase B base + Phase C followups) | `a08738f`, `863a259`, `1cc91fa` |
+| #4 retry on 5xx/429 | **DONE** (Phase B) — but budget is thin for sustained outages, follow-on bump pending | `fec2ca7` |
+| #5 `run_all_valid.sh` exit code bug | pending | — |
+| #6 `cached(_llm_impl)` returns None | **DONE** (Phase B + Phase C "F1" extension to pydantic-ai path) | `6e53d6b`, `c850231` |
+
+**Phase B / Phase C empirical impact** is documented in `benchmarks/rulearena/airline/FINDINGS.md` (Phase C postscript). Headline: V3.1 react 0% → 58%, gemini react 6% → 52%, workflow 76% → 94% on airline n=50. F4 (#2.E) is the lever for any pydantic-returning interface; #2.C/D remain the unblocker for PoT.
 
 ---
 

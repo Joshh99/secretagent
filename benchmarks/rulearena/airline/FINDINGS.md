@@ -302,3 +302,72 @@ Items #1, #2, #4, #5 of this FINDINGS.md were already fixed in branch A and merg
 - **G2 rank 8 (INFRA #2.E — schema injection into simulate prompt)** — now elevated from "improves further; not quantified" to "the only remaining unblocker for react." Recommended scope: edit `src/secretagent/implement/prompt_templates/simulate.txt` to include a serialized schema block when `return_type` is a pydantic BaseModel, mirroring what pydantic-ai already does at the agent layer.
 - **G4 deferred items remain deferred** (PoT pydantic/dict asymmetry, tear-down crashes, empty-rollout harness gap, direction calculator semantics). None blocked by branch B.
 
+---
+
+## Phase C postscript: cross-model react re-runs + 5-strategy V3.1 sweep on followups (2026-04-26 / 2026-04-27)
+
+Branch B's diagnosis ("react=0% root cause is schema hallucination, fixable only via INFRA #2.E") was confirmed in two stages: a gemini-2.5-flash re-run on branch B (which retained 6% — schema hallucination is universal across V3.1 and gemini, not a model-specific quirk) and then a four-commit Phase C followup that cured it.
+
+### Phase C followup commits (on `experiment/infra-fixes`, after merging `experiment/infra-followups`)
+
+| Sha | Tag | Summary |
+|---|---|---|
+| `c850231` | F1 | `infra(pydantic): defensive None bypass on _run_agent cache` — mirrors INFRA #6 into the pydantic-ai cache wrapper |
+| `863a259` | F2 | `infra(parser): model_validate dicts when return_type is BaseModel` — ValidationError surfaces at parser boundary instead of much later as KeyError |
+| `1cc91fa` | F3 | `infra(parser): fence-block fallback when <answer> tag missing` — recovers ` ```python ClassName(...) ``` ` shapes |
+| `fd84417` | **F4** | `infra(prompt): inject pydantic schema for BaseModel return types` — **the load-bearing fix.** Embeds `model_json_schema()` into simulate / simulate_pydantic prompts. |
+
+### Phase C V3.1 sweep (n=50 / seed=137 / `cachier.enable_caching=false` to bust F4 prompt change)
+
+| strategy | baseline | branch A | branch B | **followups** | Δ vs B |
+|---|---|---|---|---|---|
+| unstr_baseline | 32% | 36% | 44% | **60%** (30/50) | **+16 pp** |
+| structured_baseline | 36% | 40% | 40% | 42% (21/50) | +2 pp |
+| **workflow** | 24% | 76% | 76% | **94%** (47/50) | **+18 pp** |
+| pot | 26% | 60% | 60% | 62% (31/50) | +2 pp |
+| **react (V3.1)** | 0% | 0% | 0% | **58%** (29/50) | **+58 pp** |
+| react (gemini-2.5-flash) | — | — | 6% | **52%** (26/50) | **+46 pp** |
+
+**Three strategies move materially**: workflow (→ near-data-ceiling 94%), unstr (+16 pp), and both react variants (+46–58 pp). struct and pot essentially flat (+2 pp). The pattern is consistent with F4 being the lever:
+- workflow / react / unstr's `extract_*_params` calls return a pydantic BaseModel → F4 fires → schema visible to LLM → field-name hallucination cured.
+- struct / pot top-level calls return primitive types — F4 doesn't fire on them. Their extraction-tool calls do benefit, but the bottleneck for these strategies is elsewhere (struct: numeric inaccuracy at calc layer; pot: dict-assignment-on-pydantic asymmetry — see below).
+
+### Phase C residual failure shapes
+
+**V3.1 react (21 fails, 29/50 correct):**
+- 12 transport: 6× 500, 4× 503, 2× 429 — bursty TogetherAI window during this run; the other 4 V3.1 sweep runs that followed within 5 hours had **zero** 5xx hits, so this is environmental, not framework-side. INFRA #4's 3-attempt budget should still be bumped (the tax workflow run on 2026-04-26 15:05 lost 50/50 to a sustained TogetherAI 500-burst, confirming the budget is too thin).
+- 4 schema-residual: 3× `KeyError 'size'` + 1× `KeyError 'weight'` — agent emitted a dict missing required fields despite F4 schema in prompt
+- 3 parser tail: F3 fence regex didn't catch the shape
+- 1 pydantic-ai output validation retry exhausted; 1 numeric-incorrect
+
+**gemini react (24 fails, 26/50 correct):**
+- 20 "cannot find final answer" — F3 doesn't catch gemini's verbose multi-fence chain-of-thought shape; rollouts have len=0 because pydantic-ai raises before record(). Needs single-case `echo.llm_output=true` audit.
+- 3 numeric-incorrect (~5% off) — same shape as the 3 baseline tool-bypass cases; gemini sometimes answers without invoking tools (deferred as F6)
+- 1 `No choices returned from LiteLLM` — gemini transport blip
+
+**pot (19 fails, 31/50 correct):** ⭐ **PoT pydantic/dict asymmetry confirmed in flesh.** 7 cases are `Code execution failed at line 'params["customer_class"] = ...'` — F4 helped the LLM use *correct* field names, but the LLM still emits `params[X] = ...` style code that crashes on a pydantic instance. F4 made the bug visible by removing the field-name hallucination noise; **INFRA #2.C (sandbox preamble `params = params.model_dump()`) or #2.A (re-type `compute_*_calculator(params: <DomainParams>)`) is the next unblocker for pot.**
+
+**struct (29 fails, 21/50 correct):** 25 numeric-incorrect (calc-layer accuracy bound) + 4 parser shapes where the LLM emitted `<answer>` text bleeding outside the tag. Not affected by F4 because struct's top-level return type is `int`. struct is now bound by *content quality at the compute layer*, not extraction.
+
+**workflow (3 fails, 47/50 correct):** 2 numeric-incorrect + 1 pydantic-ai output validation retry. **Effectively at data ceiling.**
+
+### Cost / token deltas
+
+V3.1 react followups: mean cost $0.0241/case, mean output_tokens 591, mean latency 58.9s. workflow: $0.0090/case (cheapest of the lot — direct path with two simulate calls). gemini react: $0.0326/case, output_tokens 7,999 (verbose CoT vs. V3.1's terse 591).
+
+### What this confirms for the paper
+
+1. **Schema hallucination was the universal root cause for react=0%**, validated across two model families. F4 is the durable fix; F1–F3 are correct but secondary cleanup.
+2. **F4's lever applies anywhere a pydantic BaseModel is returned through `simulate` or `simulate_pydantic`**. Cross-domain prediction: tax (TaxParams ≈ 75 fields) should see *larger* lift than airline (AirlineParams = 5 fields).
+3. **Failure mix is now strategy- and model-specific** — the "extraction failure" bucket has fragmented into transport, parser-shape, calc-accuracy, and PoT-asymmetry sub-buckets, each with a different next intervention.
+4. **Workflow at 94%** sets a real ceiling line: any strategy that doesn't reach it needs to explain why.
+
+### Next interventions (post-prof meeting)
+
+- **INFRA #2.C/D (PoT asymmetry)** — biggest pot lever after this round
+- **INFRA #4 retry budget bump** — verify pydantic-ai path actually invokes `_retry_with_backoff` end-to-end (V3.1's 12 unrecovered 5xx + tax workflow's full 50/50 wipe-out on 2026-04-26 confirms the current budget is inadequate for sustained outages)
+- **F3 regex broadening** — single-case audit on gemini's 20 unrecovered "cannot find final answer" cases
+- **F6 (deferred)** — gemini-2.5 sometimes bypasses tool calls; behavioral, ~3 cases per gemini run
+
+Source data: `benchmarks/rulearena/airline/results/20260426.034436.react_v31_followups/`, `20260426.034502.react_gemini25/`, `20260426.044824.unstructured_baseline_v31_followups/`, `20260426.060959.structured_baseline_v31_followups/`, `20260426.071133.workflow_v31_followups/`, `20260426.073138.pot_v31_followups/`. Working comparison sheet: `/c/tmp/react_followups.md`.
+
