@@ -2,12 +2,12 @@
 # Run experiments - all on the validation data
 #
 
-.PHONY: basics unstructured_baseline structured_baseline pot react \
+.PHONY: basics unstructured_baseline structured_baseline workflow pot react \
         list avg pair compare plot costs resplit partition
 
 DOTPAIRS ?=
 
-basics: unstructured_baseline structured_baseline pot react
+basics: unstructured_baseline structured_baseline workflow pot react
 
 # zero-shot unstructured queries with a vanilla prompt
 # the prompt returns True/False which is parsed by _parse_verdict_answer
@@ -21,6 +21,14 @@ unstructured_baseline:
 structured_baseline:
 	uv run python -m secretagent.cli.expt run --interface ptools.compute_nba_answer --evaluator evaluator.NbaEvaluator evaluate.expt_name=structured_baseline \
 	  ptools.compute_nba_answer.method=simulate \
+	  $(DOTPAIRS)
+
+# the hand-coded workflow: LLM extracts NbaResult via simulate_pydantic,
+# then return float(verdict). No calculator - extraction IS the answer.
+workflow:
+	uv run python -m secretagent.cli.expt run --interface ptools.compute_nba_answer --evaluator evaluator.NbaEvaluator evaluate.expt_name=workflow \
+	  ptools.compute_nba_answer.method=direct \
+	  ptools.compute_nba_answer.fn=ptools.nba_workflow \
 	  $(DOTPAIRS)
 
 # program of thoughts; inject_args keeps problem_text/rules_text as sandbox
