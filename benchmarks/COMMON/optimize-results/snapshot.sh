@@ -93,7 +93,7 @@ uv run -m secretagent.cli.optimize nsga2 \\
   --space-file $CWD/nsga2.yaml \\
   --cwd $CWD \\
   --pop-size 12 --n-gen 5 --timeout 1200 \\
-  <dataset overrides — see EXPERIMENT_CMDS.md Phase 1 for the exact split>
+  <dataset overrides — see ../_archive/20260506_paper_submission/EXPERIMENT_CMDS.md Phase 1 for the exact split>
 \`\`\`
 
 ## Methods searched
