@@ -20,7 +20,14 @@ dotlist expansions per method.
 
 ## Files
 
-- `nsga2_summary.csv` — one row per evaluated config
+- `nsga2_summary.csv` — one row per evaluated config (valid split)
 - `nsga2_generations.csv` — per-generation convergence stats
 - `nsga2.png` — Pareto plot (cost vs correctness)
 - `nsga_runs/<TS>.nsga_NNN/` — per-config rollout dirs (0 total)
+
+## Test pass
+
+**Skipped for finqa.** The public release ships only the dev set
+(`benchmarks/finqa/data/raw/dev.json`, 883 cases); the FinQA leaderboard
+test set is private. The optimizer's `valid` numbers are the only honest
+report we have, so paper numbers come straight from `nsga2_summary.csv`.

@@ -12,6 +12,25 @@ This directory is a frozen snapshot of one NSGA-II sweep on RuleArena NBA, the c
 | `nsga2.png` | Cost-vs-accuracy scatter with Pareto frontier highlighted |
 | `nsga_runs/nsga_001/ … nsga_043/` | Per-config result dirs — `config.yaml`, `results.csv`, `results.jsonl` |
 | `baselines/baseline_*/` | Six-model baseline runs (Pareto reference for the sweep) |
+| `test_pass_summary.csv` | Paired (valid, test) numbers per Pareto config |
+
+## Test pass
+
+Optimizer scored on `valid`; the unbiased generalization numbers come from
+re-running each Pareto-optimal config once on `test`:
+
+```bash
+uv run python benchmarks/COMMON/optimize-results/test_pass.py nba
+```
+
+See `benchmarks/COMMON/optimize-results/test_pass_README.md` for details.
+
+```bash
+# pull the test numbers via the standard CLI
+uv run -m secretagent.cli.results average \
+  --check evaluate.expt_name=test_pass_* \
+  benchmarks/rulearena/nba/results
+```
 
 ## Where the cache lives (not in this directory)
 

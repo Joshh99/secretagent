@@ -20,7 +20,26 @@ dotlist expansions per method.
 
 ## Files
 
-- `nsga2_summary.csv` — one row per evaluated config
+- `nsga2_summary.csv` — one row per evaluated config (valid split)
 - `nsga2_generations.csv` — per-generation convergence stats
 - `nsga2.png` — Pareto plot (cost vs correctness)
 - `nsga_runs/<TS>.nsga_NNN/` — per-config rollout dirs (0 total)
+- `test_pass_summary.csv` — paired (valid, test) numbers per Pareto config
+
+## Test pass
+
+Optimizer scored on `valid`; the unbiased generalization numbers come from
+re-running each Pareto-optimal config once on `test`:
+
+```bash
+uv run python benchmarks/COMMON/optimize-results/test_pass.py sports
+```
+
+See `benchmarks/COMMON/optimize-results/test_pass_README.md` for details.
+
+```bash
+# pull the test numbers via the standard CLI
+uv run -m secretagent.cli.results average \
+  --check evaluate.expt_name=test_pass_* \
+  benchmarks/bbh/sports_understanding/results
+```
