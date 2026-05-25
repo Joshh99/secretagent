@@ -1,0 +1,21 @@
+llm:
+  model: gemini/gemini-2.5-flash
+cachier:
+  cache_dir: C:\Users\STUDENT\OneDrive\Documents\Projects\AI Research\secretagent\benchmarks\bbh\sports_understanding\llm_cache
+evaluate:
+  result_dir: C:\Users\STUDENT\OneDrive\Documents\Projects\AI Research\secretagent\benchmarks\bbh\sports_understanding\results
+  expt_name: test_pass_structured_baseline_gemini-2-5-flash
+dataset:
+  split: test
+  shuffle_seed: 137
+  'n': 100
+ptools:
+  analyze_sentence:
+    method: simulate
+  sport_for:
+    method: simulate
+  consistent_sports:
+    method: simulate
+  are_sports_in_sentence_consistent:
+    method: simulate
+root: C:\Users\STUDENT\OneDrive\Documents\Projects\AI Research\secretagent\benchmarks\bbh\sports_understanding

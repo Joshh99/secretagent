@@ -1,0 +1,629 @@
+case_name,predicted_output,expected_output,correct,input_tokens,output_tokens,latency,cost,expt_name
+29227,"$0.24
+FINAL ANSWER",0.24,False,409.0,259.0,4.235013246536255,0.00021674999999999998,test_pass_structured_baseline_gpt-oss-120b
+18986,$7,7,True,405.0,312.0,2.93194580078125,0.00024795,test_pass_structured_baseline_gpt-oss-120b
+33817,19,19,True,407.0,289.0,2.8612046241760254,0.00023444999999999998,test_pass_structured_baseline_gpt-oss-120b
+34752,"FINAL ANSWER
+85",85,False,458.0,343.0,5.199722051620483,0.0002745,test_pass_structured_baseline_gpt-oss-120b
+1288,5,5,True,393.0,272.0,3.915814161300659,0.00022214999999999998,test_pass_structured_baseline_gpt-oss-120b
+18048,$51.45,51.45,True,395.0,205.0,3.430000066757202,0.00018224999999999998,test_pass_structured_baseline_gpt-oss-120b
+3527,"109.53
+FINAL ANSWER",109.53,False,413.0,251.0,4.299814701080322,0.00021255,test_pass_structured_baseline_gpt-oss-120b
+27944,23,23,True,453.0,472.0,8.008254528045654,0.00035115,test_pass_structured_baseline_gpt-oss-120b
+13497,9,9,True,436.0,631.0,9.775866985321045,0.00044399999999999995,test_pass_structured_baseline_gpt-oss-120b
+19411,"7
+FINAL ANSWER",7,False,400.0,290.0,3.9921247959136963,0.000234,test_pass_structured_baseline_gpt-oss-120b
+6626,"FINAL ANSWER
+-2",-2,False,416.0,153.0,2.986999988555908,0.0001542,test_pass_structured_baseline_gpt-oss-120b
+30432,4,4,True,417.0,558.0,5.72385573387146,0.00039735,test_pass_structured_baseline_gpt-oss-120b
+15918,"nonlinear
+FINAL ANSWER",nonlinear,False,377.0,386.0,4.26657772064209,0.00028815,test_pass_structured_baseline_gpt-oss-120b
+22746,22,22,True,407.0,199.0,2.4780054092407227,0.00018044999999999997,test_pass_structured_baseline_gpt-oss-120b
+25289,9,9,True,394.0,314.0,5.537976980209351,0.0002475,test_pass_structured_baseline_gpt-oss-120b
+18822,1,1,True,408.0,464.0,6.131128311157227,0.0003396,test_pass_structured_baseline_gpt-oss-120b
+28247,6.76,6.76,True,417.0,180.0,2.530567169189453,0.00017055,test_pass_structured_baseline_gpt-oss-120b
+2085,-1,-1,True,415.0,186.0,2.648810863494873,0.00017384999999999997,test_pass_structured_baseline_gpt-oss-120b
+27287,"FINAL ANSWER
+10",10,False,419.0,171.0,2.476461410522461,0.00016544999999999998,test_pass_structured_baseline_gpt-oss-120b
+12914,20,20,True,394.0,448.0,5.170605897903442,0.0003279,test_pass_structured_baseline_gpt-oss-120b
+16900,2/7,2/7,True,418.0,359.0,4.742250204086304,0.0002781,test_pass_structured_baseline_gpt-oss-120b
+29793,"0
+FINAL ANSWER",0,False,416.0,627.0,10.976858139038086,0.0004386,test_pass_structured_baseline_gpt-oss-120b
+13426,FINAL ANSWER,11,False,462.0,521.0,6.853447675704956,0.0003819,test_pass_structured_baseline_gpt-oss-120b
+17353,11,11,True,456.0,522.0,5.794831037521362,0.00038159999999999995,test_pass_structured_baseline_gpt-oss-120b
+22927,2,2,True,443.0,421.0,4.341696739196777,0.00031905000000000003,test_pass_structured_baseline_gpt-oss-120b
+17651,$7,7,True,422.0,424.0,4.010864496231079,0.00031769999999999997,test_pass_structured_baseline_gpt-oss-120b
+22739,3,3,True,451.0,397.0,3.562880754470825,0.00030585,test_pass_structured_baseline_gpt-oss-120b
+20615,11,11,True,408.0,560.0,5.553415536880493,0.0003972,test_pass_structured_baseline_gpt-oss-120b
+13790,$176.28,176.28,True,402.0,285.0,3.38344669342041,0.00023129999999999998,test_pass_structured_baseline_gpt-oss-120b
+28918,1.06,1.06,True,394.0,231.0,2.541010618209839,0.00019769999999999998,test_pass_structured_baseline_gpt-oss-120b
+23399,$19.27,19.27,True,412.0,314.0,3.45955491065979,0.0002502,test_pass_structured_baseline_gpt-oss-120b
+35781,no,no,True,406.0,266.0,2.986239194869995,0.0002205,test_pass_structured_baseline_gpt-oss-120b
+29944,6,6,True,384.0,291.0,3.5198235511779785,0.00023219999999999998,test_pass_structured_baseline_gpt-oss-120b
+18621,69/127,69/127,True,402.0,477.0,11.822699785232544,0.00034649999999999997,test_pass_structured_baseline_gpt-oss-120b
+34882,yes,yes,True,405.0,292.0,5.891223430633545,0.00023595000000000002,test_pass_structured_baseline_gpt-oss-120b
+13889,3,3,True,442.0,404.0,5.266992807388306,0.00030869999999999997,test_pass_structured_baseline_gpt-oss-120b
+21997,25,25,True,388.0,289.0,4.608453989028931,0.0002316,test_pass_structured_baseline_gpt-oss-120b
+27062,10,10,True,433.0,387.0,6.29921817779541,0.00029715,test_pass_structured_baseline_gpt-oss-120b
+2178,"2
+FINAL ANSWER",2,False,414.0,393.0,4.9156012535095215,0.0002979,test_pass_structured_baseline_gpt-oss-120b
+16080,6,6,True,400.0,293.0,3.801791191101074,0.00023579999999999999,test_pass_structured_baseline_gpt-oss-120b
+2198,18,18,True,413.0,155.0,2.3519599437713623,0.00015495,test_pass_structured_baseline_gpt-oss-120b
+10348,25,25,True,390.0,195.0,4.115742444992065,0.00017549999999999998,test_pass_structured_baseline_gpt-oss-120b
+29011,19/124,19/124,True,398.0,241.0,3.0652496814727783,0.00020429999999999998,test_pass_structured_baseline_gpt-oss-120b
+6681,"$1,522.81","1,522.81",True,437.0,208.0,3.109363079071045,0.00019035,test_pass_structured_baseline_gpt-oss-120b
+17351,"FINAL ANSWER
+5",5,False,426.0,478.0,6.793478488922119,0.00035069999999999996,test_pass_structured_baseline_gpt-oss-120b
+29691,8,8,True,428.0,484.0,5.676374912261963,0.0003546,test_pass_structured_baseline_gpt-oss-120b
+6310,$3,3,True,412.0,297.0,3.5902581214904785,0.00023999999999999998,test_pass_structured_baseline_gpt-oss-120b
+5717,5/17,5/17,True,427.0,299.0,3.056429147720337,0.00024344999999999998,test_pass_structured_baseline_gpt-oss-120b
+27569,"9:00 P.M.
+FINAL ANSWER",9:00 P.M.,False,612.0,606.0,8.725815773010254,0.0004554,test_pass_structured_baseline_gpt-oss-120b
+4730,yes,yes,True,434.0,239.0,3.7419142723083496,0.00020849999999999997,test_pass_structured_baseline_gpt-oss-120b
+16134,"FINAL ANSWER
+5",5,False,420.0,224.0,3.106334686279297,0.00019739999999999997,test_pass_structured_baseline_gpt-oss-120b
+36976,6,6,True,394.0,278.0,3.1413609981536865,0.0002259,test_pass_structured_baseline_gpt-oss-120b
+748,"FINAL ANSWER
+12",12,False,426.0,400.0,4.839048624038696,0.00030389999999999996,test_pass_structured_baseline_gpt-oss-120b
+6749,1 minute per day,1,False,401.0,297.0,3.4886417388916016,0.00023835,test_pass_structured_baseline_gpt-oss-120b
+15761,-34,-34,True,411.0,253.0,4.000611305236816,0.00021345,test_pass_structured_baseline_gpt-oss-120b
+21816,"July
+FINAL ANSWER",July,False,400.0,333.0,4.137211084365845,0.00025979999999999997,test_pass_structured_baseline_gpt-oss-120b
+24688,$3,3,True,410.0,281.0,3.069744348526001,0.0002301,test_pass_structured_baseline_gpt-oss-120b
+28365,surplus,surplus,True,444.0,168.0,1.8408358097076416,0.0001674,test_pass_structured_baseline_gpt-oss-120b
+8128,10,10,True,388.0,261.0,2.8409194946289062,0.0002148,test_pass_structured_baseline_gpt-oss-120b
+21521,-4,-4,True,413.0,276.0,3.168145179748535,0.00022754999999999997,test_pass_structured_baseline_gpt-oss-120b
+21385,"FINAL ANSWER
+21",21,False,411.0,120.0,1.8166992664337158,0.00013365,test_pass_structured_baseline_gpt-oss-120b
+11709,"$0.46
+FINAL ANSWER",0.46,False,405.0,182.0,3.8596792221069336,0.00016994999999999998,test_pass_structured_baseline_gpt-oss-120b
+23579,2,2,True,404.0,161.0,2.192099094390869,0.00015719999999999997,test_pass_structured_baseline_gpt-oss-120b
+14730,6,6,True,401.0,295.0,3.141444444656372,0.00023715,test_pass_structured_baseline_gpt-oss-120b
+13774,$6.22,6.22,True,402.0,312.0,4.610663890838623,0.0002475,test_pass_structured_baseline_gpt-oss-120b
+33078,$522.00,522,True,395.0,188.0,2.0611298084259033,0.00017204999999999998,test_pass_structured_baseline_gpt-oss-120b
+12840,2,2,True,421.0,472.0,4.837860345840454,0.00034635,test_pass_structured_baseline_gpt-oss-120b
+626,4,4,True,426.0,417.0,3.9568684101104736,0.0003141,test_pass_structured_baseline_gpt-oss-120b
+7314,"FINAL ANSWER
+7",7,False,438.0,462.0,5.354037284851074,0.00034289999999999993,test_pass_structured_baseline_gpt-oss-120b
+54,shortage,shortage,True,443.0,136.0,1.623051404953003,0.00014805,test_pass_structured_baseline_gpt-oss-120b
+1529,Tuesday,Tuesday,True,404.0,289.0,3.031381607055664,0.000234,test_pass_structured_baseline_gpt-oss-120b
+11449,22/81,22/81,True,403.0,476.0,4.527957916259766,0.00034605,test_pass_structured_baseline_gpt-oss-120b
+18477,58,58,True,404.0,210.0,2.372936725616455,0.00018659999999999998,test_pass_structured_baseline_gpt-oss-120b
+9567,$1.59,1.59,True,412.0,190.0,2.1359715461730957,0.0001758,test_pass_structured_baseline_gpt-oss-120b
+18972,16,16,True,413.0,342.0,4.089491605758667,0.00026715,test_pass_structured_baseline_gpt-oss-120b
+33850,59,59,True,407.0,449.0,4.747531175613403,0.00033045,test_pass_structured_baseline_gpt-oss-120b
+26626,yes,yes,True,419.0,206.0,2.19638991355896,0.00018645,test_pass_structured_baseline_gpt-oss-120b
+33673,"FINAL ANSWER
+47.40",47.40,False,406.0,230.0,2.76735520362854,0.00019889999999999998,test_pass_structured_baseline_gpt-oss-120b
+2900,"$4.35
+FINAL ANSWER",4.35,False,410.0,216.0,2.4695489406585693,0.00019109999999999998,test_pass_structured_baseline_gpt-oss-120b
+34427,"FINAL ANSWER
+20",20,False,383.0,218.0,2.482318162918091,0.00018825,test_pass_structured_baseline_gpt-oss-120b
+29844,no,no,True,401.0,258.0,3.590994358062744,0.00021495,test_pass_structured_baseline_gpt-oss-120b
+18995,16.98,16.98,True,404.0,301.0,3.7132723331451416,0.0002412,test_pass_structured_baseline_gpt-oss-120b
+6428,$2.80,2.80,True,403.0,346.0,4.058004856109619,0.00026805,test_pass_structured_baseline_gpt-oss-120b
+31688,"FINAL ANSWER
+8",8,False,428.0,416.0,5.052577972412109,0.0003138,test_pass_structured_baseline_gpt-oss-120b
+7285,1471,"1,471",True,398.0,211.0,2.631343126296997,0.00018629999999999997,test_pass_structured_baseline_gpt-oss-120b
+28606,"12
+FINAL ANSWER",12,False,399.0,336.0,4.081006288528442,0.00026145,test_pass_structured_baseline_gpt-oss-120b
+34357,$543.00,543,True,392.0,217.0,2.4933063983917236,0.00018899999999999999,test_pass_structured_baseline_gpt-oss-120b
+11551,$0.53,0.53,True,393.0,273.0,3.338381290435791,0.00022275,test_pass_structured_baseline_gpt-oss-120b
+20100,"$24,850","24,850",True,410.0,254.0,4.350070476531982,0.0002139,test_pass_structured_baseline_gpt-oss-120b
+974,"FINAL ANSWER
+$3,151.00","3,151",False,441.0,246.0,3.232565402984619,0.00021374999999999996,test_pass_structured_baseline_gpt-oss-120b
+25673,-3,-3,True,413.0,330.0,3.8953053951263428,0.00025995,test_pass_structured_baseline_gpt-oss-120b
+7505,$35.33,35.33,True,420.0,409.0,5.060657739639282,0.0003084,test_pass_structured_baseline_gpt-oss-120b
+16053,yes,yes,True,432.0,291.0,3.236846923828125,0.0002394,test_pass_structured_baseline_gpt-oss-120b
+19638,"FINAL ANSWER
+23",23,False,392.0,416.0,6.091616868972778,0.0003084,test_pass_structured_baseline_gpt-oss-120b
+1318,March,March,True,403.0,251.0,2.9374096393585205,0.00021105,test_pass_structured_baseline_gpt-oss-120b
+35255,"2625
+FINAL ANSWER","2,625",False,405.0,305.0,3.718127965927124,0.00024375,test_pass_structured_baseline_gpt-oss-120b
+15293,5,5,True,450.0,232.0,2.820539951324463,0.00020669999999999998,test_pass_structured_baseline_gpt-oss-120b
+22456,"$13,111.00","13,111",True,418.0,246.0,3.5627996921539307,0.00021029999999999996,test_pass_structured_baseline_gpt-oss-120b
+11698,$1.60,1.60,True,415.0,392.0,4.1820456981658936,0.00029745,test_pass_structured_baseline_gpt-oss-120b
+32002,yes,yes,True,421.0,239.0,3.7074644565582275,0.00020655,test_pass_structured_baseline_gpt-oss-120b
+24781,"9
+FINAL ANSWER",9,False,417.0,261.0,2.858459234237671,0.00021915,test_pass_structured_baseline_gpt-oss-120b
+11208,4/11,4/11,True,428.0,270.0,3.094738245010376,0.00022619999999999997,test_pass_structured_baseline_gpt-oss-120b
+35718,nonlinear,nonlinear,True,377.0,167.0,1.9872655868530273,0.00015675,test_pass_structured_baseline_gpt-oss-120b
+35917,16,16,True,408.0,264.0,4.092224359512329,0.0002196,test_pass_structured_baseline_gpt-oss-120b
+22404,"FINAL ANSWER
+$47.00",47,False,406.0,248.0,2.6713764667510986,0.00020969999999999997,test_pass_structured_baseline_gpt-oss-120b
+36766,surplus,surplus,True,444.0,220.0,2.8950035572052,0.00019859999999999998,test_pass_structured_baseline_gpt-oss-120b
+35414,"FINAL ANSWER
+3/17",3/17,False,407.0,356.0,4.1203083992004395,0.00027465,test_pass_structured_baseline_gpt-oss-120b
+27277,"$4
+FINAL ANSWER",4,False,378.0,346.0,3.905611753463745,0.0002643,test_pass_structured_baseline_gpt-oss-120b
+11327,-1,-1,True,405.0,129.0,1.7019250392913818,0.00013815,test_pass_structured_baseline_gpt-oss-120b
+19588,17,17,True,398.0,302.0,5.276012420654297,0.00024089999999999997,test_pass_structured_baseline_gpt-oss-120b
+30253,1/3,1/3,True,414.0,288.0,3.0490574836730957,0.0002349,test_pass_structured_baseline_gpt-oss-120b
+8615,10:15 A.M.,10:15 A.M.,True,484.0,370.0,5.89619779586792,0.0002946,test_pass_structured_baseline_gpt-oss-120b
+16285,7,7,True,422.0,342.0,3.4209372997283936,0.00026849999999999997,test_pass_structured_baseline_gpt-oss-120b
+1174,44,44,True,404.0,171.0,1.9380114078521729,0.0001632,test_pass_structured_baseline_gpt-oss-120b
+14096,30,30,True,393.0,222.0,2.5478968620300293,0.00019214999999999998,test_pass_structured_baseline_gpt-oss-120b
+30841,Truman High,Truman High,True,410.0,297.0,3.314655065536499,0.00023969999999999997,test_pass_structured_baseline_gpt-oss-120b
+12428,4,4,True,411.0,192.0,2.263251304626465,0.00017685,test_pass_structured_baseline_gpt-oss-120b
+20848,no,no,True,453.0,375.0,3.703057289123535,0.00029295,test_pass_structured_baseline_gpt-oss-120b
+9308,11,11,True,421.0,352.0,4.5182859897613525,0.00027435,test_pass_structured_baseline_gpt-oss-120b
+5634,$12,12,True,400.0,230.0,3.9004294872283936,0.000198,test_pass_structured_baseline_gpt-oss-120b
+19229,Valentina,Valentina,True,419.0,332.0,3.1484076976776123,0.00026205,test_pass_structured_baseline_gpt-oss-120b
+15883,no,no,True,410.0,183.0,1.63655424118042,0.0001713,test_pass_structured_baseline_gpt-oss-120b
+24577,7,7,True,407.0,306.0,4.2356367111206055,0.00024465,test_pass_structured_baseline_gpt-oss-120b
+7222,9,9,True,407.0,252.0,2.7259578704833984,0.00021224999999999998,test_pass_structured_baseline_gpt-oss-120b
+21468,$1195.00,"1,195",True,404.0,183.0,1.769120216369629,0.0001704,test_pass_structured_baseline_gpt-oss-120b
+12567,$4.74,4.74,True,400.0,354.0,3.7329094409942627,0.0002724,test_pass_structured_baseline_gpt-oss-120b
+30971,3,3,True,438.0,487.0,4.9970128536224365,0.00035789999999999997,test_pass_structured_baseline_gpt-oss-120b
+25979,"20
+FINAL ANSWER",20,False,383.0,175.0,1.6736140251159668,0.00016245,test_pass_structured_baseline_gpt-oss-120b
+36188,13,13,True,410.0,213.0,2.04467511177063,0.0001893,test_pass_structured_baseline_gpt-oss-120b
+19149,2,2,True,415.0,244.0,3.5806126594543457,0.00020864999999999998,test_pass_structured_baseline_gpt-oss-120b
+32634,volleyball team,volleyball team,True,412.0,209.0,3.377058267593384,0.0001872,test_pass_structured_baseline_gpt-oss-120b
+31395,19,19,True,414.0,463.0,4.710506439208984,0.00033989999999999997,test_pass_structured_baseline_gpt-oss-120b
+33019,62,62,True,425.0,430.0,5.682839393615723,0.00032175,test_pass_structured_baseline_gpt-oss-120b
+13617,$29.00,29,True,391.0,504.0,5.768606185913086,0.00036104999999999997,test_pass_structured_baseline_gpt-oss-120b
+21983,no,no,True,427.0,233.0,2.822464942932129,0.00020385,test_pass_structured_baseline_gpt-oss-120b
+29656,12,12,True,393.0,261.0,4.00366735458374,0.00021554999999999998,test_pass_structured_baseline_gpt-oss-120b
+6738,"1:30 P.M.
+FINAL ANSWER",1:30 P.M.,False,534.0,517.0,7.054513692855835,0.0003903,test_pass_structured_baseline_gpt-oss-120b
+2596,107,107,True,390.0,253.0,3.2850332260131836,0.00021030000000000002,test_pass_structured_baseline_gpt-oss-120b
+13529,90,90,True,390.0,143.0,1.9684734344482422,0.00014429999999999998,test_pass_structured_baseline_gpt-oss-120b
+29996,shortage,shortage,True,444.0,142.0,3.004985809326172,0.0001518,test_pass_structured_baseline_gpt-oss-120b
+34068,Australia,Australia,True,433.0,130.0,1.7898283004760742,0.00014294999999999998,test_pass_structured_baseline_gpt-oss-120b
+34651,$1.01,1.01,True,404.0,228.0,2.644383192062378,0.00019739999999999997,test_pass_structured_baseline_gpt-oss-120b
+35820,"30
+FINAL ANSWER",30,False,408.0,350.0,3.9206418991088867,0.0002712,test_pass_structured_baseline_gpt-oss-120b
+12746,"$0.07
+FINAL ANSWER",0.07,False,431.0,239.0,3.007607936859131,0.00020805,test_pass_structured_baseline_gpt-oss-120b
+27223,$246.00,246,True,403.0,198.0,3.092425584793091,0.00017925,test_pass_structured_baseline_gpt-oss-120b
+15197,68,68,True,449.0,336.0,3.4864890575408936,0.00026895,test_pass_structured_baseline_gpt-oss-120b
+17301,3:35 P.M.,3:35 P.M.,True,546.0,313.0,5.672656059265137,0.0002697,test_pass_structured_baseline_gpt-oss-120b
+15130,The Real Chicago,The Real Chicago,True,425.0,270.0,3.0802714824676514,0.00022574999999999998,test_pass_structured_baseline_gpt-oss-120b
+12270,7,7,True,422.0,272.0,4.288576602935791,0.00022649999999999998,test_pass_structured_baseline_gpt-oss-120b
+25277,20,20,True,391.0,105.0,1.467984676361084,0.00012165,test_pass_structured_baseline_gpt-oss-120b
+27706,relay race,relay race,True,579.0,455.0,7.420364141464233,0.00035985,test_pass_structured_baseline_gpt-oss-120b
+34713,"12
+FINAL ANSWER",12,False,402.0,266.0,3.2500874996185303,0.0002199,test_pass_structured_baseline_gpt-oss-120b
+17268,3,3,True,422.0,365.0,4.7962729930877686,0.0002823,test_pass_structured_baseline_gpt-oss-120b
+19387,-4 minutes per day,-4,False,411.0,282.0,3.7701971530914307,0.00023085,test_pass_structured_baseline_gpt-oss-120b
+23413,8,8,True,410.0,260.0,3.8375093936920166,0.00021749999999999997,test_pass_structured_baseline_gpt-oss-120b
+18331,9,9,True,428.0,398.0,5.580934762954712,0.000303,test_pass_structured_baseline_gpt-oss-120b
+7017,3 minutes per year,3,False,412.0,189.0,2.3408801555633545,0.00017519999999999998,test_pass_structured_baseline_gpt-oss-120b
+9994,"FINAL ANSWER
+30",30,False,378.0,159.0,3.155380964279175,0.0001521,test_pass_structured_baseline_gpt-oss-120b
+25670,"FINAL ANSWER
+6",6,False,450.0,506.0,6.387683868408203,0.0003711,test_pass_structured_baseline_gpt-oss-120b
+27521,$12.80,12.80,True,404.0,195.0,2.4455158710479736,0.00017759999999999998,test_pass_structured_baseline_gpt-oss-120b
+21323,-3,-3,True,415.0,198.0,2.318950653076172,0.00018104999999999998,test_pass_structured_baseline_gpt-oss-120b
+5914,Germany,Germany,True,434.0,286.0,3.2943451404571533,0.0002367,test_pass_structured_baseline_gpt-oss-120b
+22693,9,9,True,405.0,261.0,3.8149211406707764,0.00021735,test_pass_structured_baseline_gpt-oss-120b
+15127,8,8,True,404.0,315.0,3.4221458435058594,0.0002496,test_pass_structured_baseline_gpt-oss-120b
+37086,"56
+FINAL ANSWER",56,False,427.0,377.0,4.02836012840271,0.00029025,test_pass_structured_baseline_gpt-oss-120b
+25485,"$0.06
+FINAL ANSWER",0.06,False,414.0,181.0,2.799243927001953,0.00017069999999999998,test_pass_structured_baseline_gpt-oss-120b
+13677,2/11,2/11,True,437.0,336.0,3.8341541290283203,0.00026714999999999996,test_pass_structured_baseline_gpt-oss-120b
+30761,$2,2,True,421.0,301.0,3.201885938644409,0.00024375,test_pass_structured_baseline_gpt-oss-120b
+15375,10,10,True,394.0,278.0,2.7310798168182373,0.0002259,test_pass_structured_baseline_gpt-oss-120b
+3796,"FINAL ANSWER
+90",90,False,444.0,373.0,5.173795938491821,0.0002904,test_pass_structured_baseline_gpt-oss-120b
+34630,"Friday
+FINAL ANSWER",Friday,False,406.0,305.0,3.0131094455718994,0.0002439,test_pass_structured_baseline_gpt-oss-120b
+18261,shortage,shortage,True,444.0,234.0,2.5153849124908447,0.000207,test_pass_structured_baseline_gpt-oss-120b
+16903,"10
+FINAL ANSWER",10,False,422.0,329.0,3.50521183013916,0.0002607,test_pass_structured_baseline_gpt-oss-120b
+9755,4,4,True,409.0,250.0,2.751929521560669,0.00021135,test_pass_structured_baseline_gpt-oss-120b
+24231,"FINAL ANSWER
+60",60,False,404.0,376.0,3.613201379776001,0.00028619999999999996,test_pass_structured_baseline_gpt-oss-120b
+28790,$13.00,13,True,402.0,227.0,2.3561649322509766,0.0001965,test_pass_structured_baseline_gpt-oss-120b
+24930,$14.25,14.25,True,398.0,166.0,1.7177116870880127,0.0001593,test_pass_structured_baseline_gpt-oss-120b
+5182,Edward,Edward,True,397.0,150.0,2.752042293548584,0.00014954999999999998,test_pass_structured_baseline_gpt-oss-120b
+23572,October,October,True,403.0,185.0,2.124178171157837,0.00017145,test_pass_structured_baseline_gpt-oss-120b
+38148,1/5,1/5,True,433.0,397.0,3.8809854984283447,0.00030314999999999997,test_pass_structured_baseline_gpt-oss-120b
+13196,5,5,True,402.0,264.0,3.5051159858703613,0.0002187,test_pass_structured_baseline_gpt-oss-120b
+12208,$9.52,9.52,True,429.0,234.0,2.3141164779663086,0.00020475,test_pass_structured_baseline_gpt-oss-120b
+5343,"$15.00
+FINAL ANSWER",15,False,446.0,236.0,2.377079486846924,0.0002085,test_pass_structured_baseline_gpt-oss-120b
+3669,"40
+FINAL ANSWER",40,False,430.0,278.0,2.619591474533081,0.00023129999999999998,test_pass_structured_baseline_gpt-oss-120b
+12655,"36
+FINAL ANSWER",36,False,408.0,352.0,4.547010183334351,0.0002724,test_pass_structured_baseline_gpt-oss-120b
+17570,15,15,True,419.0,370.0,3.6031579971313477,0.00028485,test_pass_structured_baseline_gpt-oss-120b
+37673,-5,-5,True,428.0,461.0,4.289418935775757,0.0003408,test_pass_structured_baseline_gpt-oss-120b
+32067,"FINAL ANSWER
+7",7,False,452.0,424.0,3.9641177654266357,0.0003222,test_pass_structured_baseline_gpt-oss-120b
+33682,88,88,True,431.0,504.0,4.631582736968994,0.00036704999999999995,test_pass_structured_baseline_gpt-oss-120b
+14201,54,54,True,396.0,284.0,2.3434805870056152,0.0002298,test_pass_structured_baseline_gpt-oss-120b
+6480,nonlinear,nonlinear,True,377.0,310.0,3.9254260063171387,0.00024255,test_pass_structured_baseline_gpt-oss-120b
+1031,9,9,True,398.0,273.0,2.336909770965576,0.00022349999999999998,test_pass_structured_baseline_gpt-oss-120b
+13409,42,42,True,406.0,256.0,3.1845929622650146,0.00021449999999999998,test_pass_structured_baseline_gpt-oss-120b
+18753,"$7
+FINAL ANSWER",7,False,385.0,125.0,1.537489414215088,0.00013275,test_pass_structured_baseline_gpt-oss-120b
+17562,"FINAL ANSWER
+23",23,False,451.0,379.0,3.9039392471313477,0.00029505,test_pass_structured_baseline_gpt-oss-120b
+22819,yes,yes,True,390.0,250.0,2.507497787475586,0.00020849999999999997,test_pass_structured_baseline_gpt-oss-120b
+25721,"$1,807.80","1,807.80",True,433.0,208.0,3.3933730125427246,0.00018974999999999998,test_pass_structured_baseline_gpt-oss-120b
+2099,5,5,True,411.0,326.0,3.3994622230529785,0.00025725,test_pass_structured_baseline_gpt-oss-120b
+7602,buying a used phone,buying a used phone,True,447.0,324.0,3.322065830230713,0.00026145,test_pass_structured_baseline_gpt-oss-120b
+14504,European History class,European History class,True,493.0,571.0,5.530097484588623,0.00041654999999999996,test_pass_structured_baseline_gpt-oss-120b
+33200,linear,linear,True,377.0,175.0,1.962808609008789,0.00016155,test_pass_structured_baseline_gpt-oss-120b
+6280,$13,13,True,405.0,231.0,2.5850160121917725,0.00019935,test_pass_structured_baseline_gpt-oss-120b
+5584,3/10,3/10,True,462.0,344.0,5.807525396347046,0.0002757,test_pass_structured_baseline_gpt-oss-120b
+15957,"7:30 P.M.
+FINAL ANSWER",7:30 P.M.,False,786.0,559.0,5.64292049407959,0.00045329999999999996,test_pass_structured_baseline_gpt-oss-120b
+36780,1/3,1/3,True,444.0,389.0,4.711303234100342,0.0003,test_pass_structured_baseline_gpt-oss-120b
+5609,April,April,True,421.0,257.0,2.9109036922454834,0.00021735,test_pass_structured_baseline_gpt-oss-120b
+37451,$5,5,True,431.0,256.0,3.111757755279541,0.00021825,test_pass_structured_baseline_gpt-oss-120b
+2971,2058,"2,058",True,418.0,258.0,20.63472270965576,0.00021749999999999997,test_pass_structured_baseline_gpt-oss-120b
+29216,10,10,True,459.0,606.0,8.127378225326538,0.00043245,test_pass_structured_baseline_gpt-oss-120b
+11832,"$0.14
+FINAL ANSWER",0.14,False,401.0,216.0,2.5710713863372803,0.00018975,test_pass_structured_baseline_gpt-oss-120b
+38283,6,6,True,417.0,288.0,3.5491573810577393,0.00023535,test_pass_structured_baseline_gpt-oss-120b
+19530,19,19,True,411.0,529.0,6.0718162059783936,0.00037904999999999997,test_pass_structured_baseline_gpt-oss-120b
+29115,$15.36,15.36,True,419.0,410.0,4.316578388214111,0.00030884999999999994,test_pass_structured_baseline_gpt-oss-120b
+8658,32,32,True,405.0,231.0,2.656226396560669,0.00019935,test_pass_structured_baseline_gpt-oss-120b
+23191,45,45,True,416.0,353.0,3.8951191902160645,0.0002742,test_pass_structured_baseline_gpt-oss-120b
+29999,"9
+FINAL ANSWER",9,False,444.0,723.0,25.507011651992798,0.0005004,test_pass_structured_baseline_gpt-oss-120b
+20890,17,17,True,440.0,600.0,5.719322204589844,0.00042599999999999995,test_pass_structured_baseline_gpt-oss-120b
+19018,$2,2,True,432.0,230.0,2.444794178009033,0.0002028,test_pass_structured_baseline_gpt-oss-120b
+31558,1/6,1/6,True,420.0,384.0,4.590499639511108,0.0002934,test_pass_structured_baseline_gpt-oss-120b
+18492,shortage,shortage,True,444.0,250.0,3.168433666229248,0.00021659999999999998,test_pass_structured_baseline_gpt-oss-120b
+4827,no,no,True,398.0,178.0,6.103061199188232,0.00016649999999999998,test_pass_structured_baseline_gpt-oss-120b
+17683,8,8,True,428.0,362.0,3.574608087539673,0.0002814,test_pass_structured_baseline_gpt-oss-120b
+5525,30,30,True,381.0,287.0,8.722743272781372,0.00022935,test_pass_structured_baseline_gpt-oss-120b
+1198,"FINAL ANSWER
+90",90,False,436.0,398.0,5.819517612457275,0.00030419999999999997,test_pass_structured_baseline_gpt-oss-120b
+34365,"$8
+FINAL ANSWER",8,False,414.0,292.0,3.4910824298858643,0.0002373,test_pass_structured_baseline_gpt-oss-120b
+4986,50,50,True,391.0,246.0,4.184372425079346,0.00020624999999999997,test_pass_structured_baseline_gpt-oss-120b
+22308,6,6,True,399.0,310.0,4.520420789718628,0.00024585,test_pass_structured_baseline_gpt-oss-120b
+2365,"$4.90
+FINAL ANSWER",4.90,False,410.0,217.0,3.018812417984009,0.0001917,test_pass_structured_baseline_gpt-oss-120b
+32812,"$4,940.00","4,940",True,406.0,180.0,2.818147897720337,0.00016889999999999999,test_pass_structured_baseline_gpt-oss-120b
+21230,8,8,True,411.0,255.0,3.3728418350219727,0.00021464999999999999,test_pass_structured_baseline_gpt-oss-120b
+250,7,7,True,413.0,173.0,2.465833902359009,0.00016575,test_pass_structured_baseline_gpt-oss-120b
+35185,"linear
+FINAL ANSWER",linear,False,377.0,433.0,22.905416250228882,0.00031634999999999996,test_pass_structured_baseline_gpt-oss-120b
+23615,linear,linear,True,377.0,260.0,13.788594245910645,0.00021255,test_pass_structured_baseline_gpt-oss-120b
+16629,2154,"2,154",True,394.0,220.0,2.790828227996826,0.00019109999999999998,test_pass_structured_baseline_gpt-oss-120b
+27261,linear,linear,True,377.0,271.0,3.3711977005004883,0.00021915,test_pass_structured_baseline_gpt-oss-120b
+6934,"$4.89
+FINAL ANSWER",4.89,False,409.0,104.0,1.432875156402588,0.00012375,test_pass_structured_baseline_gpt-oss-120b
+27974,8,8,True,402.0,300.0,4.85280704498291,0.00024029999999999999,test_pass_structured_baseline_gpt-oss-120b
+23229,no,no,True,415.0,265.0,3.5085036754608154,0.00022124999999999998,test_pass_structured_baseline_gpt-oss-120b
+21210,10,10,True,459.0,386.0,5.173140525817871,0.00030044999999999996,test_pass_structured_baseline_gpt-oss-120b
+681,"$3.87
+FINAL ANSWER",3.87,False,403.0,319.0,13.870211601257324,0.00025184999999999997,test_pass_structured_baseline_gpt-oss-120b
+27692,12,12,True,471.0,451.0,4.843613147735596,0.00034125,test_pass_structured_baseline_gpt-oss-120b
+34521,"16
+FINAL ANSWER",16,False,427.0,262.0,6.247350215911865,0.00022124999999999998,test_pass_structured_baseline_gpt-oss-120b
+19023,Sofia,Sofia,True,401.0,203.0,2.4926726818084717,0.00018195,test_pass_structured_baseline_gpt-oss-120b
+21241,$5.66,5.66,True,395.0,188.0,1.9616141319274902,0.00017204999999999998,test_pass_structured_baseline_gpt-oss-120b
+5419,surplus,surplus,True,444.0,322.0,9.482957124710083,0.00025979999999999997,test_pass_structured_baseline_gpt-oss-120b
+6775,$84,84,True,418.0,278.0,3.835604667663574,0.0002295,test_pass_structured_baseline_gpt-oss-120b
+246,yes,yes,True,410.0,216.0,3.302473783493042,0.00019109999999999998,test_pass_structured_baseline_gpt-oss-120b
+16729,"FINAL ANSWER
+$191.00",191,False,400.0,281.0,6.828766345977783,0.0002286,test_pass_structured_baseline_gpt-oss-120b
+893,"19
+FINAL ANSWER",19,False,408.0,123.0,1.67327880859375,0.00013499999999999997,test_pass_structured_baseline_gpt-oss-120b
+7727,26,26,True,401.0,291.0,4.4685282707214355,0.00023475,test_pass_structured_baseline_gpt-oss-120b
+2423,27,27,True,425.0,390.0,4.74014687538147,0.00029775,test_pass_structured_baseline_gpt-oss-120b
+15674,linear,linear,True,377.0,370.0,6.1459128856658936,0.00027855,test_pass_structured_baseline_gpt-oss-120b
+11749,18,18,True,398.0,335.0,3.8447744846343994,0.0002607,test_pass_structured_baseline_gpt-oss-120b
+12834,"3
+FINAL ANSWER",3,False,412.0,130.0,3.0862877368927,0.00013979999999999998,test_pass_structured_baseline_gpt-oss-120b
+6810,2,2,True,413.0,259.0,3.6463513374328613,0.00021735,test_pass_structured_baseline_gpt-oss-120b
+24628,30,30,True,381.0,262.0,4.450343370437622,0.00021435,test_pass_structured_baseline_gpt-oss-120b
+10262,6,6,True,403.0,379.0,7.693796157836914,0.00028785,test_pass_structured_baseline_gpt-oss-120b
+23822,9,9,True,418.0,188.0,3.0284342765808105,0.00017549999999999998,test_pass_structured_baseline_gpt-oss-120b
+30477,yes,yes,True,409.0,247.0,6.580666780471802,0.00020955,test_pass_structured_baseline_gpt-oss-120b
+8683,27,27,True,402.0,354.0,4.422126770019531,0.00027269999999999996,test_pass_structured_baseline_gpt-oss-120b
+29889,"6
+FINAL ANSWER",6,False,421.0,662.0,10.31802773475647,0.00046035,test_pass_structured_baseline_gpt-oss-120b
+25288,86,86,True,413.0,328.0,5.378475666046143,0.00025875,test_pass_structured_baseline_gpt-oss-120b
+30154,3,3,True,413.0,342.0,11.45319676399231,0.00026715,test_pass_structured_baseline_gpt-oss-120b
+18008,yes,yes,True,374.0,301.0,4.009431838989258,0.0002367,test_pass_structured_baseline_gpt-oss-120b
+13639,7,7,True,462.0,538.0,8.481955766677856,0.0003921,test_pass_structured_baseline_gpt-oss-120b
+31439,"$64.41
+FINAL ANSWER",64.41,False,417.0,316.0,7.341787099838257,0.00025215000000000003,test_pass_structured_baseline_gpt-oss-120b
+8859,"$1,680","1,680",True,397.0,225.0,2.6689531803131104,0.00019454999999999999,test_pass_structured_baseline_gpt-oss-120b
+23262,false,false,True,487.0,271.0,4.462052583694458,0.00023565,test_pass_structured_baseline_gpt-oss-120b
+36517,"55
+FINAL ANSWER",55,False,401.0,333.0,5.129751682281494,0.00025995,test_pass_structured_baseline_gpt-oss-120b
+21432,7,7,True,412.0,398.0,4.978677988052368,0.0003006,test_pass_structured_baseline_gpt-oss-120b
+10744,$166.14,166.14,True,403.0,252.0,3.2701964378356934,0.00021165,test_pass_structured_baseline_gpt-oss-120b
+7302,"FINAL ANSWER
+1539","1,539",False,394.0,320.0,5.030553340911865,0.0002511,test_pass_structured_baseline_gpt-oss-120b
+584,4,4,True,415.0,538.0,7.174892425537109,0.00038504999999999995,test_pass_structured_baseline_gpt-oss-120b
+16102,yes,yes,True,400.0,319.0,6.335402011871338,0.0002514,test_pass_structured_baseline_gpt-oss-120b
+9065,-32,-32,True,411.0,242.0,3.475606679916382,0.00020685,test_pass_structured_baseline_gpt-oss-120b
+3488,29,29,True,409.0,298.0,4.24631142616272,0.00024014999999999998,test_pass_structured_baseline_gpt-oss-120b
+19798,"12
+FINAL ANSWER",12,False,419.0,257.0,3.6507015228271484,0.00021705,test_pass_structured_baseline_gpt-oss-120b
+6271,bromine mixture,bromine mixture,True,409.0,288.0,5.030571937561035,0.00023415,test_pass_structured_baseline_gpt-oss-120b
+11437,$8,8,True,425.0,219.0,3.1915674209594727,0.00019515,test_pass_structured_baseline_gpt-oss-120b
+18080,2,2,True,391.0,227.0,4.2133965492248535,0.00019485,test_pass_structured_baseline_gpt-oss-120b
+12712,"$25
+FINAL ANSWER",25,False,396.0,270.0,4.914188623428345,0.0002214,test_pass_structured_baseline_gpt-oss-120b
+25329,"parachute ball toss
+FINAL ANSWER",parachute ball toss,False,541.0,179.0,2.625140905380249,0.00018855,test_pass_structured_baseline_gpt-oss-120b
+12488,$23.28,23.28,True,416.0,298.0,4.2610838413238525,0.00024119999999999998,test_pass_structured_baseline_gpt-oss-120b
+17030,36.18,36.18,True,414.0,418.0,6.124770641326904,0.00031289999999999996,test_pass_structured_baseline_gpt-oss-120b
+9661,7/19,7/19,True,407.0,246.0,4.169105768203735,0.00020864999999999998,test_pass_structured_baseline_gpt-oss-120b
+31986,linear,linear,True,377.0,355.0,5.515744686126709,0.00026955,test_pass_structured_baseline_gpt-oss-120b
+11059,55.00,55,True,421.0,165.0,2.3450052738189697,0.00016215,test_pass_structured_baseline_gpt-oss-120b
+17097,23,23,True,447.0,646.0,8.435252904891968,0.00045465,test_pass_structured_baseline_gpt-oss-120b
+34052,"$0.24
+FINAL ANSWER",0.24,False,418.0,385.0,4.891002655029297,0.0002937,test_pass_structured_baseline_gpt-oss-120b
+28300,Friday,Friday,True,404.0,315.0,4.002098321914673,0.0002496,test_pass_structured_baseline_gpt-oss-120b
+20453,"20
+FINAL ANSWER",20,False,389.0,305.0,7.393441200256348,0.00024134999999999998,test_pass_structured_baseline_gpt-oss-120b
+6554,22,22,True,404.0,290.0,3.638916492462158,0.0002346,test_pass_structured_baseline_gpt-oss-120b
+20672,Bronx,Bronx,True,439.0,431.0,4.517570734024048,0.00032445,test_pass_structured_baseline_gpt-oss-120b
+23271,"7
+FINAL ANSWER",7,False,455.0,922.0,15.821853637695312,0.00062145,test_pass_structured_baseline_gpt-oss-120b
+16025,100/533,100/533,True,417.0,348.0,6.6764771938323975,0.00027134999999999995,test_pass_structured_baseline_gpt-oss-120b
+31787,Princeton,Princeton,True,556.0,308.0,7.724898338317871,0.0002682,test_pass_structured_baseline_gpt-oss-120b
+462,$3.30,3.30,True,406.0,255.0,3.4151861667633057,0.0002139,test_pass_structured_baseline_gpt-oss-120b
+7252,7/18,7/18,True,437.0,427.0,8.928098440170288,0.00032175,test_pass_structured_baseline_gpt-oss-120b
+16065,"8
+FINAL ANSWER",8,False,420.0,319.0,6.571202516555786,0.0002544,test_pass_structured_baseline_gpt-oss-120b
+19861,5,5,True,404.0,287.0,4.445894956588745,0.00023279999999999997,test_pass_structured_baseline_gpt-oss-120b
+1237,Spanish club,Spanish club,True,405.0,282.0,5.301745176315308,0.00022994999999999998,test_pass_structured_baseline_gpt-oss-120b
+21351,Thursday,Thursday,True,412.0,235.0,4.080047607421875,0.0002028,test_pass_structured_baseline_gpt-oss-120b
+15521,578,578,True,401.0,166.0,2.419515371322632,0.00015975,test_pass_structured_baseline_gpt-oss-120b
+11006,yes,yes,True,396.0,312.0,10.969690322875977,0.0002466,test_pass_structured_baseline_gpt-oss-120b
+16741,30,30,True,396.0,321.0,4.588212013244629,0.000252,test_pass_structured_baseline_gpt-oss-120b
+29007,6,6,True,445.0,473.0,6.53435492515564,0.00035055000000000004,test_pass_structured_baseline_gpt-oss-120b
+14054,-7,-7,True,411.0,249.0,6.211516618728638,0.00021105,test_pass_structured_baseline_gpt-oss-120b
+27081,"FINAL ANSWER
+8",8,False,383.0,223.0,2.671581983566284,0.00019125000000000001,test_pass_structured_baseline_gpt-oss-120b
+15350,14,14,True,409.0,385.0,5.448626518249512,0.00029235,test_pass_structured_baseline_gpt-oss-120b
+2945,11,11,True,458.0,701.0,8.031808614730835,0.0004893,test_pass_structured_baseline_gpt-oss-120b
+19977,9,9,True,426.0,275.0,3.0905821323394775,0.00022889999999999998,test_pass_structured_baseline_gpt-oss-120b
+21259,6 minutes per month,6,False,407.0,183.0,2.176431179046631,0.00017085,test_pass_structured_baseline_gpt-oss-120b
+20460,$7.80,7.80,True,443.0,257.0,2.966763496398926,0.00022064999999999997,test_pass_structured_baseline_gpt-oss-120b
+26523,17,17,True,434.0,467.0,5.01037859916687,0.0003453,test_pass_structured_baseline_gpt-oss-120b
+1597,Australia,Australia,True,438.0,123.0,2.4074203968048096,0.00013949999999999998,test_pass_structured_baseline_gpt-oss-120b
+33405,surplus,surplus,True,448.0,285.0,3.3043479919433594,0.0002382,test_pass_structured_baseline_gpt-oss-120b
+23441,318,318,True,399.0,285.0,3.503418445587158,0.00023084999999999997,test_pass_structured_baseline_gpt-oss-120b
+32431,60,60,True,403.0,394.0,4.904581546783447,0.00029685,test_pass_structured_baseline_gpt-oss-120b
+5472,33,33,True,418.0,378.0,4.901376724243164,0.0002895,test_pass_structured_baseline_gpt-oss-120b
+14678,"$5,349.00
+FINAL ANSWER","5,349",False,416.0,191.0,2.4767954349517822,0.000177,test_pass_structured_baseline_gpt-oss-120b
+17103,12,12,True,441.0,342.0,3.7440786361694336,0.00027135,test_pass_structured_baseline_gpt-oss-120b
+35334,15,15,True,378.0,292.0,4.761335611343384,0.0002319,test_pass_structured_baseline_gpt-oss-120b
+30539,3,3,True,416.0,135.0,3.5335493087768555,0.0001434,test_pass_structured_baseline_gpt-oss-120b
+5474,"FINAL ANSWER
+14",14,False,463.0,515.0,6.645481109619141,0.00037844999999999996,test_pass_structured_baseline_gpt-oss-120b
+23016,Madison Corporation,Madison Corporation,True,417.0,267.0,3.5807478427886963,0.00022275,test_pass_structured_baseline_gpt-oss-120b
+12501,"15
+FINAL ANSWER",15,False,378.0,349.0,4.684597492218018,0.0002661,test_pass_structured_baseline_gpt-oss-120b
+26275,surplus,surplus,True,444.0,441.0,7.134728670120239,0.0003312,test_pass_structured_baseline_gpt-oss-120b
+17116,$70.80,70.80,True,391.0,187.0,3.860480308532715,0.00017084999999999998,test_pass_structured_baseline_gpt-oss-120b
+32940,"9:30 A.M.
+FINAL ANSWER",9:30 A.M.,False,743.0,287.0,3.7951221466064453,0.00028365,test_pass_structured_baseline_gpt-oss-120b
+12574,$5.25,5.25,True,437.0,220.0,3.071242332458496,0.00019754999999999998,test_pass_structured_baseline_gpt-oss-120b
+5145,"22
+FINAL ANSWER",22,False,455.0,428.0,5.841719388961792,0.00032505,test_pass_structured_baseline_gpt-oss-120b
+5228,$30.00,30,True,410.0,130.0,1.824228048324585,0.00013949999999999998,test_pass_structured_baseline_gpt-oss-120b
+30771,$10,10,True,402.0,156.0,4.0324461460113525,0.0001539,test_pass_structured_baseline_gpt-oss-120b
+15271,2:00 P.M.,2:00 P.M.,True,565.0,231.0,5.1680991649627686,0.00022334999999999998,test_pass_structured_baseline_gpt-oss-120b
+34574,4,4,True,413.0,311.0,5.203417062759399,0.00024855,test_pass_structured_baseline_gpt-oss-120b
+38261,$10.40,10.40,True,422.0,278.0,4.4282310009002686,0.00023009999999999998,test_pass_structured_baseline_gpt-oss-120b
+15767,"$3.90
+FINAL ANSWER",3.90,False,418.0,358.0,5.809195518493652,0.00027749999999999997,test_pass_structured_baseline_gpt-oss-120b
+21989,12,12,True,396.0,265.0,4.130114555358887,0.0002184,test_pass_structured_baseline_gpt-oss-120b
+10018,9,9,True,413.0,380.0,4.567184209823608,0.00028995,test_pass_structured_baseline_gpt-oss-120b
+12331,30,30,True,384.0,247.0,4.564412832260132,0.0002058,test_pass_structured_baseline_gpt-oss-120b
+15574,44,44,True,418.0,231.0,3.29675555229187,0.00020129999999999996,test_pass_structured_baseline_gpt-oss-120b
+6051,$4.58,4.58,True,403.0,140.0,1.6267452239990234,0.00014445,test_pass_structured_baseline_gpt-oss-120b
+11988,50,50,True,392.0,364.0,5.115370750427246,0.0002772,test_pass_structured_baseline_gpt-oss-120b
+11320,6,6,True,396.0,96.0,2.5656182765960693,0.000117,test_pass_structured_baseline_gpt-oss-120b
+23778,7,7,True,394.0,296.0,5.921249628067017,0.00023669999999999998,test_pass_structured_baseline_gpt-oss-120b
+23521,"linear
+FINAL ANSWER",linear,False,377.0,123.0,1.74247407913208,0.00013035,test_pass_structured_baseline_gpt-oss-120b
+13495,17,17,True,401.0,407.0,5.436429977416992,0.00030435,test_pass_structured_baseline_gpt-oss-120b
+2645,6,6,True,439.0,469.0,13.381848573684692,0.00034725,test_pass_structured_baseline_gpt-oss-120b
+25188,20,20,True,392.0,297.0,4.149954557418823,0.000237,test_pass_structured_baseline_gpt-oss-120b
+31284,"FINAL ANSWER
+-4",-4,False,405.0,157.0,1.8871939182281494,0.00015495,test_pass_structured_baseline_gpt-oss-120b
+35514,4,4,True,405.0,348.0,3.6003682613372803,0.00026954999999999997,test_pass_structured_baseline_gpt-oss-120b
+25249,$3.60,3.60,True,416.0,171.0,2.363459348678589,0.000165,test_pass_structured_baseline_gpt-oss-120b
+27047,"FINAL ANSWER
+22",22,False,440.0,422.0,8.353898286819458,0.00031919999999999995,test_pass_structured_baseline_gpt-oss-120b
+8878,yes,yes,True,399.0,194.0,2.9146945476531982,0.00017625,test_pass_structured_baseline_gpt-oss-120b
+10374,32.50,32.50,True,403.0,193.0,3.012437343597412,0.00017625,test_pass_structured_baseline_gpt-oss-120b
+3690,"FINAL ANSWER
+6",6,False,413.0,268.0,4.145585536956787,0.00022275000000000002,test_pass_structured_baseline_gpt-oss-120b
+31337,3/19,3/19,True,428.0,321.0,4.092064142227173,0.0002568,test_pass_structured_baseline_gpt-oss-120b
+32599,19,19,True,435.0,519.0,6.368453502655029,0.00037664999999999997,test_pass_structured_baseline_gpt-oss-120b
+2183,4,4,True,416.0,264.0,4.505945682525635,0.0002208,test_pass_structured_baseline_gpt-oss-120b
+24390,$183,183,True,389.0,242.0,3.3123083114624023,0.00020355,test_pass_structured_baseline_gpt-oss-120b
+35899,shortage,shortage,True,444.0,77.0,1.2979295253753662,0.00011279999999999999,test_pass_structured_baseline_gpt-oss-120b
+15542,yes,yes,True,379.0,134.0,2.5346920490264893,0.00013725,test_pass_structured_baseline_gpt-oss-120b
+14458,"4
+FINAL ANSWER",4,False,415.0,118.0,2.266157388687134,0.00013305,test_pass_structured_baseline_gpt-oss-120b
+5054,2.91,2.91,True,431.0,274.0,6.847430467605591,0.00022904999999999998,test_pass_structured_baseline_gpt-oss-120b
+18364,1,1,True,414.0,314.0,4.665865659713745,0.00025049999999999996,test_pass_structured_baseline_gpt-oss-120b
+30072,"$66.60
+FINAL ANSWER",66.60,False,409.0,394.0,4.508840799331665,0.00029775,test_pass_structured_baseline_gpt-oss-120b
+34049,"FINAL ANSWER
+-1 minute per month",-1,False,411.0,220.0,2.8451242446899414,0.00019364999999999996,test_pass_structured_baseline_gpt-oss-120b
+16155,13,13,True,399.0,316.0,4.163769245147705,0.00024945,test_pass_structured_baseline_gpt-oss-120b
+35964,yes,yes,True,379.0,203.0,2.3939194679260254,0.00017864999999999998,test_pass_structured_baseline_gpt-oss-120b
+26034,"2677
+FINAL ANSWER","2,677",False,413.0,198.0,2.468083620071411,0.00018075,test_pass_structured_baseline_gpt-oss-120b
+11571,"FINAL ANSWER
+50",50,False,426.0,324.0,3.618149518966675,0.0002583,test_pass_structured_baseline_gpt-oss-120b
+33024,"linear
+FINAL ANSWER",linear,False,377.0,312.0,3.2454380989074707,0.00024375,test_pass_structured_baseline_gpt-oss-120b
+7625,"FINAL ANSWER
+$6",6,False,404.0,256.0,2.9914798736572266,0.0002142,test_pass_structured_baseline_gpt-oss-120b
+34632,$0.75,0.75,True,413.0,146.0,3.4467623233795166,0.00014955,test_pass_structured_baseline_gpt-oss-120b
+1492,"nonlinear
+FINAL ANSWER",nonlinear,False,377.0,194.0,2.334416627883911,0.00017295,test_pass_structured_baseline_gpt-oss-120b
+32574,5,5,True,420.0,270.0,3.038923740386963,0.000225,test_pass_structured_baseline_gpt-oss-120b
+33903,$0.07,0.07,True,416.0,298.0,3.4932777881622314,0.00024119999999999998,test_pass_structured_baseline_gpt-oss-120b
+5083,April,April,True,421.0,243.0,2.5516698360443115,0.00020895,test_pass_structured_baseline_gpt-oss-120b
+972,Web Page Design class,Web Page Design class,True,537.0,305.0,3.407036542892456,0.00026355,test_pass_structured_baseline_gpt-oss-120b
+31552,20,20,True,400.0,192.0,2.1762406826019287,0.00017519999999999998,test_pass_structured_baseline_gpt-oss-120b
+37471,3,3,True,392.0,286.0,3.0587093830108643,0.0002304,test_pass_structured_baseline_gpt-oss-120b
+4117,"1:10 P.M.
+FINAL ANSWER",1:10 P.M.,False,502.0,330.0,4.736807346343994,0.0002733,test_pass_structured_baseline_gpt-oss-120b
+4740,$0.08,0.08,True,400.0,480.0,5.519289970397949,0.000348,test_pass_structured_baseline_gpt-oss-120b
+16278,"FINAL ANSWER
+8:10 P.M.",8:10 P.M.,False,554.0,251.0,2.9704506397247314,0.0002337,test_pass_structured_baseline_gpt-oss-120b
+36200,-2,-2,True,406.0,185.0,2.710935115814209,0.0001719,test_pass_structured_baseline_gpt-oss-120b
+4920,"$22,858.00
+FINAL ANSWER","22,858",False,406.0,243.0,2.860150098800659,0.00020669999999999998,test_pass_structured_baseline_gpt-oss-120b
+14665,FINAL ANSWER,0,False,415.0,243.0,3.161372184753418,0.00020805,test_pass_structured_baseline_gpt-oss-120b
+1958,$4,4,True,420.0,200.0,2.5623435974121094,0.000183,test_pass_structured_baseline_gpt-oss-120b
+6257,2:10 P.M.,2:10 P.M.,True,525.0,404.0,8.530710458755493,0.00032114999999999997,test_pass_structured_baseline_gpt-oss-120b
+12481,16,16,True,402.0,193.0,2.2954089641571045,0.0001761,test_pass_structured_baseline_gpt-oss-120b
+12557,"FINAL ANSWER
+16",16,False,406.0,134.0,1.8675918579101562,0.0001413,test_pass_structured_baseline_gpt-oss-120b
+33131,3/13,3/13,True,429.0,312.0,4.684896230697632,0.00025155,test_pass_structured_baseline_gpt-oss-120b
+10273,-7 minutes per month,-7,False,411.0,224.0,2.838837146759033,0.00019604999999999997,test_pass_structured_baseline_gpt-oss-120b
+5539,15,15,True,381.0,228.0,4.88951563835144,0.00019395,test_pass_structured_baseline_gpt-oss-120b
+1816,shortage,shortage,True,444.0,445.0,6.345874309539795,0.0003336,test_pass_structured_baseline_gpt-oss-120b
+18883,Each term in pattern B is 10 times the corresponding term in pattern A.,Each term in pattern B is 10 times the corresponding term in pattern A.,True,424.0,494.0,5.228690147399902,0.00035999999999999997,test_pass_structured_baseline_gpt-oss-120b
+3578,8,8,True,406.0,435.0,5.202410459518433,0.0003219,test_pass_structured_baseline_gpt-oss-120b
+14252,"FINAL ANSWER
+$12.80",12.80,False,399.0,249.0,4.505167007446289,0.00020925,test_pass_structured_baseline_gpt-oss-120b
+19709,yes,yes,True,405.0,205.0,5.775347471237183,0.00018375,test_pass_structured_baseline_gpt-oss-120b
+37735,"5
+FINAL ANSWER",5,False,407.0,263.0,3.0529563426971436,0.00021884999999999998,test_pass_structured_baseline_gpt-oss-120b
+32077,shortage,shortage,True,444.0,197.0,2.2764434814453125,0.0001848,test_pass_structured_baseline_gpt-oss-120b
+13345,nonlinear,linear,False,377.0,293.0,3.476425886154175,0.00023234999999999998,test_pass_structured_baseline_gpt-oss-120b
+15397,Wesley,Wesley,True,399.0,270.0,2.7636237144470215,0.00022184999999999997,test_pass_structured_baseline_gpt-oss-120b
+8324,$15.08,15.08,True,399.0,311.0,4.763031244277954,0.00024645,test_pass_structured_baseline_gpt-oss-120b
+37908,1:45 P.M.,1:45 P.M.,True,505.0,304.0,4.122776746749878,0.00025814999999999996,test_pass_structured_baseline_gpt-oss-120b
+6100,6,6,True,405.0,244.0,2.7566311359405518,0.00020714999999999997,test_pass_structured_baseline_gpt-oss-120b
+12904,18,18,True,438.0,447.0,5.710165739059448,0.00033390000000000004,test_pass_structured_baseline_gpt-oss-120b
+22188,linear,linear,True,377.0,538.0,10.221578121185303,0.00037935,test_pass_structured_baseline_gpt-oss-120b
+34580,6,6,True,396.0,314.0,3.3614416122436523,0.0002478,test_pass_structured_baseline_gpt-oss-120b
+17489,$0.08,0.08,True,402.0,240.0,2.4837887287139893,0.0002043,test_pass_structured_baseline_gpt-oss-120b
+16797,"FINAL ANSWER
+3",3,False,413.0,435.0,4.418144702911377,0.00032295,test_pass_structured_baseline_gpt-oss-120b
+4511,19,19,True,443.0,455.0,6.707233905792236,0.00033945,test_pass_structured_baseline_gpt-oss-120b
+32317,4,4,True,404.0,339.0,3.5060102939605713,0.00026399999999999997,test_pass_structured_baseline_gpt-oss-120b
+5813,4,4,True,435.0,563.0,10.126265525817871,0.00040304999999999996,test_pass_structured_baseline_gpt-oss-120b
+17140,December,December,True,402.0,118.0,1.4109623432159424,0.0001311,test_pass_structured_baseline_gpt-oss-120b
+11191,7,7,True,417.0,758.0,8.783384084701538,0.00051735,test_pass_structured_baseline_gpt-oss-120b
+7465,"0
+FINAL ANSWER",0,False,415.0,219.0,2.287986993789673,0.00019365,test_pass_structured_baseline_gpt-oss-120b
+5789,44,44,True,407.0,175.0,1.9078006744384766,0.00016605,test_pass_structured_baseline_gpt-oss-120b
+21571,Keith,Keith,True,398.0,170.0,4.224099397659302,0.0001617,test_pass_structured_baseline_gpt-oss-120b
+28212,"FINAL ANSWER
+3",3,False,420.0,199.0,2.2017009258270264,0.0001824,test_pass_structured_baseline_gpt-oss-120b
+37848,1/9,1/9,True,427.0,495.0,5.915100812911987,0.00036105,test_pass_structured_baseline_gpt-oss-120b
+14537,"$63,553","63,553",True,404.0,199.0,2.2609140872955322,0.00017999999999999998,test_pass_structured_baseline_gpt-oss-120b
+30032,$11.20,11.20,True,401.0,193.0,2.058357000350952,0.00017595,test_pass_structured_baseline_gpt-oss-120b
+23953,154,154,True,393.0,501.0,4.517879247665405,0.00035955,test_pass_structured_baseline_gpt-oss-120b
+30207,913,913,True,389.0,226.0,3.7121927738189697,0.00019394999999999997,test_pass_structured_baseline_gpt-oss-120b
+19949,15,15,True,384.0,324.0,3.08248233795166,0.000252,test_pass_structured_baseline_gpt-oss-120b
+18877,34,34,True,453.0,404.0,4.1572535037994385,0.00031035,test_pass_structured_baseline_gpt-oss-120b
+27450,6,6,True,426.0,258.0,2.8759560585021973,0.0002187,test_pass_structured_baseline_gpt-oss-120b
+20767,"21
+FINAL ANSWER",21,False,408.0,256.0,2.543036460876465,0.0002148,test_pass_structured_baseline_gpt-oss-120b
+20251,"12
+FINAL ANSWER",12,False,422.0,559.0,8.681621313095093,0.0003987,test_pass_structured_baseline_gpt-oss-120b
+13562,16.25,16.25,True,407.0,380.0,3.0966289043426514,0.00028905,test_pass_structured_baseline_gpt-oss-120b
+7453,18,18,True,443.0,661.0,7.214723587036133,0.00046305,test_pass_structured_baseline_gpt-oss-120b
+33511,5,5,True,418.0,246.0,2.5598232746124268,0.00021029999999999996,test_pass_structured_baseline_gpt-oss-120b
+22682,$35.00,35,True,398.0,188.0,3.138298988342285,0.0001725,test_pass_structured_baseline_gpt-oss-120b
+26600,"1
+FINAL ANSWER",1,False,426.0,329.0,2.6616287231445312,0.0002613,test_pass_structured_baseline_gpt-oss-120b
+19717,"FINAL ANSWER
+$0.10",0.10,False,412.0,334.0,2.9766592979431152,0.0002622,test_pass_structured_baseline_gpt-oss-120b
+10146,Friday,Friday,True,405.0,296.0,1.7734653949737549,0.00023834999999999997,test_pass_structured_baseline_gpt-oss-120b
+5752,surplus,surplus,True,444.0,358.0,2.255842924118042,0.0002814,test_pass_structured_baseline_gpt-oss-120b
+32125,65,65,True,414.0,392.0,4.609094858169556,0.0002973,test_pass_structured_baseline_gpt-oss-120b
+2410,2:35 P.M.,2:35 P.M.,True,512.0,402.0,3.1270904541015625,0.000318,test_pass_structured_baseline_gpt-oss-120b
+16277,2,2,True,423.0,399.0,4.159459114074707,0.00030285,test_pass_structured_baseline_gpt-oss-120b
+12988,"FINAL ANSWER
+Thursday",Thursday,False,403.0,216.0,3.4821317195892334,0.00019005,test_pass_structured_baseline_gpt-oss-120b
+19089,35,35,True,407.0,441.0,5.253387451171875,0.00032565,test_pass_structured_baseline_gpt-oss-120b
+27932,42,42,True,417.0,479.0,5.556946277618408,0.00034995,test_pass_structured_baseline_gpt-oss-120b
+18201,6,6,True,401.0,383.0,5.803085088729858,0.00028995,test_pass_structured_baseline_gpt-oss-120b
+19473,8,8,True,427.0,350.0,4.79063081741333,0.00027404999999999997,test_pass_structured_baseline_gpt-oss-120b
+33773,"FINAL ANSWER
+6",6,False,405.0,176.0,2.488978147506714,0.00016635,test_pass_structured_baseline_gpt-oss-120b
+36312,2,2,True,401.0,413.0,6.333935737609863,0.00030795,test_pass_structured_baseline_gpt-oss-120b
+6712,"dance competition
+FINAL ANSWER",dance competition,False,518.0,337.0,3.944488286972046,0.0002799,test_pass_structured_baseline_gpt-oss-120b
+25071,40,40,True,383.0,244.0,2.653010606765747,0.00020385,test_pass_structured_baseline_gpt-oss-120b
+13201,49,49,True,409.0,368.0,4.333554029464722,0.00028215,test_pass_structured_baseline_gpt-oss-120b
+14274,"FINAL ANSWER
+46",46,False,410.0,193.0,2.012160301208496,0.00017729999999999997,test_pass_structured_baseline_gpt-oss-120b
+34097,"FINAL ANSWER
+16.19",16.19,False,400.0,273.0,2.876652240753174,0.0002238,test_pass_structured_baseline_gpt-oss-120b
+13863,"FINAL ANSWER
+61",61,False,407.0,263.0,2.682715892791748,0.00021884999999999998,test_pass_structured_baseline_gpt-oss-120b
+21095,bottom of the mine,bottom of the mine,True,430.0,405.0,3.8926913738250732,0.0003075,test_pass_structured_baseline_gpt-oss-120b
+10888,8,8,True,416.0,319.0,3.1102538108825684,0.0002538,test_pass_structured_baseline_gpt-oss-120b
+25550,5,5,True,407.0,328.0,4.473741292953491,0.00025785,test_pass_structured_baseline_gpt-oss-120b
+10461,10,10,True,439.0,624.0,9.844964742660522,0.00044025,test_pass_structured_baseline_gpt-oss-120b
+29446,"8
+FINAL ANSWER",8,False,447.0,385.0,5.5881452560424805,0.00029805,test_pass_structured_baseline_gpt-oss-120b
+35701,6,6,True,412.0,305.0,3.8104615211486816,0.0002448,test_pass_structured_baseline_gpt-oss-120b
+19835,"FINAL ANSWER
+3.78",3.78,False,400.0,276.0,2.8558526039123535,0.00022559999999999998,test_pass_structured_baseline_gpt-oss-120b
+968,"14
+FINAL ANSWER",14,False,423.0,404.0,3.9630651473999023,0.00030585,test_pass_structured_baseline_gpt-oss-120b
+20237,$5.68,5.68,True,388.0,203.0,2.323972463607788,0.00017999999999999998,test_pass_structured_baseline_gpt-oss-120b
+3956,22,22,True,470.0,523.0,8.372351884841919,0.00038429999999999996,test_pass_structured_baseline_gpt-oss-120b
+11597,"$0.20
+FINAL ANSWER",0.20,False,406.0,382.0,4.892125844955444,0.0002901,test_pass_structured_baseline_gpt-oss-120b
+17193,7,7,True,404.0,337.0,3.6832568645477295,0.0002628,test_pass_structured_baseline_gpt-oss-120b
+7164,"15
+FINAL ANSWER",15,False,383.0,268.0,4.758922815322876,0.00021825000000000002,test_pass_structured_baseline_gpt-oss-120b
+26213,yes,yes,True,418.0,385.0,5.883557558059692,0.0002937,test_pass_structured_baseline_gpt-oss-120b
+10240,"Southport-Fort Fisher
+FINAL ANSWER",Southport-Fort Fisher,False,464.0,359.0,5.578275442123413,0.000285,test_pass_structured_baseline_gpt-oss-120b
+12266,28,28,True,434.0,296.0,5.447773456573486,0.0002427,test_pass_structured_baseline_gpt-oss-120b
+37559,"FINAL ANSWER
+11/56",11/56,False,421.0,477.0,5.102483510971069,0.00034934999999999995,test_pass_structured_baseline_gpt-oss-120b
+6019,"74
+FINAL ANSWER",74,False,407.0,246.0,2.7042949199676514,0.00020864999999999998,test_pass_structured_baseline_gpt-oss-120b
+15381,surplus,surplus,True,444.0,234.0,2.643202066421509,0.000207,test_pass_structured_baseline_gpt-oss-120b
+20150,"$23,690.00
+FINAL ANSWER","23,690",False,402.0,157.0,1.9135620594024658,0.0001545,test_pass_structured_baseline_gpt-oss-120b
+6386,"1:15 P.M.
+FINAL ANSWER",1:15 P.M.,False,575.0,440.0,4.655835390090942,0.00035025,test_pass_structured_baseline_gpt-oss-120b
+27149,"FINAL ANSWER
+13",13,False,451.0,470.0,4.550211429595947,0.00034964999999999996,test_pass_structured_baseline_gpt-oss-120b
+29852,linear,linear,True,377.0,331.0,4.4889748096466064,0.00025515,test_pass_structured_baseline_gpt-oss-120b
+30786,8,8,True,386.0,219.0,2.5969533920288086,0.0001893,test_pass_structured_baseline_gpt-oss-120b
+29358,Darren,Darren,True,407.0,344.0,6.211240530014038,0.00026745,test_pass_structured_baseline_gpt-oss-120b
+28151,$274.00,274,True,384.0,317.0,4.533331871032715,0.0002478,test_pass_structured_baseline_gpt-oss-120b
+11690,"335
+FINAL ANSWER",335,False,400.0,342.0,3.7009079456329346,0.0002652,test_pass_structured_baseline_gpt-oss-120b
+3734,90,90,True,412.0,531.0,6.446690559387207,0.0003804,test_pass_structured_baseline_gpt-oss-120b
+35289,June,June,True,401.0,272.0,3.1795356273651123,0.00022334999999999998,test_pass_structured_baseline_gpt-oss-120b
+16891,hunger,hunger,True,417.0,271.0,2.985433578491211,0.00022515,test_pass_structured_baseline_gpt-oss-120b
+23780,0.90,0.90,True,413.0,276.0,3.305175304412842,0.00022754999999999997,test_pass_structured_baseline_gpt-oss-120b
+604,268,268,True,391.0,250.0,3.136975049972534,0.00020864999999999998,test_pass_structured_baseline_gpt-oss-120b
+17825,"FINAL ANSWER
+90",90,False,414.0,512.0,5.391952276229858,0.0003693,test_pass_structured_baseline_gpt-oss-120b
+38299,"7
+FINAL ANSWER",7,False,415.0,99.0,1.4124841690063477,0.00012165,test_pass_structured_baseline_gpt-oss-120b
+32733,$316,316,True,391.0,225.0,3.3530216217041016,0.00019365,test_pass_structured_baseline_gpt-oss-120b
+16192,"$15
+FINAL ANSWER",15,False,383.0,218.0,4.213160276412964,0.00018825,test_pass_structured_baseline_gpt-oss-120b
+25695,Friday,Friday,True,406.0,221.0,2.192727565765381,0.0001935,test_pass_structured_baseline_gpt-oss-120b
+18875,"2 hours and 15 minutes
+FINAL ANSWER",2 hours and 15 minutes,False,775.0,934.0,9.851150512695312,0.00067665,test_pass_structured_baseline_gpt-oss-120b
+10189,$0.14,0.14,True,418.0,162.0,1.8091650009155273,0.00015989999999999998,test_pass_structured_baseline_gpt-oss-120b
+12699,$14.70,14.70,True,413.0,235.0,2.58624005317688,0.00020294999999999997,test_pass_structured_baseline_gpt-oss-120b
+6551,"15 minutes
+FINAL ANSWER",15 minutes,False,604.0,265.0,2.955584764480591,0.0002496,test_pass_structured_baseline_gpt-oss-120b
+20909,Return to Tumbleweed City,Return to Tumbleweed City,True,548.0,297.0,3.3649566173553467,0.0002604,test_pass_structured_baseline_gpt-oss-120b
+15170,29,29,True,406.0,381.0,4.014940023422241,0.0002895,test_pass_structured_baseline_gpt-oss-120b
+18584,"FINAL ANSWER
+94",94,False,394.0,259.0,2.9337010383605957,0.00021449999999999998,test_pass_structured_baseline_gpt-oss-120b
+1434,no,no,True,402.0,156.0,2.120790481567383,0.0001539,test_pass_structured_baseline_gpt-oss-120b
+16685,1/11,1/11,True,422.0,486.0,5.566408157348633,0.0003549,test_pass_structured_baseline_gpt-oss-120b

@@ -1,0 +1,51 @@
+case_name,predicted_output,predicted_numeric,expected_output,correct,exact_match,within_limits,absolute_error,calculator_name,category,output_type,input_tokens,output_tokens,latency,cost,expt_name
+test.0190,179.857,179.857,179.77987,1.0,0.0,1.0,0.07713000000001102,QTc Bazett Calculator,physical,decimal,1949.0,557.0,18.07686185836792,0.00062655,test_pass_structured_baseline_gpt-oss-120b
+test.0484,4.0,4.0,4.0,1.0,1.0,1.0,0.0,FeverPAIN Score for Strep Pharyngitis,diagnosis,integer,2213.0,409.0,13.44083023071289,0.0005773499999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0156,21.55,21.55,21.54697,1.0,1.0,1.0,0.003029999999998978,MDRD GFR Equation,lab test,decimal,2141.0,1530.0,37.38417983055115,0.00123915,test_pass_structured_baseline_gpt-oss-120b
+test.0949,9.0,9.0,9.0,1.0,1.0,1.0,0.0,Sequential Organ Failure Assessment (SOFA) Score,risk,integer,2725.0,997.0,19.368293285369873,0.00100695,test_pass_structured_baseline_gpt-oss-120b
+test.1086,**exception raised**: could not convert string to float: '(28 weeks 4 days)',,"('28 weeks', '4 days')",0.0,0.0,0.0,1.0,Estimated Gestational Age,date,date,1999.0,1466.0,23.230297565460205,0.0011794499999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0267,5.0,5.0,4.0,0.0,0.0,0.0,1.0,HEART Score for Major Cardiac Events,risk,integer,2071.0,858.0,6.081472635269165,0.0008254499999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0805,1.13,1.13,1.13333,1.0,1.0,1.0,0.003330000000000055,Delta Ratio,lab test,decimal,2486.0,411.0,5.26726770401001,0.0006194999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0278,7.0,7.0,7.0,1.0,1.0,1.0,0.0,HEART Score for Major Cardiac Events,risk,integer,2432.0,849.0,8.829719543457031,0.0008742,test_pass_structured_baseline_gpt-oss-120b
+test.0153,12.0,12.0,11.99791,1.0,1.0,1.0,0.0020900000000008134,MDRD GFR Equation,lab test,decimal,2286.0,801.0,9.467750072479248,0.0008235,test_pass_structured_baseline_gpt-oss-120b
+test.0666,**exception raised**: could not convert string to float: '577.5\nFINAL ANSWER',,577.83474,0.0,0.0,0.0,inf,QTc Fridericia Calculator,physical,decimal,1950.0,829.0,11.386488199234009,0.0007899,test_pass_structured_baseline_gpt-oss-120b
+test.0131,2.5,2.5,5.5,0.0,0.0,0.0,3.0,Wells' Criteria for Pulmonary Embolism,risk,integer,2574.0,923.0,9.540402173995972,0.0009399,test_pass_structured_baseline_gpt-oss-120b
+test.0500,3.0,3.0,3.0,1.0,1.0,1.0,0.0,FeverPAIN Score for Strep Pharyngitis,diagnosis,integer,2155.0,452.0,8.065439701080322,0.00059445,test_pass_structured_baseline_gpt-oss-120b
+test.0002,38.0,38.0,38.0,1.0,1.0,1.0,0.0,Creatinine Clearance (Cockcroft-Gault Equation),lab test,decimal,3531.0,641.0,7.3628928661346436,0.0009142499999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0019,40.96,40.96,40.96504,1.0,1.0,1.0,0.005040000000001044,Creatinine Clearance (Cockcroft-Gault Equation),lab test,decimal,2855.0,1545.0,26.90518879890442,0.00135525,test_pass_structured_baseline_gpt-oss-120b
+test.0322,104.0,104.0,104.0,1.0,1.0,1.0,0.0,Maintenance Fluids Calculations,physical,decimal,2940.0,233.0,10.281352519989014,0.0005808,test_pass_structured_baseline_gpt-oss-120b
+test.0887,119.0,119.0,119.0,1.0,1.0,1.0,0.0,PSI Score: Pneumonia Severity Index for CAP,severity,integer,2741.0,720.0,14.073819398880005,0.00084315,test_pass_structured_baseline_gpt-oss-120b
+test.0059,4.0,4.0,4.0,1.0,1.0,1.0,0.0,CHA2DS2-VASc Score for Atrial Fibrillation Stroke Risk,risk,integer,2500.0,375.0,4.365601539611816,0.0006000000000000001,test_pass_structured_baseline_gpt-oss-120b
+test.0829,15.0,15.0,15.0,1.0,1.0,1.0,0.0,Albumin Corrected Anion Gap,lab test,decimal,2968.0,234.0,3.734910726547241,0.0005855999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0108,7.84,7.84,7.84,1.0,1.0,1.0,0.0,Calcium Correction for Hypoalbuminemia,lab test,decimal,3836.0,250.0,5.281650543212891,0.0007254,test_pass_structured_baseline_gpt-oss-120b
+test.0647,3.0,3.0,2.0,0.0,0.0,0.0,1.0,SIRS Criteria,diagnosis,integer,2669.0,352.0,6.745966196060181,0.00061155,test_pass_structured_baseline_gpt-oss-120b
+test.1090,**exception raised**: could not convert string to float: '(15 weeks 2 days)',,"('15 weeks', '2 days')",0.0,0.0,0.0,1.0,Estimated Gestational Age,date,date,1999.0,621.0,10.734574556350708,0.00067245,test_pass_structured_baseline_gpt-oss-120b
+test.0292,1.365,1.365,1.36478,1.0,1.0,1.0,0.00021999999999988695,Fibrosis-4 (FIB-4) Index for Liver Fibrosis,lab test,decimal,2556.0,437.0,8.87605094909668,0.0006456,test_pass_structured_baseline_gpt-oss-120b
+test.0444,1.877,1.877,1.87654,1.0,1.0,1.0,0.00045999999999990493,HOMA-IR (Homeostatic Model Assessment for Insulin Resistance),lab test,decimal,2596.0,369.0,8.03220272064209,0.0006108,test_pass_structured_baseline_gpt-oss-120b
+test.0497,4.0,4.0,3.0,0.0,0.0,0.0,1.0,FeverPAIN Score for Strep Pharyngitis,diagnosis,integer,2086.0,653.0,3.0156452655792236,0.0007046999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0245,**exception raised**: could not convert string to float: 'FINAL ANSWER\n1.0',,1.0,0.0,0.0,0.0,inf,Revised Cardiac Risk Index for Pre-Operative Risk,risk,integer,3100.0,388.0,12.159473896026611,0.0006977999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0276,5.0,5.0,6.0,0.0,0.0,0.0,1.0,HEART Score for Major Cardiac Events,risk,integer,2875.0,965.0,20.45356321334839,0.0010102499999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0532,17.0,17.0,17.0,1.0,1.0,1.0,0.0,Anion Gap,lab test,decimal,2887.0,422.0,3.9816741943359375,0.00068625,test_pass_structured_baseline_gpt-oss-120b
+test.0385,133.932,133.932,133.932,1.0,1.0,1.0,0.0,Sodium Correction for Hyperglycemia,lab test,decimal,2631.0,298.0,6.713492393493652,0.00057345,test_pass_structured_baseline_gpt-oss-120b
+test.0991,**exception raised**: could not convert string to float: '04/14/2009\nFINAL ANSWER',,04/14/2009,1.0,1.0,1.0,0.0,Estimated Due Date,date,date,1995.0,755.0,10.650505065917969,0.00075225,test_pass_structured_baseline_gpt-oss-120b
+test.0006,83.95,83.95,83.93895,1.0,0.0,1.0,0.01104999999999734,Creatinine Clearance (Cockcroft-Gault Equation),lab test,decimal,3651.0,691.0,14.425699710845947,0.00096225,test_pass_structured_baseline_gpt-oss-120b
+test.0618,17.0,17.0,4.047,0.0,0.0,0.0,12.953,Framingham Risk Score for Hard Coronary Heart Disease,lab test,decimal,2687.0,1157.0,17.775736093521118,0.00109725,test_pass_structured_baseline_gpt-oss-120b
+test.0921,13.0,13.0,22.0,0.0,0.0,0.0,9.0,APACHE II Score,risk,integer,2560.0,2377.0,43.81604886054993,0.0018101999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0142,49.69,49.69,49.67659,1.0,0.0,1.0,0.013410000000000366,MDRD GFR Equation,lab test,decimal,2618.0,1388.0,16.859840869903564,0.0012255,test_pass_structured_baseline_gpt-oss-120b
+test.0450,4.39,4.39,4.39012,1.0,1.0,1.0,0.00011999999999989797,HOMA-IR (Homeostatic Model Assessment for Insulin Resistance),lab test,decimal,2649.0,597.0,10.284317016601562,0.00075555,test_pass_structured_baseline_gpt-oss-120b
+test.0138,0.0,0.0,0.0,1.0,1.0,1.0,0.0,Wells' Criteria for Pulmonary Embolism,risk,integer,2602.0,430.0,6.5639729499816895,0.0006483,test_pass_structured_baseline_gpt-oss-120b
+test.0101,9.32,9.32,9.32,1.0,1.0,1.0,0.0,Calcium Correction for Hypoalbuminemia,lab test,decimal,2500.0,225.0,3.387185573577881,0.00051,test_pass_structured_baseline_gpt-oss-120b
+test.0825,26.5,26.5,26.5,1.0,1.0,1.0,0.0,Albumin Corrected Anion Gap,lab test,decimal,2747.0,293.0,5.250774621963501,0.00058785,test_pass_structured_baseline_gpt-oss-120b
+test.0457,5.44,5.44,5.44198,1.0,1.0,1.0,0.0019799999999996487,HOMA-IR (Homeostatic Model Assessment for Insulin Resistance),lab test,decimal,2688.0,381.0,6.5288121700286865,0.0006318,test_pass_structured_baseline_gpt-oss-120b
+test.0950,12.0,12.0,12.0,1.0,1.0,1.0,0.0,Sequential Organ Failure Assessment (SOFA) Score,risk,integer,2862.0,1164.0,13.961321115493774,0.0011277,test_pass_structured_baseline_gpt-oss-120b
+test.0638,8.0,8.0,0.0,0.0,0.0,0.0,8.0,PERC Rule for Pulmonary Embolism,diagnosis,integer,2167.0,442.0,6.209559440612793,0.00059025,test_pass_structured_baseline_gpt-oss-120b
+test.0055,1.0,1.0,0.0,0.0,0.0,0.0,1.0,CHA2DS2-VASc Score for Atrial Fibrillation Stroke Risk,risk,integer,2729.0,506.0,6.01549768447876,0.00071295,test_pass_structured_baseline_gpt-oss-120b
+test.0478,3.0,3.0,3.0,1.0,1.0,1.0,0.0,Charlson Comorbidity Index (CCI),risk,integer,2933.0,769.0,8.585914611816406,0.00090135,test_pass_structured_baseline_gpt-oss-120b
+test.1083,**exception raised**: could not convert string to float: '(3 weeks 4 days)\nFINAL ANSWER',,"('3 weeks', '4 days')",0.0,0.0,0.0,1.0,Estimated Gestational Age,date,date,1999.0,718.0,7.555192708969116,0.00073065,test_pass_structured_baseline_gpt-oss-120b
+test.0383,137.84,137.84,137.84,1.0,1.0,1.0,0.0,Sodium Correction for Hyperglycemia,lab test,decimal,2266.0,262.0,2.4909121990203857,0.0004971,test_pass_structured_baseline_gpt-oss-120b
+test.1016,**exception raised**: could not convert string to float: '3.36\nFINAL ANSWER',,3.3579,0.0,0.0,0.0,inf,Steroid Conversion Calculator,dosage,integer,1952.0,541.0,10.036714553833008,0.0006173999999999999,test_pass_structured_baseline_gpt-oss-120b
+test.0300,3.996,3.996,3.99574,1.0,1.0,1.0,0.00025999999999992696,Fibrosis-4 (FIB-4) Index for Liver Fibrosis,lab test,decimal,3747.0,982.0,10.596238136291504,0.00115125,test_pass_structured_baseline_gpt-oss-120b
+test.0356,23.315,23.315,25.0,0.0,0.0,0.0,1.6849999999999987,MELD Na (UNOS/OPTN),lab test,decimal,2744.0,1199.0,22.78161931037903,0.0011309999999999998,test_pass_structured_baseline_gpt-oss-120b
+test.0559,1.0,1.0,1.0,1.0,1.0,1.0,0.0,CURB-65 Score for Pneumonia Severity,risk,integer,2696.0,373.0,5.256223440170288,0.0006282,test_pass_structured_baseline_gpt-oss-120b
+test.0105,**exception raised**: could not convert string to float: 'FINAL ANSWER\n18.59',,18.59,0.0,0.0,0.0,inf,Calcium Correction for Hypoalbuminemia,lab test,decimal,3079.0,299.0,4.427656412124634,0.00064125,test_pass_structured_baseline_gpt-oss-120b
+test.0364,2.0,2.0,2.0,1.0,1.0,1.0,0.0,HAS-BLED Score for Major Bleeding Risk,risk,integer,2650.0,621.0,17.50073480606079,0.0007700999999999999,test_pass_structured_baseline_gpt-oss-120b

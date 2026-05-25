@@ -1,0 +1,56 @@
+case_name,predicted_output,expected_output,correct,input_tokens,output_tokens,latency,cost,expt_name
+29227,$0.24,0.24,True,372.0,399.0,3.8366549015045166,0.0011091,test_pass_structured_baseline_gemini-2-5-flash
+18986,$7,7,True,369.0,546.0,2.750786066055298,0.0014757000000000001,test_pass_structured_baseline_gemini-2-5-flash
+33817,19,19,True,364.0,423.0,2.2467691898345947,0.0011667000000000001,test_pass_structured_baseline_gemini-2-5-flash
+34752,85,85,True,418.0,614.0,2.9999794960021973,0.0016604,test_pass_structured_baseline_gemini-2-5-flash
+1288,5,5,True,349.0,297.0,2.0947093963623047,0.0008472,test_pass_structured_baseline_gemini-2-5-flash
+18048,$51.45,51.45,True,355.0,711.0,4.133502721786499,0.0018840000000000003,test_pass_structured_baseline_gemini-2-5-flash
+3527,"$109.53
+FINAL ANSWER",109.53,False,379.0,692.0,3.5447025299072266,0.0018437,test_pass_structured_baseline_gemini-2-5-flash
+27944,23,23,True,415.0,668.0,2.9625508785247803,0.0017945000000000003,test_pass_structured_baseline_gemini-2-5-flash
+13497,9,9,True,394.0,1016.0,4.93060040473938,0.0026582000000000003,test_pass_structured_baseline_gemini-2-5-flash
+19411,7,7,True,359.0,439.0,2.3114025592803955,0.0012052,test_pass_structured_baseline_gemini-2-5-flash
+6626,-2,-2,True,394.0,493.0,2.4547204971313477,0.0013507,test_pass_structured_baseline_gemini-2-5-flash
+30432,4,4,True,376.0,508.0,2.924745559692383,0.0013828,test_pass_structured_baseline_gemini-2-5-flash
+15918,nonlinear,nonlinear,True,334.0,366.0,2.0746943950653076,0.0010152,test_pass_structured_baseline_gemini-2-5-flash
+22746,"22
+FINAL ANSWER",22,False,368.0,546.0,2.874976396560669,0.0014754000000000002,test_pass_structured_baseline_gemini-2-5-flash
+25289,9,9,True,351.0,416.0,2.1867053508758545,0.0011453000000000001,test_pass_structured_baseline_gemini-2-5-flash
+18822,1,1,True,368.0,442.0,2.3203065395355225,0.0012154000000000002,test_pass_structured_baseline_gemini-2-5-flash
+28247,$6.76,6.76,True,382.0,693.0,3.4630556106567383,0.0018471000000000002,test_pass_structured_baseline_gemini-2-5-flash
+2085,-1,-1,True,390.0,550.0,2.8575572967529297,0.001492,test_pass_structured_baseline_gemini-2-5-flash
+27287,$10,10,True,380.0,458.0,2.5035622119903564,0.001259,test_pass_structured_baseline_gemini-2-5-flash
+12914,20,20,True,358.0,438.0,2.460902452468872,0.0012024,test_pass_structured_baseline_gemini-2-5-flash
+16900,2/7,2/7,True,370.0,478.0,2.4443137645721436,0.001306,test_pass_structured_baseline_gemini-2-5-flash
+29793,0,0,True,376.0,912.0,4.0583271980285645,0.0023928000000000005,test_pass_structured_baseline_gemini-2-5-flash
+13426,11,11,True,423.0,993.0,5.593467473983765,0.0026094,test_pass_structured_baseline_gemini-2-5-flash
+17353,11,11,True,417.0,725.0,3.407141923904419,0.0019376000000000003,test_pass_structured_baseline_gemini-2-5-flash
+22927,2,2,True,401.0,586.0,3.6347577571868896,0.0015853000000000002,test_pass_structured_baseline_gemini-2-5-flash
+17651,$7,7,True,390.0,573.0,3.0070269107818604,0.0015495,test_pass_structured_baseline_gemini-2-5-flash
+22739,3,3,True,411.0,685.0,3.2701151371002197,0.0018358,test_pass_structured_baseline_gemini-2-5-flash
+20615,11,11,True,373.0,550.0,3.184804916381836,0.0014869000000000002,test_pass_structured_baseline_gemini-2-5-flash
+13790,176.28,176.28,True,366.0,398.0,2.244708776473999,0.0011048000000000002,test_pass_structured_baseline_gemini-2-5-flash
+28918,$1.06,1.06,True,352.0,488.0,3.9582200050354004,0.0013256000000000001,test_pass_structured_baseline_gemini-2-5-flash
+23399,$19.27,19.27,True,373.0,421.0,2.680100679397583,0.0011644000000000003,test_pass_structured_baseline_gemini-2-5-flash
+35781,"no
+FINAL ANSWER",no,False,368.0,559.0,3.7830710411071777,0.0015079000000000002,test_pass_structured_baseline_gemini-2-5-flash
+29944,6,6,True,341.0,455.0,2.5126469135284424,0.0012398,test_pass_structured_baseline_gemini-2-5-flash
+18621,69/127,69/127,True,360.0,581.0,2.9215550422668457,0.0015605000000000003,test_pass_structured_baseline_gemini-2-5-flash
+34882,yes,yes,True,372.0,518.0,2.6304945945739746,0.0014066,test_pass_structured_baseline_gemini-2-5-flash
+13889,"3
+FINAL ANSWER",3,False,402.0,762.0,3.390685558319092,0.0020256000000000002,test_pass_structured_baseline_gemini-2-5-flash
+21997,25,25,True,350.0,429.0,2.5358381271362305,0.0011775000000000002,test_pass_structured_baseline_gemini-2-5-flash
+27062,10,10,True,399.0,604.0,2.9476616382598877,0.0016297000000000002,test_pass_structured_baseline_gemini-2-5-flash
+2178,2,2,True,390.0,488.0,2.480787515640259,0.0013369999999999999,test_pass_structured_baseline_gemini-2-5-flash
+16080,6,6,True,358.0,385.0,2.340313673019409,0.0010699,test_pass_structured_baseline_gemini-2-5-flash
+2198,18,18,True,375.0,468.0,2.4943387508392334,0.0012825000000000002,test_pass_structured_baseline_gemini-2-5-flash
+10348,25,25,True,350.0,343.0,2.251514196395874,0.0009624999999999999,test_pass_structured_baseline_gemini-2-5-flash
+29011,19/124,19/124,True,360.0,474.0,2.489875316619873,0.0012930000000000003,test_pass_structured_baseline_gemini-2-5-flash
+6681,1522.81,"1,522.81",True,404.0,478.0,2.581511974334717,0.0013162,test_pass_structured_baseline_gemini-2-5-flash
+17351,5,5,True,386.0,619.0,2.995434284210205,0.0016633,test_pass_structured_baseline_gemini-2-5-flash
+29691,8,8,True,389.0,849.0,3.7980713844299316,0.0022392000000000002,test_pass_structured_baseline_gemini-2-5-flash
+6310,3,3,True,372.0,635.0,3.228181838989258,0.0016991,test_pass_structured_baseline_gemini-2-5-flash
+5717,5/17,5/17,True,384.0,500.0,2.737870931625366,0.0013652000000000002,test_pass_structured_baseline_gemini-2-5-flash
+27569,9:00 P.M.,9:00 P.M.,True,622.0,901.0,4.209279775619507,0.0024391,test_pass_structured_baseline_gemini-2-5-flash
+4730,"yes
+FINAL ANSWER",yes,False,410.0,720.0,3.453611373901367,0.0019230000000000002,test_pass_structured_baseline_gemini-2-5-flash
