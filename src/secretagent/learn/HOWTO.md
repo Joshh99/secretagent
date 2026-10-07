@@ -1,27 +1,15 @@
-# How to contribute a learner
+# How to add a learner
 
-Your learner should implement `learn.base.Learner`, and hence should
-implement `fit`, `save_implementation`, and `report`.  Preferably each
-learner will be in its own Python file.  The RoteLearner in
-baselines.py is an example.
+A learner is a class that subclasses `learn.base.Learner` and has three methods: `fit`, `save_implementation` and `report`. Put each learner in its own Python file if you can. `RoteLearner` in `baselines.py` is a simple example to copy from.
 
-* `fit` will be the most time-intensive part of the learner, and will
-  compute and save any sufficient statistics.
-* `save_implementation` saves config info for the learned
-  implementation, as a sample yaml data that shows how to configure
-  the learned implementation, and all files needed to construct that
-  implementation.
-* `report` returns a human-readable string to help a user decide how
-  successful the learning was.`
+- `fit` does the actual learning and is usually the slow part. It works out and saves whatever the learned implementation needs.
+- `save_implementation` saves what is needed to use the result: a small YAML example showing how to configure the learned implementation, and every file that implementation needs.
+- `report` returns a short, readable summary that helps you judge how well the learning went.
 
-## Tracking provenance
+## Keeping track of where the training data came from
 
-Use the `collect_distillation_data` to collect training data from
-recordings.  This saves the data in a learner-specific output
-directory along with its provenance.  **If you need more
-functionality, like retaining only successful traces**, extend the
-code in `base`.
+Use `collect_distillation_data` to collect training data from recorded runs. It saves the data in the learner's own output folder, together with a record of which runs it came from. If you need more, for example keeping only the runs that got the right answer, add it to the code in `base` so every learner can use it.
 
-## Outputting code
+## Running generated code
 
-If the code is possibly insecure than wrap it in LocalPythonExecutor.
+If a learner produces code that might be unsafe to run, run it inside `LocalPythonExecutor`.

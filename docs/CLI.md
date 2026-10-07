@@ -156,8 +156,8 @@ Any `--metric` flag across `average`, `pair`, and `plot` can have a `-` suffix t
 | Option | Default | Description |
 |---|---|---|
 | `--latest K` | 1 | Keep latest K directories per tag; 0 for all |
-| `--check KEY=VALUE` | — | Config constraint filter (repeatable) |
-| `--config-file FILE` | — | YAML config file to load |
+| `--check KEY=VALUE` | none | Config constraint filter (repeatable) |
+| `--config-file FILE` | none | YAML config file to load |
 
 ## secretagent.cli.expt
 
@@ -261,7 +261,7 @@ Learn implementations from recorded interface calls.
 
 ### induce-ptools
 
-Induce ptool specs from recorded agent thoughts via a 4-stage LLM pipeline: load thoughts → LLM-categorize → merge synonyms → LLM-synthesize ptool specs. Produces `learned_ptools.py` with `@implement_via('simulate')` stubs + `implementation.yaml` with `method=simulate_pydantic, tool_module=__learned__`.
+Induce ptool specs from recorded agent thoughts in four steps: load the recorded thoughts, sort them into categories with an LLM, merge categories that mean the same thing, and have an LLM write a pseudo-tool spec for each category. Produces `learned_ptools.py` with `@implement_via('simulate')` stubs + `implementation.yaml` with `method=simulate_pydantic, tool_module=__learned__`.
 
 ```
 uv run -m secretagent.cli.learn induce-ptools \
@@ -304,5 +304,5 @@ uv run -m secretagent.cli.learn rote --interface NAME [--latest K] [--check KEY=
 |---|---|---|
 | `--interface` | (required) | Interface name to extract, e.g. `consistent_sports` |
 | `--latest K` | 1 | Keep latest K directories per tag; 0 for all |
-| `--check KEY=VALUE` | — | Config constraint filter (repeatable) |
+| `--check KEY=VALUE` | none | Config constraint filter (repeatable) |
 | `--train-dir DIR` | `/tmp/rote_train` | Directory to store collected training data |

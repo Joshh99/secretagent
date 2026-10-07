@@ -1,10 +1,6 @@
-# Orchestration Learner
+# Orchestration learner
 
-Supervisor-driven pipeline hill climbing. A powerful reasoning LLM (the
-"supervisor") iteratively analyzes failures in a pipeline, proposes
-targeted code changes, and evaluates them. Improvements are kept;
-regressions are rolled back. The system tracks train/eval accuracy
-curves, per-iteration artifacts, and supervisor costs.
+The orchestration learner improves a working workflow step by step. A strong reasoning model, called the supervisor, looks at where the workflow goes wrong, proposes changes to its code, and tests them. A change that helps is kept; a change that hurts is undone. Along the way the learner records the train and eval accuracy of every attempt, the files of each attempt, and what the supervisor cost.
 
 ## Structure
 
@@ -19,7 +15,7 @@ improves it through a loop:
 3. Show the supervisor LLM the full source, profiling, failure traces,
    and iteration history
 4. The supervisor proposes a modified `ptools_evolved.py`
-5. Evaluate the new version -- keep if better, rollback if worse
+5. Evaluate the new version: keep it if it is better, undo it if it is worse
 6. Repeat
 
 ### Key files
@@ -28,11 +24,11 @@ improves it through a loop:
 |------|------|
 | `cli/orchestration_learner.py` | CLI entry point (`run` and `view` commands) |
 | `orchestrate/improve.py` | Core improvement loop (`improve_with_supervisor`) and data models (`IterationRecord`, `SupervisorReport`) |
-| `orchestrate/composer.py` | `recompose()` -- builds the supervisor prompt and parses the LLM response |
+| `orchestrate/composer.py` | `recompose()`: builds the supervisor prompt and parses the LLM response |
 | `orchestrate/prompt_templates/recompose.txt` | Supervisor prompt template (strategy guidance, output format) |
-| `orchestrate/profiler.py` | `profile_from_results()` -- reads `results.jsonl` to compute per-ptool metrics |
-| `orchestrate/catalog.py` | `PtoolCatalog` -- collects interface signatures/docstrings for prompts |
-| `orchestrate/transforms/base.py` | `format_profiling_summary()` -- renders profiling data as text |
+| `orchestrate/profiler.py` | `profile_from_results()`: reads `results.jsonl` to compute per-ptool metrics |
+| `orchestrate/catalog.py` | `PtoolCatalog`: collects interface signatures/docstrings for prompts |
+| `orchestrate/transforms/base.py` | `format_profiling_summary()`: renders profiling data as text |
 
 ## Usage
 
@@ -91,7 +87,7 @@ anything.
 
 ### Reusing a learned pipeline at eval time
 
-Each run now emits `implementation.yaml` under its output directory with
+Each run writes `implementation.yaml` under its output directory with
 the shape:
 
 ```yaml
@@ -122,52 +118,52 @@ learn.train_dir=results/orchestration_learner
 
 Each iteration in `improve_with_supervisor()` does:
 
-1. **Profile** -- `format_profiling_summary()` renders per-ptool metrics
+1. Profile: `format_profiling_summary()` renders per-ptool metrics
    (cost fraction, calls/case, errors) from the last evaluation run.
    Also reports which ptools are actually called and the current
    train-eval gap if eval data exists.
 
-2. **Format failure traces** -- `_format_failure_traces()` reads
+2. Format failure traces: `_format_failure_traces()` reads
    `results.jsonl`, groups failures by category, and selects a diverse
    sample. Each failure includes the real input data (from the dataset),
    the full LLM call trace (rollout), and predicted vs expected output.
 
-3. **Build iteration history** -- `_format_iteration_history()` shows
+3. Build iteration history: `_format_iteration_history()` shows
    every past iteration: accuracy, kept/rolled-back, and full reasoning.
    Rolled-back iterations are flagged so the supervisor avoids repeating
    failed approaches.
 
-4. **Call supervisor** -- `recompose()` in `composer.py` fills the
+4. Call supervisor: `recompose()` in `composer.py` fills the
    `recompose.txt` template with the full `ptools_evolved.py` source,
    profiling, failures, history, and optional custom instructions. The
    supervisor runs with `reasoning_effort=high` and a 600-second timeout.
 
-5. **Parse response** -- The supervisor's output is parsed for three
+5. Parse response: The supervisor's output is parsed for three
    sections: `<ptools_file>` (the complete modified file),
    `<reasoning>` (what was changed and why), and optional `<config>`
    (dotlist overrides like model switches).
 
-6. **Validate** -- The new source is checked with `ast.parse()`. Syntax
+6. Validate: The new source is checked with `ast.parse()`. Syntax
    errors cause an immediate rollback.
 
-7. **Reload and evaluate** -- The new source is written to
+7. Reload and evaluate: The new source is written to
    `ptools_evolved.py`, the module is re-executed via
    `spec.loader.exec_module()` (not `importlib.reload()`), interfaces
    are re-bound, and the train set is re-evaluated.
 
-8. **Keep or rollback** -- See below.
+8. Keep or rollback: See below.
 
 ### Keep/rollback logic
 
-The decision follows strict rules:
+The decision follows these rules:
 
-- **Train regression** (`new < best`): Rolled back immediately. Eval is
+- Train regression (`new < best`): Rolled back immediately. Eval is
   skipped entirely (saves an expensive eval run).
-- **Train improvement** (`new > best`): Kept unconditionally. Eval is
+- Train improvement (`new > best`): Kept unconditionally. Eval is
   still run for tracking but does not affect the decision.
-- **Train tie** (`new == best`): Eval is used as tiebreaker. Kept only
+- Train tie (`new == best`): Eval is used as tiebreaker. Kept only
   if `eval_acc > best_eval_acc`.
-- **No change proposed**: Skipped. After 5 consecutive no-change or
+- No change proposed: Skipped. After 5 consecutive no-change or
   no-improvement iterations, the loop stops early.
 
 ### Batch watchdog for API hang protection
@@ -338,12 +334,12 @@ Iteration log:
      3    80.0%    22    0    73.6%  $0.1556      KEPT
 ```
 
-- **Train**: accuracy on the training set
-- **Fail**: number of incorrect cases
-- **TO**: number of timed-out cases
-- **Eval**: accuracy on held-out eval set (shown only when eval is run)
-- **Sup $**: cost of the supervisor LLM call for that iteration
-- **Status**: BASELINE (iter 0), KEPT, or ROLLBACK
+- Train: accuracy on the training set
+- Fail: number of incorrect cases
+- TO: number of timed-out cases
+- Eval: accuracy on held-out eval set (shown only when eval is run)
+- Sup $: cost of the supervisor LLM call for that iteration
+- Status: BASELINE (iter 0), KEPT, or ROLLBACK
 
 ### HTML report
 
@@ -362,4 +358,4 @@ The `report.html` is a self-contained interactive page with:
   - Full supervisor prompt and response
   - Outcome summary
 
-Open it directly in a browser -- no server needed.
+Open it directly in a browser; no server is needed.

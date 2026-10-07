@@ -1,53 +1,25 @@
-# Table 2/3 task adapters: what is installed and how to reproduce it
+# What the setup script adds to AFlow
 
-Applied and verified in `C:/Users/STUDENT/aflow-b`. Not yet applied to
-`C:/Users/STUDENT/aflow`, because the `table2_musr3` MuSR Object search is still
-reading those files. Apply it there once that search finishes.
+`scripts/prepare_aflow.py --aflow-dir <dir> --apply` turns a plain copy of AFlow (version `3f457218`) into the one we used. Running it again without `--apply` only checks that everything below is in place.
 
-Reproducing a checkout from scratch is one command, which now installs and
-verifies everything below:
+## The executor model
 
-```
-uv run python scripts/prepare_aflow.py --aflow-dir <dir> --apply
-```
-
-## Executor model
-
-Tables 2 and 3 were produced with DeepSeek-V3.1, so the AFlow runs use the same
-model. It is reached through OpenRouter, since the Together key no longer works.
-
-OpenRouter routes a model to whichever host is cheapest unless told otherwise,
-and its default for this model is DeepInfra serving it at **fp4**. The table
-columns were served by Together at fp8, so taking the default would put a more
-compressed model in the column it is being compared against. `config2.yaml`
-therefore pins SiliconFlow, which is fp8 and carries the largest context of the
-fp8 hosts (163,840), which the long RuleArena NBA prompts need:
+The paper's executor model is DeepSeek-V3.1, so AFlow runs it too. AFlow reaches it through OpenRouter, a service that forwards each request to one of several companies hosting the model. By default, OpenRouter spreads requests across hosts, giving cheaper hosts more weight, and hosts can run differently compressed versions of the same model. To keep every call on one host, the config entry `deepseek-v31-atlascloud` in `config2.yaml` sends requests only to AtlasCloud and turns fallback off:
 
 ```yaml
     extra_body:
       provider:
-        only: ["SiliconFlow"]
+        only: ["AtlasCloud"]
         allow_fallbacks: false
 ```
 
-Verified on 2026-09-23 that the pin is enforced rather than advisory: unpinned
-returns `provider: DeepInfra`, pinned returns `provider: SiliconFlow`, and a
-provider that cannot serve the model returns HTTP 404 instead of quietly
-rerouting. Fallbacks are off so a throttle fails loudly rather than switching
-quantization partway through a run.
+With fallback off, a host that cannot serve a request returns an error rather than quietly sending it somewhere else. The provider setting is part of each saved request, so a replay can never reuse an answer from a different host.
 
-`extra_body` joins the request, so it is part of the call-cache key. Changing
-the pin correctly invalidates replay instead of reusing calls from another host.
+AFlow's own cost tracker prices calls at fixed rates ($0.27 per million input tokens and $1.00 per million output tokens). The paper's executor costs use the provider's actual bills instead, read from the saved calls.
 
-`ModelPricing` carries the pinned host's own rate ($0.27 per 1M prompt, $1.00
-per 1M completion). That figure is only right while this pin holds; repinning
-means repricing.
+## Files added to AFlow
 
-## Added files
-
-Installed by `prepare_aflow.py` and verified on every run:
-
-| archived | installed as |
+| Archived here | Installed as |
 |---|---|
 | `scorers_natural_plan.py` | `benchmarks/scorers_natural_plan.py` |
 | `scorers_medcalc.py` | `benchmarks/scorers_medcalc.py` |
@@ -57,22 +29,13 @@ Installed by `prepare_aflow.py` and verified on every run:
 | `benchmarks_medcalc.py` | `benchmarks/medcalc.py` |
 | `benchmarks_finqa.py` | `benchmarks/finqa.py` |
 
-The two scorer files are verbatim copies of `benchmarks/natural_plan/eval_utils.py`
-and `benchmarks/medcalc/accuracy.py`. `tests/test_aflow_table_adapters.py` fails
-if either drifts, so re-copy rather than edit.
+The two scorer files are exact copies of this repository's own scorers, `benchmarks/natural_plan/eval_utils.py` and `benchmarks/medcalc/accuracy.py`, so AFlow is graded the same way as every other method. In the full repository, `tests/test_aflow_table_adapters.py` fails if either copy drifts from its original, so if you change one, copy it again rather than editing the archived file.
 
-`benchmarks_finqa.py` had been archived since the first pilot but was never
-listed in `COPIES`, so a checkout built by `prepare_aflow.py` alone was missing
-it and `scripts/evaluator.py` would not import. Found while building `aflow-b`.
+## Datasets registered in AFlow
 
-## Registered datasets
+These six names are added to AFlow's `run.py`, `scripts/evaluator.py` and `test_pass.py`. The first two files are AFlow's own and change through `aflow_changes.patch`; `test_pass.py` is one of the added files.
 
-Six names added to `run.py`, `scripts/evaluator.py` and `test_pass.py`. The
-first three are tracked AFlow files and are carried by the rebuilt
-`aflow_changes.patch`; `test_pass.py` is an added file and is carried by the
-archive above.
-
-| dataset | benchmark class | type | operators |
+| Dataset | Benchmark class | Type | Operators |
 |---|---|---|---|
 | `MuSRMurderMysteries` | `MuSRObjectBenchmark` | qa | Custom, AnswerGenerate, ScEnsemble |
 | `MuSRTeamAllocation` | `MuSRObjectBenchmark` | qa | Custom, AnswerGenerate, ScEnsemble |
@@ -81,27 +44,12 @@ archive above.
 | `RuleArenaNBA` | `RuleArenaNBABenchmark` | qa | Custom, AnswerGenerate, ScEnsemble |
 | `MedCalcTest` | `MedCalcBenchmark` | math | Custom, ScEnsemble, Programmer |
 
-MuSR murder and team reuse the object scorer because all three are an exact
-match on the choice index. MedCalc is numeric, so it takes FinQA's math operator
-set rather than `AnswerGenerate`.
+The three MuSR tasks share one scorer, because each is graded by whether the chosen answer number is exactly right. MedCalc uses FinQA's math operator set, including `Programmer`, rather than `AnswerGenerate`. Its scorer also handles date and weeks-and-days answers.
 
-## MedCalc scores through score_case, not calculate_score
+## How MedCalc is graded
 
-A MedCalc case cannot be graded from its gold value alone. It needs that case's
-lower limit, upper limit, output type and category, because formula categories
-allow a tolerance while rule categories require an exact match. Those four
-fields ride alongside `target` in each exported row and
-`MedCalcBenchmark.score_case(problem, prediction)` reads them.
-`calculate_score` raises `NotImplementedError` so the difference cannot be
-missed. Anything calling benchmarks generically must special-case this dataset.
+A MedCalc answer cannot be graded from the correct value alone. Each exported question carries its lower limit, upper limit, output type and category next to `target`, the correct answer. `MedCalcBenchmark.score_case(problem, prediction)` passes these fields to the shared scorer and uses its `is_within_tolerance` result. Numeric formula answers normally allow 5% error, or an error of at most 0.05 when the correct answer is zero. Numeric rule answers need an absolute error below 0.01, which the scorer calls an exact match. Dates and weeks-and-days answers use the scorer's own exact-match rules. The supplied lower and upper limits are checked separately and do not decide this score. The generic `calculate_score` raises `NotImplementedError`; code that grades several datasets must call `score_case` for MedCalc.
 
-## Before trusting the MedCalc Rules comparison
+## One caveat about the MedCalc Rules column
 
-The saved MedCalc Rules column was scored on 2026-04-25, before commit
-`32f797fa` on 2026-05-01 fixed the rule-category test in `accuracy.py`. Under
-the old code the exact-match branch never fired for `risk`, `diagnosis` or
-`severity`, so those cases got the 5% tolerance meant for formulas.
-
-Two of 380 cases are affected. The column reads 0.4974 where today's scorer
-gives 0.4921. Rescoring needs no model calls, only a recompute from the saved
-per-case rows. Do that before putting an AFlow number beside it.
+The saved MedCalc Rules result of the Engineered Workflow Baseline (its run of 25 April 2026) was scored before a fix on 1 May 2026 (commit `32f797fa` in `benchmarks/medcalc/accuracy.py`) to how the scorer treats rule questions. Before the fix, rule questions (`risk`, `diagnosis` and `severity`) were given the 5% tolerance meant for formula questions. Two of the 380 Rules questions are affected: rescored with today's scorer, that result's 0.4974 becomes 0.4921. Rescoring needs no model calls, only the saved answers. Rescore this saved column before comparing it with an AFlow result graded by the current scorer.
