@@ -13,7 +13,7 @@ benchmarks/**/tmp*.py
 docs/orchestrator_demo.html
 docs/presentation.md
 docs/handoff_population_optimizer.md
-docs/aditya-contribution-report.md
+docs/*-contribution-report.md
 docs/orchestration_learner_sweep_results.md
 docs/orchestration_learner_sweep_curves.html
 docs/orchestration_learner_research_findings.html
@@ -259,3 +259,22 @@ learning_correctness_table_filled.tex
 learning_cost_table_filled.tex
 learning_notes.txt
 medcalc_codedistill_partitions.tex
+
+# Local work kept outside the submission
+.aider.conf.yml
+.vscode/
+.scratch/tmpah4144ng/
+.tmp_aflow_cache_9v_wrtjz/
+analysis/**/cache/
+analysis/**/call_logs/
+analysis/**/worker_logs/
+analysis/**/rollouts/
+analysis/**/balance*.json
+analysis/**/previous_active_run.json
+benchmarks/**/llm_cache/
+benchmarks/**/recordings/
+benchmarks/finqa/data/raw/
+benchmarks/musr/learned/**/iterations/
+benchmarks/musr/learned/**/final_eval/
+benchmarks/musr/learned/**/plots/
+benchmarks/musr/learned/**/report.html
