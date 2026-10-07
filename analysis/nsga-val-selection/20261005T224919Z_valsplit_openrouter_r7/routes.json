@@ -1,0 +1,88 @@
+{
+  "openrouter/deepseek/deepseek-chat-v3.1": {
+    "provider": {
+      "only": [
+        "coreweave/fp8"
+      ],
+      "order": [
+        "coreweave/fp8"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": false
+    },
+    "pricing": {
+      "prompt": "0.00000055",
+      "completion": "0.00000165",
+      "input_cache_read": "0.00000055",
+      "discount": 0
+    },
+    "quantization": "fp8",
+    "expected_provider": "CoreWeave",
+    "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084816Z_retry_compatibility\\checks.json",
+    "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+  },
+  "openrouter/deepseek/deepseek-chat": {
+    "provider": {
+      "only": [
+        "streamlake"
+      ],
+      "order": [
+        "streamlake"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": false
+    },
+    "pricing": {
+      "prompt": "0.0000002574",
+      "completion": "0.0000010287",
+      "discount": 0.1
+    },
+    "quantization": "unknown",
+    "expected_provider": "StreamLake",
+    "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084607Z_retry_compatibility\\checks.json",
+    "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+  },
+  "openrouter/openai/gpt-oss-20b": {
+    "provider": {
+      "only": [
+        "coreweave/fp4"
+      ],
+      "order": [
+        "coreweave/fp4"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": false
+    },
+    "pricing": {
+      "prompt": "0.00000003",
+      "completion": "0.00000013",
+      "input_cache_read": "0.00000003",
+      "discount": 0
+    },
+    "quantization": "fp4",
+    "expected_provider": "CoreWeave",
+    "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084607Z_retry_compatibility\\checks.json",
+    "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+  },
+  "openrouter/openai/gpt-oss-120b": {
+    "provider": {
+      "only": [
+        "together"
+      ],
+      "order": [
+        "together"
+      ],
+      "allow_fallbacks": false,
+      "require_parameters": false
+    },
+    "pricing": {
+      "prompt": "0.00000015",
+      "completion": "0.0000006",
+      "discount": 0
+    },
+    "quantization": "unknown",
+    "expected_provider": "Together",
+    "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084816Z_retry_compatibility\\checks.json",
+    "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085525Z_adapter_compatibility\\checks.json"
+  }
+}

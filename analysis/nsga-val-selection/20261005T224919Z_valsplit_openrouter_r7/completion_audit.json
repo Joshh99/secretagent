@@ -1,0 +1,1562 @@
+{
+  "checked_utc": "2026-10-06T01:54:24.677085+00:00",
+  "status": "COMPLETED_AUDITED",
+  "run": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7",
+  "settings": {
+    "pop_size": 12,
+    "n_gen": 5,
+    "seed": 42,
+    "timeout_s": 1200
+  },
+  "validation_complete_configurations": 52,
+  "validation_evaluations": 54,
+  "invalid_timeout_indices": [
+    1,
+    2
+  ],
+  "final_frontier_count": 4,
+  "optimizer_replay_all_54_chromosomes_and_generations": true,
+  "selection_before_first_test_call": true,
+  "selected": {
+    "config": "workflow/DeepSeek-V3.1",
+    "method": "workflow",
+    "model": "DeepSeek-V3.1",
+    "correct": 0.78,
+    "cost": 0.00207613554599999,
+    "frontier": true,
+    "valid": true,
+    "chromosome": "[2, 0, 0, 2, 0, 1, 0, 0]",
+    "eval_index": 27,
+    "validation_csv": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015926.nsga_valsplit_or_027\\results.csv",
+    "selected_utc": "2026-10-06T01:22:02.140003+00:00",
+    "overrides": [
+      "evaluate.entry_point=answer_question_workflow",
+      "ptools.answer_question_workflow.method=direct",
+      "llm.model=openrouter/deepseek/deepseek-chat-v3.1",
+      "ptools.extract_suspects_and_evidence.method=simulate",
+      "ptools.extract_suspects_and_evidence.model=openrouter/openai/gpt-oss-20b",
+      "ptools.verify_alibis.method=simulate",
+      "ptools.verify_alibis.model=openrouter/deepseek/deepseek-chat",
+      "ptools.deduce_murderer.method=simulate",
+      "ptools.deduce_murderer.model=openrouter/deepseek/deepseek-chat-v3.1"
+    ]
+  },
+  "validation": {
+    "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015926.nsga_valsplit_or_027\\results.csv",
+    "rows": 50,
+    "unique_ids": 50,
+    "correct": 39,
+    "accuracy": 0.78,
+    "cost_per_100": 0.20761355460000003,
+    "logical_cost_total": 0.1038067773,
+    "exceptions": [],
+    "eval_index": 27
+  },
+  "heldout": {
+    "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\musr\\murder\\20261006.032212.valsplit_heldout50.test_pass_workflow_DeepSeek-V3.1\\results.csv",
+    "rows": 50,
+    "unique_ids": 50,
+    "correct": 31,
+    "accuracy": 0.62,
+    "cost_per_100": 0.20671979939999996,
+    "logical_cost_total": 0.1033598997,
+    "exceptions": []
+  },
+  "accepted_csv_audits": [
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.012952.nsga_valsplit_or_003\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 3
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013014.nsga_valsplit_or_004\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 22,
+      "accuracy": 0.44,
+      "cost_per_100": 1.37666784,
+      "logical_cost_total": 0.68833392,
+      "exceptions": [
+        {
+          "case": "ex030",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(deduced_murderer_name, choices)' due to: ValueError: invalid literal for int() with base 10: '0\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex064",
+          "error": "**exception raised**: Code execution failed at line 'suspect_evidence = extract_suspects_and_evidence(narrative, question, choices)' due to: ValueError: cannot format extract_suspects_and_evidence() -> str for args=('When Wilhelmina is mysteriously slain by a crossbow in her own kitchen, Detective Winston steps in to question the two primary suspects, Isabelle and Nicole, in this chilling murder mystery.\\n\\nDetective Winston\\'s smoke-filled office was filled with tangible tension as he poured over the curious case of Wilhelmina. The facts at hand seemed to spin an intricate web, but the threads only made sense one at a time. \\n\\nNicole, art collector by profession, was ostensibly the last one to see Wilhelmina. They had been scheduled for a meeting at Nicole\\'s house where Nicole had stayed in all day, in the very kitchen where Wilhelmina had been murdered. Winston studied the eerie photographs of the scene, the brightly lit kitchen contrasted with the grim presence of a crossbow.\\n\\nShaking his head to focus, Winston remembered his visit to Nicole\\'s home. Her exclusive medieval-themed art pieces took his breath away, as did her pride. \"My treasures,\" she beamed, pointing grandly to a display case which held a pristine medieval crossbow.\\n\\nA memory tugged at his mind, it wasn\\'t just the crossbow she was proud of. He recalled a discussion with a bartender, the mention of Nicole\\'s frequent appearances at medieval art auctions. What\\'s more, Nicole had been known to read books on crossbows, and there were even whispers among her acquaintances of her crossbow-shooting practices.\\n\\nAnd then there were the rumors, dark whispers that followed Nicole like a specter. It seemed that almost everyone Nicole had been friendly with had died under mysterious circumstances, the very circumstances that were all too familiar to Winston as he studied the police records. \\n\\nToo many puzzle pieces, yet somehow connected. Even the seemingly mundane receipt Winston held in his hand felt like a silent hint. Nicole had gone grocery shopping recently and had the forethought to buy the deceased\\'s favorite snacks, her groceries for the day when she\\'d stayed home, and which now lay untouched on the granite counter.\\n\\nWinston felt the connection, not clear, yet humming under the surface. What were all these interesting coincidences? Was it pure chance that Nicole collected pieces of art connected to people who lay dead? Or that Wilhelmina, a renowned collector of medieval artifacts including crossbows, was found by a crossbow in her friend\\'s kitchen, a friend who had somehow acquired an authentic crossbow as part of her art collection and stayed home all day?\\n\\nHe picked up the phone, ordered more coffee, and resumed his investigations. An intricate puzzle indeed.\\n\\nWinston frowned at the laptop screen in front of him, then squinted. A plethora of eBooks on archery and yoga were being sent to Isabelle\\'s inbox, indicating Isabelle received her reading materials digitally. A picture of the cheery-looking Isabelle, beaming next to a massive crossbow, was plastered all over her heavily used social media accounts. The caption boasted of her skills, \"So proud to be part of the city archery club.\" He navigated to a different tab, confirming her membership of an online archery club that used crossbows.\\n\\nAs he studied her profile, he noted some details in her bio that surprised him slightly. Next to the information that she was a yoga instructor, it read, \"Travel junkie! Always out exploring after each teaching contract!\" She had also listed her LinkedIn, which Winston opened. He grimaced as he skimmed over her numerous long-term contracts in various cities, and her preferred methods of payment were invariably digital.\\n\\nDetermined to get a clearer picture of Isabelle, he called her up.\\n\\n\u201cIsabelle, this is Detective Winston. I\u2019d like to ask you a few questions about the death of Wilhelmina. I\u2019d like to meet in person,\u201d he said.\\n\\n\u201cI\u2019d prefer if we chat online, Detective. I\u2019m more comfortable that way,\u201d she replied, again indicating her strong preference for online communication.\\n\\nHours later, on a video call, Isabelle appeared composed but slightly guarded. \\n\\n\"Routine is central to my yoga classes, Detective,\" Isabelle said, and she further explained that her yoga schedule ran like clockwork. The sessions followed a rigid timeslot and it just so happened that the fateful class in Wilhelmina\\'s kitchen took place right around the time of the murder.\\n\\n\"Wilhelmina was a regular attendee in my classes, and she even offered her kitchen for one of our sessions. She thought the atmosphere would be more inviting,\" Isabelle shared. She paused, seemingly unsure if she should continue. After a beat, she added, \"She was a sweet lady. It\\'s sad to think she was murdered right there...\"\\n\\nHer voice trailed off, and she looked the detective square in the face, \"I was there, in the kitchen when it happened, but I... I didn\u2019t do anything wrong.\"\\n\\n\"On the contrary, I just finished up a teaching contract in this city and I look forward to exploring this place more, Detective,\" she concluded, a half-smile playing on her lips.\\n\\nAfter the call ended, Winston sat back in his chair, taking in the conversation. As he switched back to her social media profile, the pictures of her beaming next to her crossbow kept coming back.\\n\\nA notification chimed, alerting him to a new email from the forensics lab. The report stated that a crossbow could be the murder weapon.\\n\\n\"Interesting,\" Winston muttered to himself, eyes flicking back to the beaming image of Isabelle and her crossbow on the screen.', 'Who is the most likely murderer?', ['Isabelle', 'Nicole']) kw={} - note type hints are needed!"
+        },
+        {
+          "case": "ex025",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(deduced_murderer_name, choices)' due to: ValueError: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(deduced_answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        }
+      ],
+      "eval_index": 4
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013049.nsga_valsplit_or_005\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.29826951640000005,
+      "logical_cost_total": 0.14913475820000002,
+      "exceptions": [],
+      "eval_index": 5
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013122.nsga_valsplit_or_006\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 25,
+      "accuracy": 0.5,
+      "cost_per_100": 1.2821420600000002,
+      "logical_cost_total": 0.6410710300000001,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER'"
+        },
+        {
+          "case": "ex015",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex019",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER'"
+        },
+        {
+          "case": "ex040",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER'"
+        },
+        {
+          "case": "ex051",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex042",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER'"
+        }
+      ],
+      "eval_index": 6
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013156.nsga_valsplit_or_007\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 38,
+      "accuracy": 0.76,
+      "cost_per_100": 0.3566692,
+      "logical_cost_total": 0.1783346,
+      "exceptions": [],
+      "eval_index": 7
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013220.nsga_valsplit_or_008\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 8
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013239.nsga_valsplit_or_009\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 26,
+      "accuracy": 0.52,
+      "cost_per_100": 0.12654762179999998,
+      "logical_cost_total": 0.06327381089999999,
+      "exceptions": [
+        {
+          "case": "ex055",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex022",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex048",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex053",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        }
+      ],
+      "eval_index": 9
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013311.nsga_valsplit_or_010\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 32,
+      "accuracy": 0.64,
+      "cost_per_100": 2.3658868892,
+      "logical_cost_total": 1.1829434446,
+      "exceptions": [],
+      "eval_index": 10
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013343.nsga_valsplit_or_011\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 23,
+      "accuracy": 0.46,
+      "cost_per_100": 0.2057755,
+      "logical_cost_total": 0.10288775,
+      "exceptions": [
+        {
+          "case": "ex063",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex064",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex022",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(murderer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex048",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex062",
+          "error": "**exception raised**: cannot find answer matching pattern '```python\\n(.*?)\\n```'"
+        }
+      ],
+      "eval_index": 11
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013413.nsga_valsplit_or_012\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 12
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013433.nsga_valsplit_or_013\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 13
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013453.nsga_valsplit_or_014\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.30621456,
+      "logical_cost_total": 0.15310728,
+      "exceptions": [],
+      "eval_index": 14
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013528.nsga_valsplit_or_015\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 24,
+      "accuracy": 0.48,
+      "cost_per_100": 0.21030464740000002,
+      "logical_cost_total": 0.10515232370000001,
+      "exceptions": [
+        {
+          "case": "ex063",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex064",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex022",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(murderer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex048",
+          "error": "**exception raised**: Code execution failed at line 'result = extract_index(answer_text, choices)' due to: ValueError: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex062",
+          "error": "**exception raised**: cannot find answer matching pattern '```python\\n(.*?)\\n```'"
+        }
+      ],
+      "eval_index": 15
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013558.nsga_valsplit_or_016\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 26,
+      "accuracy": 0.52,
+      "cost_per_100": 0.18277636,
+      "logical_cost_total": 0.09138818,
+      "exceptions": [],
+      "eval_index": 16
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013630.nsga_valsplit_or_017\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 17
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013648.nsga_valsplit_or_018\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 18
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013707.nsga_valsplit_or_019\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 19
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013725.nsga_valsplit_or_020\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 20
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013743.nsga_valsplit_or_021\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 25,
+      "accuracy": 0.5,
+      "cost_per_100": 0.014703,
+      "logical_cost_total": 0.0073515,
+      "exceptions": [],
+      "eval_index": 21
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013800.nsga_valsplit_or_022\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 21,
+      "accuracy": 0.42,
+      "cost_per_100": 0.042066,
+      "logical_cost_total": 0.021033,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex039",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex057",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex055",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex049",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex058",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex000",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex069",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        }
+      ],
+      "eval_index": 22
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013818.nsga_valsplit_or_023\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 23
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013837.nsga_valsplit_or_024\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 24
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.013855.nsga_valsplit_or_025\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 32,
+      "accuracy": 0.64,
+      "cost_per_100": 0.8181413694,
+      "logical_cost_total": 0.4090706847,
+      "exceptions": [],
+      "eval_index": 25
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015613.nsga_valsplit_or_026\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 26
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015926.nsga_valsplit_or_027\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 39,
+      "accuracy": 0.78,
+      "cost_per_100": 0.20761355460000003,
+      "logical_cost_total": 0.1038067773,
+      "exceptions": [],
+      "eval_index": 27
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.020553.nsga_valsplit_or_028\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 26,
+      "accuracy": 0.52,
+      "cost_per_100": 1.5861353600000003,
+      "logical_cost_total": 0.7930676800000002,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: invalid literal for int() with base 10: '0\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex043",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: invalid literal for int() with base 10: '0\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex049",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex023",
+          "error": "**exception raised**: invalid literal for int() with base 10: '0\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex025",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex062",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex000",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        }
+      ],
+      "eval_index": 28
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.021918.nsga_valsplit_or_029\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 29
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.021929.nsga_valsplit_or_030\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.1480881546,
+      "logical_cost_total": 0.0740440773,
+      "exceptions": [],
+      "eval_index": 30
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.022815.nsga_valsplit_or_031\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 31,
+      "accuracy": 0.62,
+      "cost_per_100": 0.2529333,
+      "logical_cost_total": 0.12646665,
+      "exceptions": [],
+      "eval_index": 31
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.023903.nsga_valsplit_or_032\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 32
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.023915.nsga_valsplit_or_033\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 0,
+      "accuracy": 0.0,
+      "cost_per_100": 0.039691399999999995,
+      "logical_cost_total": 0.019845699999999997,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex018",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex036",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex059",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex071",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex043",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex039",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex015",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex065",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex055",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex049",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex019",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex020",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex040",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex051",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex002",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex056",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex064",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex066",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex050",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex023",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex058",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex025",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex033",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex022",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex048",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex006",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex042",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex062",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex021",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex027",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex053",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex010",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex000",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex069",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex037",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 33
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024226.nsga_valsplit_or_034\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 34
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024238.nsga_valsplit_or_035\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 35
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024249.nsga_valsplit_or_036\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 36
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024302.nsga_valsplit_or_037\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 34,
+      "accuracy": 0.68,
+      "cost_per_100": 0.2528733528,
+      "logical_cost_total": 0.1264366764,
+      "exceptions": [],
+      "eval_index": 37
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024704.nsga_valsplit_or_038\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 21,
+      "accuracy": 0.42,
+      "cost_per_100": 0.042066,
+      "logical_cost_total": 0.021033,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex039",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex057",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex055",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex049",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex058",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        },
+        {
+          "case": "ex000",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n1'"
+        },
+        {
+          "case": "ex069",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: invalid literal for int() with base 10: 'FINAL ANSWER\\n0'"
+        }
+      ],
+      "eval_index": 38
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024716.nsga_valsplit_or_039\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.010158659999999998,
+      "logical_cost_total": 0.005079329999999999,
+      "exceptions": [],
+      "eval_index": 39
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024901.nsga_valsplit_or_040\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 40
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024913.nsga_valsplit_or_041\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 41
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024925.nsga_valsplit_or_042\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 42
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.024937.nsga_valsplit_or_043\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 29,
+      "accuracy": 0.58,
+      "cost_per_100": 0.7733213546000001,
+      "logical_cost_total": 0.38666067730000003,
+      "exceptions": [
+        {
+          "case": "ex046",
+          "error": "**exception raised**: invalid literal for int() with base 10: '0\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex025",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        },
+        {
+          "case": "ex062",
+          "error": "**exception raised**: invalid literal for int() with base 10: '1\\nFINAL ANSWER'"
+        }
+      ],
+      "eval_index": 43
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030118.nsga_valsplit_or_044\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 32,
+      "accuracy": 0.64,
+      "cost_per_100": 0.7012827545999999,
+      "logical_cost_total": 0.35064137729999995,
+      "exceptions": [],
+      "eval_index": 44
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030222.nsga_valsplit_or_045\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 45
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030235.nsga_valsplit_or_046\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 46
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030248.nsga_valsplit_or_047\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 25,
+      "accuracy": 0.5,
+      "cost_per_100": 0.014703,
+      "logical_cost_total": 0.0073515,
+      "exceptions": [],
+      "eval_index": 47
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030303.nsga_valsplit_or_048\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 48
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030318.nsga_valsplit_or_049\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 33,
+      "accuracy": 0.66,
+      "cost_per_100": 0.043875232199999996,
+      "logical_cost_total": 0.021937616099999998,
+      "exceptions": [],
+      "eval_index": 49
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.030332.nsga_valsplit_or_050\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 23,
+      "accuracy": 0.46,
+      "cost_per_100": 0.09886254300000001,
+      "logical_cost_total": 0.049431271500000006,
+      "exceptions": [],
+      "eval_index": 50
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.031121.nsga_valsplit_or_051\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 30,
+      "accuracy": 0.6,
+      "cost_per_100": 0.08443641779999998,
+      "logical_cost_total": 0.04221820889999999,
+      "exceptions": [
+        {
+          "case": "ex008",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex007",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex060",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex030",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex029",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex052",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex063",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex024",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex005",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex009",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex047",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex070",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 51
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.031133.nsga_valsplit_or_052\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 28,
+      "accuracy": 0.56,
+      "cost_per_100": 0.0805849,
+      "logical_cost_total": 0.04029245,
+      "exceptions": [],
+      "eval_index": 52
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.031145.nsga_valsplit_or_053\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 35,
+      "accuracy": 0.7,
+      "cost_per_100": 0.15781700000000004,
+      "logical_cost_total": 0.07890850000000002,
+      "exceptions": [
+        {
+          "case": "ex057",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        },
+        {
+          "case": "ex016",
+          "error": "**exception raised**: cannot find answer matching pattern '<answer>(.*)</answer>'"
+        }
+      ],
+      "eval_index": 53
+    },
+    {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.031157.nsga_valsplit_or_054\\results.csv",
+      "rows": 50,
+      "unique_ids": 50,
+      "correct": 32,
+      "accuracy": 0.64,
+      "cost_per_100": 0.76671216,
+      "logical_cost_total": 0.38335608,
+      "exceptions": [],
+      "eval_index": 54
+    }
+  ],
+  "validation_heldout_actual_input_overlap": 0,
+  "costs": {
+    "search_openrouter_billed": "1.2824626952",
+    "search_google_estimated": "1.194494000000000059623",
+    "test_openrouter_billed": "0.1039657349"
+  },
+  "call_counts": {
+    "('search', 'openrouter')": 771,
+    "('search', 'google')": 404,
+    "('test', 'openrouter')": 188
+  },
+  "serving_hosts": [
+    {
+      "phase": "search",
+      "model": "openrouter/deepseek/deepseek-chat-v3.1",
+      "host": "CoreWeave",
+      "calls": 396
+    },
+    {
+      "phase": "search",
+      "model": "openrouter/openai/gpt-oss-120b",
+      "host": "Together",
+      "calls": 29
+    },
+    {
+      "phase": "search",
+      "model": "openrouter/deepseek/deepseek-chat",
+      "host": "StreamLake",
+      "calls": 243
+    },
+    {
+      "phase": "search",
+      "model": "openrouter/openai/gpt-oss-20b",
+      "host": "CoreWeave",
+      "calls": 103
+    },
+    {
+      "phase": "test",
+      "model": "openrouter/openai/gpt-oss-20b",
+      "host": "CoreWeave",
+      "calls": 50
+    },
+    {
+      "phase": "test",
+      "model": "openrouter/deepseek/deepseek-chat",
+      "host": "StreamLake",
+      "calls": 50
+    },
+    {
+      "phase": "test",
+      "model": "openrouter/deepseek/deepseek-chat-v3.1",
+      "host": "CoreWeave",
+      "calls": 88
+    }
+  ],
+  "failed_transient_calls": 16,
+  "error_types": {
+    "RateLimitError": 16
+  },
+  "terminal_errors": 0,
+  "key_usage_delta": "1.398175193",
+  "account_usage_delta": "1.398175193",
+  "unreconciled_key_minus_logged_billed": "0.0117467629",
+  "account_balance": 247.1573788620001,
+  "source_cache_unchanged": true,
+  "protected_hashes_unchanged": true,
+  "frozen_wrapper_unchanged": true,
+  "finder_matches_new_heldout": true,
+  "canonical_summary_matches": true,
+  "nine_cells": {
+    "musr/murder": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\musr\\murder\\20261006.032212.valsplit_heldout50.test_pass_workflow_DeepSeek-V3.1\\results.csv",
+      "n": 50,
+      "correct": 31,
+      "accuracy": 0.62,
+      "cost_per_100": 0.2067197993999998
+    },
+    "musr/object": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\musr\\object\\20260506.113537.test_pass_wf_orch_gemini-2-5-flash\\results.csv",
+      "n": 50,
+      "correct": 39,
+      "accuracy": 0.78,
+      "cost_per_100": 0.6284064599999996
+    },
+    "musr/team": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\musr\\team\\20260505.130621.test_pass_pot_DeepSeek-V3-1\\results.csv",
+      "n": 50,
+      "correct": 31,
+      "accuracy": 0.62,
+      "cost_per_100": 0.5978008163265293
+    },
+    "natural_plan/meeting": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\natural_plan\\meeting\\20260505.194155.test_pass_structured_baseline_gpt-oss-20b\\results.csv",
+      "n": 50,
+      "correct": 27,
+      "accuracy": 0.54,
+      "cost_per_100": 0.11811839999999678
+    },
+    "natural_plan/trip": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\natural_plan\\trip\\20260505.233302.test_pass_workflow_DeepSeek-V3-1\\results.csv",
+      "n": 50,
+      "correct": 11,
+      "accuracy": 0.22,
+      "cost_per_100": 0.34919659999999797
+    },
+    "rulearena/nba": {
+      "path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\rulearena\\nba\\20260504.022308.test_pass_react_learned_DeepSeek-V3\\results.csv",
+      "n": 46,
+      "correct": 32,
+      "accuracy": 0.6956521739130435,
+      "cost_per_100": 30.02710597826087
+    },
+    "medcalc/overall": null,
+    "medcalc/formula": null,
+    "medcalc/rules": null
+  }
+}

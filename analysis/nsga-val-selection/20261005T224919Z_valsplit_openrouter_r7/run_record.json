@@ -1,0 +1,287 @@
+{
+  "started_utc": "2026-10-05T22:49:23.345613+00:00",
+  "branch": "nsga-val-selection",
+  "status": "DONE",
+  "pop_size": 12,
+  "n_gen": 5,
+  "seed": 42,
+  "timeout_s": 1200,
+  "model_map": {
+    "together_ai/deepseek-ai/DeepSeek-V3.1": "openrouter/deepseek/deepseek-chat-v3.1",
+    "together_ai/deepseek-ai/DeepSeek-V3": "openrouter/deepseek/deepseek-chat",
+    "together_ai/openai/gpt-oss-20b": "openrouter/openai/gpt-oss-20b",
+    "together_ai/openai/gpt-oss-120b": "openrouter/openai/gpt-oss-120b"
+  },
+  "original_space_sha256": "2c6d510f75551ff9c7edbc0729ab74ba8b5dff38fd7cff916bd9b70fa5ab75fd",
+  "command": [
+    "C:\\Users\\STUDENT\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-u",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rerun_murder_openrouter.launch.py",
+    "worker",
+    "run",
+    "--config-file",
+    "conf/murder.yaml"
+  ],
+  "overrides": [
+    "dataset.split=murder_mysteries_val",
+    "dataset.n=50",
+    "evaluate.result_dir=C:/Users/STUDENT/OneDrive/Documents/CodingProjects/Projects/AI Research/secretagent/analysis/nsga-val-selection/20261005T224919Z_valsplit_openrouter_r7/rollouts",
+    "cachier.cache_dir=C:/Users/STUDENT/OneDrive/Documents/CodingProjects/Projects/AI Research/secretagent/analysis/nsga-val-selection/20261005T224919Z_valsplit_openrouter_r7/cache",
+    "evaluate.record_details=true"
+  ],
+  "protected_hashes": {
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\musr\\nsga2_murder.yaml": "2c6d510f75551ff9c7edbc0729ab74ba8b5dff38fd7cff916bd9b70fa5ab75fd",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\musr\\expt.py": "3ba24405b2b56672902dc523d4a001477cc16b04f5489bee9fae8f5ebca73bc7",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\src\\secretagent\\evaluate.py": "4755c3edc7636f7ce8a21e79b1f08945284c85e0093e70d973b69144204184b3",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\musr\\data\\murder_mysteries_val.json": "54459fccc510711fb827a0e9100a983f0e8142f7cb292bdf2370a48ecb1dc5cb",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\musr\\data\\murder_mysteries_test.json": "f6f57325c7d299c5c6d0f195de8c9f7bc79ab5bbb1d072cb706ddb4552172b85",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\optimize-results\\musr_murder\\nsga2_summary.csv": "05ba112dfb9e7fd6f6ab51a7971080800fcd229e3a715c668fac162920fe68ea"
+  },
+  "spend_cap": null,
+  "cap_removed_by_user": true,
+  "selection_rule": "valid final frontier, max validation correct, min cost, file order",
+  "provider_change": "OpenRouter routes fixed per model: V3.1 CoreWeave, V3 StreamLake, OSS20B CoreWeave, OSS120B Together; Gemini unchanged",
+  "routes": {
+    "openrouter/deepseek/deepseek-chat-v3.1": {
+      "provider": {
+        "only": [
+          "coreweave/fp8"
+        ],
+        "order": [
+          "coreweave/fp8"
+        ],
+        "allow_fallbacks": false,
+        "require_parameters": false
+      },
+      "pricing": {
+        "prompt": "0.00000055",
+        "completion": "0.00000165",
+        "input_cache_read": "0.00000055",
+        "discount": 0
+      },
+      "quantization": "fp8",
+      "expected_provider": "CoreWeave",
+      "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084816Z_retry_compatibility\\checks.json",
+      "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+    },
+    "openrouter/deepseek/deepseek-chat": {
+      "provider": {
+        "only": [
+          "streamlake"
+        ],
+        "order": [
+          "streamlake"
+        ],
+        "allow_fallbacks": false,
+        "require_parameters": false
+      },
+      "pricing": {
+        "prompt": "0.0000002574",
+        "completion": "0.0000010287",
+        "discount": 0.1
+      },
+      "quantization": "unknown",
+      "expected_provider": "StreamLake",
+      "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084607Z_retry_compatibility\\checks.json",
+      "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+    },
+    "openrouter/openai/gpt-oss-20b": {
+      "provider": {
+        "only": [
+          "coreweave/fp4"
+        ],
+        "order": [
+          "coreweave/fp4"
+        ],
+        "allow_fallbacks": false,
+        "require_parameters": false
+      },
+      "pricing": {
+        "prompt": "0.00000003",
+        "completion": "0.00000013",
+        "input_cache_read": "0.00000003",
+        "discount": 0
+      },
+      "quantization": "fp4",
+      "expected_provider": "CoreWeave",
+      "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084607Z_retry_compatibility\\checks.json",
+      "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085058Z_adapter_compatibility\\checks.json"
+    },
+    "openrouter/openai/gpt-oss-120b": {
+      "provider": {
+        "only": [
+          "together"
+        ],
+        "order": [
+          "together"
+        ],
+        "allow_fallbacks": false,
+        "require_parameters": false
+      },
+      "pricing": {
+        "prompt": "0.00000015",
+        "completion": "0.0000006",
+        "discount": 0
+      },
+      "quantization": "unknown",
+      "expected_provider": "Together",
+      "compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T084816Z_retry_compatibility\\checks.json",
+      "adapter_compatibility_record": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T085525Z_adapter_compatibility\\checks.json"
+    }
+  },
+  "cache_policy": "private copy of finite-cost completed low-level r6 calls; no agent cache; source preserved",
+  "recovery_cache_source": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T210046Z_valsplit_openrouter_r6",
+  "network_retry_amendment": "Only transient DNS, connection, timeout, empty-JSON, 429 and 5xx failures retry up to eight transport attempts with 15-second waits. Original 1200-second configuration limit still applies. Auth, schema and model validation errors are not retried by this transport fix.",
+  "transport_amendment": "Malformed prior tool arguments are encoded losslessly as JSON strings in outgoing history only. Original responses and validation feedback remain intact. Tool inputs and answers are not repaired.",
+  "worker_cleanup_fix": "Restore stdout/stderr before closing worker logs; launch the same virtual environment directly so the original subprocess timeout kills the actual worker.",
+  "transport_fix_checks": [
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T100649Z_real_history_fix\\checks.json",
+    "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T101339Z_real_case_fix\\checks.json"
+  ],
+  "transport_retry_fix_checks": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224838Z_r7_retry_regression\\checks.json",
+  "provider_recovery_checks": [
+    "analysis\\nsga-val-selection\\20261005T224515Z_oss120_recovery_check\\checks.json",
+    "analysis\\nsga-val-selection\\20261005T224750Z_oss120_tool_recovery\\checks.json"
+  ],
+  "recovery_note": "R6 stopped after eight HTTP 503 responses from Together via OpenRouter. Exact failed validation request and installed agent tool round trip succeeded before this same-route restart. No provider change and no saved optimizer population checkpoint.",
+  "frozen_worker_sha256": "eb2b22da4b327dc63f5184566e81bde234d1d13dcb105b01f51f2c053ccbdba2",
+  "validation_ids": [
+    "ex046",
+    "ex018",
+    "ex036",
+    "ex008",
+    "ex007",
+    "ex059",
+    "ex071",
+    "ex060",
+    "ex043",
+    "ex039",
+    "ex015",
+    "ex065",
+    "ex057",
+    "ex030",
+    "ex055",
+    "ex029",
+    "ex049",
+    "ex052",
+    "ex063",
+    "ex019",
+    "ex020",
+    "ex040",
+    "ex051",
+    "ex002",
+    "ex056",
+    "ex064",
+    "ex066",
+    "ex050",
+    "ex023",
+    "ex058",
+    "ex025",
+    "ex016",
+    "ex033",
+    "ex022",
+    "ex048",
+    "ex024",
+    "ex005",
+    "ex006",
+    "ex042",
+    "ex062",
+    "ex009",
+    "ex047",
+    "ex021",
+    "ex027",
+    "ex053",
+    "ex010",
+    "ex000",
+    "ex069",
+    "ex037",
+    "ex070"
+  ],
+  "heldout_ids": [
+    "ex099",
+    "ex046",
+    "ex002",
+    "ex051",
+    "ex016",
+    "ex038",
+    "ex058",
+    "ex068",
+    "ex022",
+    "ex062",
+    "ex024",
+    "ex005",
+    "ex006",
+    "ex067",
+    "ex082",
+    "ex019",
+    "ex079",
+    "ex043",
+    "ex090",
+    "ex020",
+    "ex000",
+    "ex095",
+    "ex057",
+    "ex093",
+    "ex053",
+    "ex089",
+    "ex025",
+    "ex071",
+    "ex084",
+    "ex077",
+    "ex064",
+    "ex029",
+    "ex027",
+    "ex088",
+    "ex097",
+    "ex004",
+    "ex054",
+    "ex075",
+    "ex011",
+    "ex069",
+    "ex086",
+    "ex013",
+    "ex017",
+    "ex028",
+    "ex031",
+    "ex035",
+    "ex094",
+    "ex003",
+    "ex014",
+    "ex081"
+  ],
+  "selected": {
+    "config": "workflow/DeepSeek-V3.1",
+    "method": "workflow",
+    "model": "DeepSeek-V3.1",
+    "correct": 0.78,
+    "cost": 0.00207613554599999,
+    "frontier": true,
+    "valid": true,
+    "chromosome": "[2, 0, 0, 2, 0, 1, 0, 0]",
+    "eval_index": 27,
+    "validation_csv": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015926.nsga_valsplit_or_027\\results.csv",
+    "selected_utc": "2026-10-06T01:22:02.140003+00:00",
+    "overrides": [
+      "evaluate.entry_point=answer_question_workflow",
+      "ptools.answer_question_workflow.method=direct",
+      "llm.model=openrouter/deepseek/deepseek-chat-v3.1",
+      "ptools.extract_suspects_and_evidence.method=simulate",
+      "ptools.extract_suspects_and_evidence.model=openrouter/openai/gpt-oss-20b",
+      "ptools.verify_alibis.method=simulate",
+      "ptools.verify_alibis.model=openrouter/deepseek/deepseek-chat",
+      "ptools.deduce_murderer.method=simulate",
+      "ptools.deduce_murderer.model=openrouter/deepseek/deepseek-chat-v3.1"
+    ]
+  },
+  "search_finished_utc": "2026-10-06T01:22:02.140003+00:00",
+  "test": {
+    "csv_path": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\results\\musr\\murder\\20261006.032212.valsplit_heldout50.test_pass_workflow_DeepSeek-V3.1\\results.csv",
+    "n": 50,
+    "correct_count": 31,
+    "accuracy": 0.62,
+    "cost_per_100": 0.2067197993999998
+  },
+  "finished_utc": "2026-10-06T01:36:15.992690+00:00",
+  "openrouter_account_usage_delta": 1.3964717129999826,
+  "openrouter_key_usage_delta": 1.3964717129999826
+}

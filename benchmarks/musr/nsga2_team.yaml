@@ -1,0 +1,70 @@
+# NSGA-II search space for MUSR Team Allocation.
+# Run from repo root:
+#   uv run -m secretagent.cli.optimize nsga2 \
+#     --space-file benchmarks/musr/nsga2_team.yaml \
+#     --cwd benchmarks/musr \
+#     --pop-size 12 --n-gen 5 --timeout 1200 \
+#     dataset.split=team_allocation_test dataset.n=50
+#
+# Mirrors nsga2_murder.yaml. Differences:
+#   - dataset split is `team_allocation_test`
+#   - team's orch_learner was trained on the direct `answer_question` interface,
+#     not on `answer_question_workflow` — so wf_orch keeps entry_point at
+#     `answer_question` and binds `__learned__.answer_question_orchestrated_seed`
+#     onto it (matches learned/team/20260427.024705.orch_learner/implementation.yaml).
+#   - The team orch's seed function calls a new `holistic_think_and_solve`
+#     interface defined in ptools_evolved.py — bound to simulate so the
+#     DirectFactory loader can propagate it onto the loaded module.
+#   - extract_team_requirements / score_team_assignments are NOT bound by
+#     conf/team.yaml, so workflow method binds them explicitly to `simulate`.
+
+command: uv run python expt.py run --config-file conf/team.yaml
+
+models:
+  - together_ai/deepseek-ai/DeepSeek-V3.1
+  - together_ai/deepseek-ai/DeepSeek-V3
+  - together_ai/openai/gpt-oss-20b
+  - together_ai/openai/gpt-oss-120b
+  - gemini/gemini-2.5-flash
+  - gemini/gemini-2.5-flash-lite
+
+methods:
+  structured_baseline:
+    - ptools.answer_question.method=simulate
+  zs_cot:
+    - ptools.answer_question.method=prompt_llm
+    - ptools.answer_question.prompt_template_file=prompt_templates/zero_shot_cot.txt
+  workflow:
+    - evaluate.entry_point=answer_question_workflow
+    - ptools.answer_question_workflow.method=direct
+    - ptools.extract_team_requirements.method=simulate
+    - ptools.score_team_assignments.method=simulate
+  pot:
+    - ptools.answer_question.method=program_of_thought
+    - ptools.answer_question.tools=__all__
+    - llm.max_tokens=16384
+  react:
+    - ptools.answer_question.method=direct
+    - ptools.answer_question.fn=ptools_common.react_answer_impl
+    - ptools.react_solve.method=simulate_pydantic
+    - ptools.react_solve.tools=[ptools_common.search,ptools_common.lookup,ptools_common.finish]
+  react_learned:
+    - ptools.answer_question.method=direct
+    - ptools.answer_question.fn=ptools_common.react_answer_impl
+    - ptools.react_solve.method=simulate_pydantic
+    - ptools.react_solve.tool_module=__learned__
+    - ptools.react_solve.learner=ptool_inducer
+    - ptools.react_solve.tools=__all__
+    - learn.train_dir=learned/team
+  wf_orch:
+    - ptools.answer_question.method=direct
+    - ptools.answer_question.fn=__learned__.answer_question_orchestrated_seed
+    - ptools.answer_question.learner=orch_learner
+    - ptools.holistic_think_and_solve.method=simulate
+    - learn.train_dir=learned/team
+
+sub_interfaces:
+  ptools.extract_team_requirements:
+    methods: [simulate]
+  ptools.score_team_assignments:
+    methods: [simulate]

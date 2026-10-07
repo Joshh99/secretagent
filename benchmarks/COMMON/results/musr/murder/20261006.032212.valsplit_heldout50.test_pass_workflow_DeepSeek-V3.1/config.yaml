@@ -1,0 +1,32 @@
+llm:
+  model: openrouter/deepseek/deepseek-chat-v3.1
+cachier:
+  cache_dir: C:/Users/STUDENT/OneDrive/Documents/CodingProjects/Projects/AI Research/secretagent/analysis/nsga-val-selection/20261005T224919Z_valsplit_openrouter_r7/cache
+evaluate:
+  expt_name: valsplit_heldout50.test_pass_workflow_DeepSeek-V3.1
+  result_dir: C:/Users/STUDENT/OneDrive/Documents/CodingProjects/Projects/AI Research/secretagent/benchmarks/COMMON/results/musr/murder
+  entry_point: answer_question_workflow
+  record_details: true
+dataset:
+  split: murder_mysteries_test
+  shuffle_seed: 42
+  'n': 50
+ptools:
+  raw_answer:
+    method: simulate
+  extract_index:
+    method: simulate
+  extract_suspects_and_evidence:
+    method: simulate
+    model: openrouter/openai/gpt-oss-20b
+  verify_alibis:
+    method: simulate
+    model: openrouter/deepseek/deepseek-chat
+  deduce_murderer:
+    method: simulate
+    model: openrouter/deepseek/deepseek-chat-v3.1
+  answer_question:
+    method: direct
+  answer_question_workflow:
+    method: direct
+root: C:\Users\STUDENT\OneDrive\Documents\CodingProjects\Projects\AI Research\secretagent\benchmarks\musr

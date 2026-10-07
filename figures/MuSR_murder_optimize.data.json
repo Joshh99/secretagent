@@ -1,0 +1,79 @@
+{
+  "summary": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\benchmarks\\COMMON\\optimize-results\\musr_murder\\nsga2_summary.validation.csv",
+  "summary_sha256": "0b9aae767b5844628012e7bd8075cc65ded84c18cd508aa2f4a453dea65c5fed",
+  "plot_script_sha256": "ea4210725109b33b187612d2203fc4260d5fcd1ec3f33857540f2f1554366947",
+  "complete_evaluations": 52,
+  "excluded_incomplete": 2,
+  "frontier_source": "Saved optimizer final-front flags; no recomputation",
+  "cost_unit": "USD per 100 validation cases, using recorded execution cost",
+  "frontier": [
+    {
+      "config": "react/gpt-oss-20b",
+      "method": "react",
+      "model": "gpt-oss-20b",
+      "correct": 0.56,
+      "cost": 0.00010158659999999199,
+      "frontier": true,
+      "valid": true,
+      "chromosome": "[4, 2, 0, 2, 0, 1, 0, 0]",
+      "eval_index": 39
+    },
+    {
+      "config": "structured_baseline/DeepSeek-V3",
+      "method": "structured_baseline",
+      "model": "DeepSeek-V3",
+      "correct": 0.66,
+      "cost": 0.00043875232199999794,
+      "frontier": true,
+      "valid": true,
+      "chromosome": "[0, 1, 0, 5, 0, 0, 0, 5]",
+      "eval_index": 29
+    },
+    {
+      "config": "zs_cot/DeepSeek-V3.1",
+      "method": "zs_cot",
+      "model": "DeepSeek-V3.1",
+      "correct": 0.7,
+      "cost": 0.001578169999999998,
+      "frontier": true,
+      "valid": true,
+      "chromosome": "[1, 0, 0, 3, 0, 0, 0, 4]",
+      "eval_index": 12
+    },
+    {
+      "config": "workflow/DeepSeek-V3.1",
+      "method": "workflow",
+      "model": "DeepSeek-V3.1",
+      "correct": 0.78,
+      "cost": 0.00207613554599999,
+      "frontier": true,
+      "valid": true,
+      "chromosome": "[2, 0, 0, 2, 0, 1, 0, 0]",
+      "eval_index": 27
+    }
+  ],
+  "selection": {
+    "config": "workflow/DeepSeek-V3.1",
+    "method": "workflow",
+    "model": "DeepSeek-V3.1",
+    "correct": 0.78,
+    "cost": 0.00207613554599999,
+    "frontier": true,
+    "valid": true,
+    "chromosome": "[2, 0, 0, 2, 0, 1, 0, 0]",
+    "eval_index": 27,
+    "validation_csv": "C:\\Users\\STUDENT\\OneDrive\\Documents\\CodingProjects\\Projects\\AI Research\\secretagent\\analysis\\nsga-val-selection\\20261005T224919Z_valsplit_openrouter_r7\\rollouts\\20261006.015926.nsga_valsplit_or_027\\results.csv",
+    "selected_utc": "2026-10-06T01:22:02.140003+00:00",
+    "overrides": [
+      "evaluate.entry_point=answer_question_workflow",
+      "ptools.answer_question_workflow.method=direct",
+      "llm.model=openrouter/deepseek/deepseek-chat-v3.1",
+      "ptools.extract_suspects_and_evidence.method=simulate",
+      "ptools.extract_suspects_and_evidence.model=openrouter/openai/gpt-oss-20b",
+      "ptools.verify_alibis.method=simulate",
+      "ptools.verify_alibis.model=openrouter/deepseek/deepseek-chat",
+      "ptools.deduce_murderer.method=simulate",
+      "ptools.deduce_murderer.model=openrouter/deepseek/deepseek-chat-v3.1"
+    ]
+  }
+}
