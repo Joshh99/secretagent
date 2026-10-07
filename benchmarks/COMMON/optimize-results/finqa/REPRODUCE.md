@@ -27,7 +27,18 @@ dotlist expansions per method.
 
 ## Test pass
 
-**Skipped for finqa.** The public release ships only the dev set
-(`benchmarks/finqa/data/raw/dev.json`, 883 cases); the FinQA leaderboard
-test set is private. The optimizer's `valid` numbers are the only honest
-report we have, so paper numbers come straight from `nsga2_summary.csv`.
+**Not yet run for finqa.** Earlier notes here said the FinQA test set was
+private. That was wrong. The official repository ships a labeled public test
+split at `dataset/test.json`: 1,147 rows, every one carrying `qa.exe_ans`,
+with ids disjoint from dev. `private_test.json` is a different file and is the
+one held back for the leaderboard.
+
+So every number in `nsga2_summary.csv` is a **validation** number, selected on
+validation. Label it that way wherever it appears. A public test pass is
+possible and is pending: run the validation-selected candidates once on the
+300-case export, changing nothing else.
+
+Raw provenance:
+
+    raw/dev.json    883 rows  sha256 a847fb7e0d61a3125a1e2909852df6b89f1ee64d2c5ff1bf689e332214deee51
+    raw/test.json  1147 rows  sha256 831dbfb2e785dbc227f895ce3f24046433467aec67b09db2bd6ac7692a8a30dc

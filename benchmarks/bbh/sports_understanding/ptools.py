@@ -15,7 +15,7 @@ from secretagent.core import interface, implement_via
 
 @interface
 def analyze_sentence(sentence: str) -> tuple[str, str, str]:
-  """Extract a names of a player, and action, and an optional event.
+  """Extract a player's name, an action, and an optional event.
 
   The action should be as descriptive as possible.  The event will be
   an empty string if no event is mentioned in the sentence.
@@ -23,7 +23,7 @@ def analyze_sentence(sentence: str) -> tuple[str, str, str]:
   Examples:
   >>> analyze_sentence("Bam Adebayo scored a reverse layup in the Western Conference Finals.")
   ('Bam Adebayo', 'scored a reverse layup', 'in the Western Conference Finals.')
-  >>> sports_understanding('Santi Cazorla scored a touchdown.')
+  >>> analyze_sentence('Santi Cazorla scored a touchdown.')
   ('Santi Cazorla', 'scored a touchdown.', '')
   """
 

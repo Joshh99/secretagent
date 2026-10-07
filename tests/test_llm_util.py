@@ -19,10 +19,26 @@ import json
 import os
 
 import pytest
+from litellm import APIConnectionError
 from omegaconf import OmegaConf
 
 from secretagent import config
-from secretagent.llm_util import echo_boxed
+from secretagent.llm_util import echo_boxed, _retry_with_backoff
+
+
+def test_connection_error_is_retried_without_model_call(monkeypatch):
+    monkeypatch.setattr('secretagent.llm_util.time.sleep', lambda _: None)
+    calls = []
+
+    def fail_once():
+        calls.append(1)
+        if len(calls) == 1:
+            raise APIConnectionError('Server disconnected without sending a response.',
+                                     llm_provider='gemini', model='gemini-2.5-flash-lite')
+        return 'ok'
+
+    assert _retry_with_backoff(fail_once, attempts=2, base=0.01) == 'ok'
+    assert len(calls) == 2
 
 
 # --- fixtures ---

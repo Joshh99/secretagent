@@ -1,0 +1,1109 @@
+diff --git a/benchmarks/benchmark.py b/benchmarks/benchmark.py
+index 57450d1..6d805ac 100644
+--- a/benchmarks/benchmark.py
++++ b/benchmarks/benchmark.py
+@@ -1,6 +1,11 @@
+ import asyncio
+ import json
+ import os
++from scripts.async_llm import record_case_usage
++
++# Concurrent case evaluations per run. N cells in parallel put N*this many
++# requests in flight, which is the number that decides the parallelism ceiling.
++MAX_CONCURRENT = int(os.environ.get('AFLOW_MAX_CONCURRENT', '50'))
+ from abc import ABC, abstractmethod
+ from datetime import datetime
+ from pathlib import Path
+@@ -35,9 +40,20 @@ class BaseBenchmark(ABC):
+ 
+     def save_results_to_csv(self, results: List[Tuple[Any, ...]], columns: List[str]):
+         df = pd.DataFrame(results, columns=columns)
+-        avg_score = df["score"].mean()
+-        t_cost = df["cost"].max()
+-        a_cost = t_cost / len(df) if len(df) > 0 else 0
++        # These go into results.json, which is written with json.dump and a
++        # pydantic default. A pandas reduction returns a numpy scalar, and when
++        # every case in a round costs 0, which happens when the whole round
++        # fails, the cost column is integer dtype and sum() returns numpy.int64.
++        # json.dump raises on it after writing "total_cost":, leaving the file
++        # truncated, and the next round's convergence check then dies reading
++        # it. That killed two searches before it was traced. Plain floats
++        # serialize, so the round is recorded as the failure it was.
++        avg_score = float(df["score"].mean())
++        # A case's cost is now isolated with record_case_usage. Summing those
++        # costs gives actual total inference spend; max was only valid when the
++        # old graph returned a shared, cumulative counter for every case.
++        t_cost = float(df["cost"].sum())
++        a_cost = t_cost / len(df) if len(df) > 0 else 0.0
+         current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+         filename = f"{avg_score:.5f}_{current_time}.csv"
+         output_file = os.path.join(self.log_path, filename)
+@@ -84,17 +100,22 @@ class BaseBenchmark(ABC):
+     def get_result_columns(self) -> List[str]:
+         pass
+ 
+-    async def evaluate_all_problems(self, data: List[dict], agent: Callable, max_concurrent_tasks: int = 50):
++    async def evaluate_all_problems(self, data: List[dict], agent: Callable, max_concurrent_tasks: int = MAX_CONCURRENT):
+         semaphore = asyncio.Semaphore(max_concurrent_tasks)
+ 
+         async def sem_evaluate(problem):
+             async with semaphore:
+-                return await self.evaluate_problem(problem, agent)
++                with record_case_usage() as usage:
++                    result = await self.evaluate_problem(problem, agent)
++                    # All benchmark result tuples end in model cost. Take it
++                    # from this case's calls, including calls before a workflow
++                    # exception, rather than a workflow's shared LLM counter.
++                    return (*result[:-1], usage.total_cost)
+ 
+         tasks = [sem_evaluate(problem) for problem in data]
+         return await tqdm_asyncio.gather(*tasks, desc=f"Evaluating {self.name} problems", total=len(data))
+ 
+-    async def run_evaluation(self, agent: Callable, va_list: List[int], max_concurrent_tasks: int = 50):
++    async def run_evaluation(self, agent: Callable, va_list: List[int], max_concurrent_tasks: int = MAX_CONCURRENT):
+         data = await self.load_data(va_list)
+         results = await self.evaluate_all_problems(data, agent, max_concurrent_tasks)
+         columns = self.get_result_columns()
+@@ -104,7 +125,7 @@ class BaseBenchmark(ABC):
+         return average_score, average_cost, total_cost
+     
+ 
+-    async def run_baseline(self, agent: Callable, max_concurrent_tasks: int = 50):
++    async def run_baseline(self, agent: Callable, max_concurrent_tasks: int = MAX_CONCURRENT):
+         data = await self.load_data()
+         results = await self.evaluate_all_problems(data, agent, max_concurrent_tasks)
+         columns = self.get_result_columns()
+@@ -113,4 +134,3 @@ class BaseBenchmark(ABC):
+         logger.info(f"Total Cost: {total_cost:.5f}")
+         logger.info(f"Avg Cost:{average_cost:.5f}")
+         return average_score, average_cost, total_cost
+-
+diff --git a/run.py b/run.py
+index b4aa4ca..9cc86c8 100644
+--- a/run.py
++++ b/run.py
+@@ -1,140 +1,217 @@
+-# -*- coding: utf-8 -*-
+-# @Date    : 8/23/2024 20:00 PM
+-# @Author  : didi
+-# @Desc    : Entrance of AFlow.
+-
+-import argparse
+-from typing import Dict, List
+-
+-from data.download_data import download
+-from scripts.optimizer import Optimizer
+-from scripts.async_llm import LLMsConfig
+-
+-class ExperimentConfig:
+-    def __init__(self, dataset: str, question_type: str, operators: List[str]):
+-        self.dataset = dataset
+-        self.question_type = question_type
+-        self.operators = operators
+-
+-
+-EXPERIMENT_CONFIGS: Dict[str, ExperimentConfig] = {
+-    "DROP": ExperimentConfig(
+-        dataset="DROP",
+-        question_type="qa",
+-        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
+-    ),
+-    "HotpotQA": ExperimentConfig(
+-        dataset="HotpotQA",
+-        question_type="qa",
+-        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
+-    ),
+-    "MATH": ExperimentConfig(
+-        dataset="MATH",
+-        question_type="math",
+-        operators=["Custom", "ScEnsemble", "Programmer"],
+-    ),
+-    "GSM8K": ExperimentConfig(
+-        dataset="GSM8K",
+-        question_type="math",
+-        operators=["Custom", "ScEnsemble", "Programmer"],
+-    ),
+-    "MBPP": ExperimentConfig(
+-        dataset="MBPP",
+-        question_type="code",
+-        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
+-    ),
+-    "HumanEval": ExperimentConfig(
+-        dataset="HumanEval",
+-        question_type="code",
+-        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
+-    ),
+-    "LiveCodeBench": ExperimentConfig(
+-        dataset="LiveCodeBench",
+-        question_type="code",
+-        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
+-    ),
+-}
+-
+-
+-def parse_args():
+-    parser = argparse.ArgumentParser(description="AFlow Optimizer")
+-    parser.add_argument(
+-        "--dataset",
+-        type=str,
+-        choices=list(EXPERIMENT_CONFIGS.keys()),
+-        required=True,
+-        help="Dataset type",
+-    )
+-    parser.add_argument("--sample", type=int, default=4, help="Sample count")
+-    parser.add_argument(
+-        "--optimized_path",
+-        type=str,
+-        default="workspace",
+-        help="Optimized result save path",
+-    )
+-    parser.add_argument("--initial_round", type=int, default=1, help="Initial round")
+-    parser.add_argument("--max_rounds", type=int, default=20, help="Max iteration rounds")
+-    parser.add_argument("--check_convergence", type=bool, default=True, help="Whether to enable early stop")
+-    parser.add_argument("--validation_rounds", type=int, default=1, help="Validation rounds")
+-    parser.add_argument(
+-        "--if_force_download",
+-        type=lambda x: x.lower() == "true",
+-        default=False,
+-        help="Whether enforce dataset download.",
+-    )
+-    parser.add_argument(
+-        "--opt_model_name",
+-        type=str,
+-        default="claude-3-5-sonnet-20241022",
+-        help="Specifies the name of the model used for optimization tasks.",
+-    )
+-    parser.add_argument(
+-        "--exec_model_name",
+-        type=str,
+-        default="gpt-4o-mini",
+-        help="Specifies the name of the model used for execution tasks.",
+-    )
+-    return parser.parse_args()
+-
+-
+-if __name__ == "__main__":
+-    args = parse_args()
+-
+-    config = EXPERIMENT_CONFIGS[args.dataset]
+-
+-    models_config = LLMsConfig.default()
+-    opt_llm_config = models_config.get(args.opt_model_name)
+-    if opt_llm_config is None:
+-        raise ValueError(
+-            f"The optimization model '{args.opt_model_name}' was not found in the 'models' section of the configuration file. "
+-            "Please add it to the configuration file or specify a valid model using the --opt_model_name flag. "
+-        )
+-
+-    exec_llm_config = models_config.get(args.exec_model_name)
+-    if exec_llm_config is None:
+-        raise ValueError(
+-            f"The execution model '{args.exec_model_name}' was not found in the 'models' section of the configuration file. "
+-            "Please add it to the configuration file or specify a valid model using the --exec_model_name flag. "
+-        )
+-
+-    download(["datasets"], force_download=args.if_force_download) # remove download initial_rounds in new version.
+-
+-    optimizer = Optimizer(
+-        dataset=config.dataset,
+-        question_type=config.question_type,
+-        opt_llm_config=opt_llm_config,
+-        exec_llm_config=exec_llm_config,
+-        check_convergence=args.check_convergence,
+-        operators=config.operators,
+-        optimized_path=args.optimized_path,
+-        sample=args.sample,
+-        initial_round=args.initial_round,
+-        max_rounds=args.max_rounds,
+-        validation_rounds=args.validation_rounds,
+-    )
+-
+-    # Optimize workflow via setting the optimizer's mode to 'Graph'
+-    optimizer.optimize("Graph")
+-
+-    # Test workflow via setting the optimizer's mode to 'Test'
+-    # optimizer.optimize("Test")
++# -*- coding: utf-8 -*-
++# @Date    : 8/23/2024 20:00 PM
++# @Author  : didi
++# @Desc    : Entrance of AFlow.
++
++import argparse
++from typing import Dict, List
++
++from data.download_data import download
++from scripts.optimizer import Optimizer
++from scripts.async_llm import LLMsConfig
++
++class ExperimentConfig:
++    def __init__(self, dataset: str, question_type: str, operators: List[str]):
++        self.dataset = dataset
++        self.question_type = question_type
++        self.operators = operators
++
++
++EXPERIMENT_CONFIGS: Dict[str, ExperimentConfig] = {
++    "DROP": ExperimentConfig(
++        dataset="DROP",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "HotpotQA": ExperimentConfig(
++        dataset="HotpotQA",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "MATH": ExperimentConfig(
++        dataset="MATH",
++        question_type="math",
++        operators=["Custom", "ScEnsemble", "Programmer"],
++    ),
++    "GSM8K": ExperimentConfig(
++        dataset="GSM8K",
++        question_type="math",
++        operators=["Custom", "ScEnsemble", "Programmer"],
++    ),
++    "MBPP": ExperimentConfig(
++        dataset="MBPP",
++        question_type="code",
++        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
++    ),
++    "HumanEval": ExperimentConfig(
++        dataset="HumanEval",
++        question_type="code",
++        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
++    ),
++    "LiveCodeBench": ExperimentConfig(
++        dataset="LiveCodeBench",
++        question_type="code",
++        operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
++    ),
++    "SportsUnderstanding": ExperimentConfig(
++        dataset="SportsUnderstanding",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "MuSRObjectPlacements": ExperimentConfig(
++        dataset="MuSRObjectPlacements",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "MuSRMurderMysteries": ExperimentConfig(
++        dataset="MuSRMurderMysteries",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "MuSRTeamAllocation": ExperimentConfig(
++        dataset="MuSRTeamAllocation",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "NaturalPlanMeeting": ExperimentConfig(
++        dataset="NaturalPlanMeeting",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "NaturalPlanTrip": ExperimentConfig(
++        dataset="NaturalPlanTrip",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "RuleArenaNBA": ExperimentConfig(
++        dataset="RuleArenaNBA",
++        question_type="qa",
++        operators=["Custom", "AnswerGenerate", "ScEnsemble"],
++    ),
++    "MedCalcTest": ExperimentConfig(
++        dataset="MedCalcTest",
++        question_type="math",
++        operators=["Custom", "ScEnsemble", "Programmer"],
++    ),
++    "FinQA": ExperimentConfig(
++        dataset="FinQA",
++        question_type="math",
++        # AnswerGenerate has no class in operator.py and no operator.json entry
++        # for the math template, so this is the stock math set without it.
++        operators=["Custom", "ScEnsemble", "Programmer"],
++    ),
++}
++
++
++def _str2bool(v: str) -> bool:
++    if v.lower() in ("true", "t", "yes", "y", "1"):
++        return True
++    if v.lower() in ("false", "f", "no", "n", "0"):
++        return False
++    raise argparse.ArgumentTypeError(f"expected a boolean, got {v!r}")
++
++
++def parse_args():
++    parser = argparse.ArgumentParser(description="AFlow Optimizer")
++    parser.add_argument(
++        "--dataset",
++        type=str,
++        choices=list(EXPERIMENT_CONFIGS.keys()),
++        required=True,
++        help="Dataset type",
++    )
++    parser.add_argument("--sample", type=int, default=4, help="Sample count")
++    parser.add_argument(
++        "--optimized_path",
++        type=str,
++        default="workspace",
++        help="Optimized result save path",
++    )
++    parser.add_argument("--initial_round", type=int, default=1, help="Initial round")
++    parser.add_argument("--max_rounds", type=int, default=20, help="Max iteration rounds")
++    # argparse applies type= to the string it read, and bool("False") is True,
++    # so the upstream declaration made early stop impossible to switch off.
++    parser.add_argument("--check_convergence", type=_str2bool, default=True,
++                        help="Enable early stop. Pass false to run the full candidate budget.")
++    parser.add_argument("--validation_rounds", type=int, default=1, help="Validation rounds")
++    parser.add_argument(
++        "--if_force_download",
++        type=lambda x: x.lower() == "true",
++        default=False,
++        help="Whether enforce dataset download.",
++    )
++    parser.add_argument(
++        "--opt_model_name",
++        type=str,
++        default="claude-3-5-sonnet-20241022",
++        help="Specifies the name of the model used for optimization tasks.",
++    )
++    parser.add_argument(
++        "--exec_model_name",
++        type=str,
++        default="gpt-4o-mini",
++        help="Specifies the name of the model used for execution tasks.",
++    )
++    parser.add_argument(
++        "--seed",
++        type=int,
++        default=None,
++        help="Seed the global RNGs so a search is reproducible. Upstream seeds nothing: "
++             "the only np.random.seed call lives in benchmarks.utils.generate_random_indices, "
++             "which nothing imports. Parent selection (np.random.choice in DataUtils.select_round) "
++             "and error-example sampling (random.sample in DataUtils.load_log) both draw from the "
++             "unseeded globals, so both are seeded here.",
++    )
++    return parser.parse_args()
++
++
++if __name__ == "__main__":
++    args = parse_args()
++
++    if args.seed is not None:
++        import random as _random
++
++        import numpy as _np
++
++        _random.seed(args.seed)
++        _np.random.seed(args.seed)
++        print(f"[seed] global RNGs seeded with {args.seed}")
++
++    config = EXPERIMENT_CONFIGS[args.dataset]
++
++    models_config = LLMsConfig.default()
++    opt_llm_config = models_config.get(args.opt_model_name)
++    if opt_llm_config is None:
++        raise ValueError(
++            f"The optimization model '{args.opt_model_name}' was not found in the 'models' section of the configuration file. "
++            "Please add it to the configuration file or specify a valid model using the --opt_model_name flag. "
++        )
++
++    exec_llm_config = models_config.get(args.exec_model_name)
++    if exec_llm_config is None:
++        raise ValueError(
++            f"The execution model '{args.exec_model_name}' was not found in the 'models' section of the configuration file. "
++            "Please add it to the configuration file or specify a valid model using the --exec_model_name flag. "
++        )
++
++    download(["datasets"], force_download=args.if_force_download) # remove download initial_rounds in new version.
++
++    optimizer = Optimizer(
++        dataset=config.dataset,
++        question_type=config.question_type,
++        opt_llm_config=opt_llm_config,
++        exec_llm_config=exec_llm_config,
++        check_convergence=args.check_convergence,
++        operators=config.operators,
++        optimized_path=args.optimized_path,
++        sample=args.sample,
++        initial_round=args.initial_round,
++        max_rounds=args.max_rounds,
++        validation_rounds=args.validation_rounds,
++    )
++
++    # Optimize workflow via setting the optimizer's mode to 'Graph'
++    optimizer.optimize("Graph")
++
++    # Test workflow via setting the optimizer's mode to 'Test'
++    # optimizer.optimize("Test")
+diff --git a/scripts/async_llm.py b/scripts/async_llm.py
+index 3e8d7cf..addc558 100644
+--- a/scripts/async_llm.py
++++ b/scripts/async_llm.py
+@@ -3,7 +3,14 @@
+ # @Author  : Zhaoyang
+ # @Desc    : 
+ 
++import asyncio
++import os
++import random
++from contextlib import contextmanager
++from contextvars import ContextVar
++
+ from openai import AsyncOpenAI
++from scripts.call_cache import completion as cached_completion
+ from scripts.formatter import BaseFormatter, FormatError
+ 
+ import yaml
+@@ -17,6 +24,13 @@ class LLMConfig:
+         self.key = config.get("key", None)
+         self.base_url = config.get("base_url", "https://oneapi.deepwisdom.ai/v1")
+         self.top_p = config.get("top_p", 1)
++        self.max_tokens = config.get("max_tokens", None)
++        # Provider-specific request fields, passed straight through to the API.
++        # OpenRouter uses this to pin which host serves a model, which decides
++        # the quantization and therefore the measured accuracy. It joins the
++        # request, so it is part of the call-cache key and a changed pin
++        # correctly invalidates replay instead of silently reusing old calls.
++        self.extra_body = config.get("extra_body", None)
+ 
+ class LLMsConfig:
+     """Configuration manager for multiple LLM configurations"""
+@@ -69,11 +83,17 @@ class LLMsConfig:
+         
+         # Create a config dictionary with the expected keys for LLMConfig
+         llm_config = {
+-            "model": llm_name,  # Use the key as the model name
++            # The key is the model name unless the entry names one itself. An
++            # explicit model lets several entries send the same model to the
++            # same endpoint while pinning different hosts, which is how one
++            # provider's throughput ceiling is spread across the fp8 hosts.
++            "model": config.get("model", llm_name),
+             "temperature": config.get("temperature", 1),
+             "key": config.get("api_key"),  # Map api_key to key
+             "base_url": config.get("base_url", "https://oneapi.deepwisdom.ai/v1"),
+-            "top_p": config.get("top_p", 1)  # Add top_p parameter
++            "top_p": config.get("top_p", 1),  # Add top_p parameter
++            "max_tokens": config.get("max_tokens"),
++            "extra_body": config.get("extra_body"),
+         }
+         
+         # Create and return an LLMConfig instance with the specified configuration
+@@ -87,6 +107,26 @@ class LLMsConfig:
+         """Get names of all available LLM configurations"""
+         return list(self.configs.keys())
+     
++# Cap on generated tokens, set per model in config2.yaml. There is no global
++# default: max_tokens bounds total output including a thinking model's reasoning,
++# so a cap sized for the executor silences the optimizer before it emits its
++# graph field. Cap the executor, leave the optimizer unbounded.
++MAX_OUTPUT_TOKENS = int(os.environ.get("AFLOW_MAX_OUTPUT_TOKENS", "0"))
++LLM_MAX_ATTEMPTS = int(os.environ.get("AFLOW_LLM_ATTEMPTS", "5"))
++LLM_BACKOFF_BASE = float(os.environ.get("AFLOW_LLM_BACKOFF", "2.0"))
++
++_TRANSIENT = ("429", "rate limit", "rate_limit", "resource_exhausted", "quota",
++              "500", "502", "503", "504", "overloaded", "timeout", "temporarily")
++
++
++def _is_transient(exc: Exception) -> bool:
++    status = getattr(exc, "status_code", None)
++    if status in (408, 429, 500, 502, 503, 504):
++        return True
++    text = f"{type(exc).__name__} {exc}".lower()
++    return any(t in text for t in _TRANSIENT)
++
++
+ class ModelPricing:
+     """Pricing information for different models in USD per 1K tokens"""
+     PRICES = {
+@@ -97,22 +137,48 @@ class ModelPricing:
+         "claude-3-5-sonnet": {"input": 0.003, "output": 0.015},
+         "o3":{"input":0.003, "output":0.015},
+         "o3-mini": {"input": 0.0011, "output": 0.0025},
++        # Gemini via OpenAI-compat endpoint; per-1K prices from litellm model_cost
++        # (same price source as the secretagent harness, for comparable cost columns)
++        "gemini-2.5-flash-lite": {"input": 0.0001, "output": 0.0004},
++        "gemini-3.1-pro-preview": {"input": 0.002, "output": 0.012},
++        # From OpenRouter's public /api/v1/models listing, 2026-09-23:
++        # $0.15 per 1M prompt tokens, $0.60 per 1M completion tokens.
++        "openai/gpt-oss-120b": {"input": 0.00015, "output": 0.0006},
++        # DeepSeek-V3.1 via OpenRouter, pinned to SiliconFlow. Price is the
++        # pinned provider's own rate from that listing on 2026-09-23: $0.27 per
++        # 1M prompt and $1.00 per 1M completion tokens. OpenRouter's providers
++        # for this model charge different rates, so this figure is only correct
++        # while the provider pin in config2.yaml holds. Repin and this changes.
++        "deepseek/deepseek-chat-v3.1": {"input": 0.00027, "output": 0.001},
++        # The same model pinned to a different fp8 host, so a search can be
++        # routed away from a saturated one. Each carries that host's own rate
++        # from the same listing: Novita matches SiliconFlow, AtlasCloud is
++        # $0.30 per 1M prompt and $0.95 per 1M completion.
++        "deepseek-v31-novita": {"input": 0.00027, "output": 0.001},
++        "deepseek-v31-atlascloud": {"input": 0.00030, "output": 0.00095},
+     }
+     
+     @classmethod
+     def get_price(cls, model_name, token_type):
+         """Get the price per 1K tokens for a specific model and token type (input/output)"""
+-        # Try to find exact match first
+         if model_name in cls.PRICES:
+             return cls.PRICES[model_name][token_type]
+-        
+-        # Try to find a partial match (e.g., if model name contains version numbers)
+-        for key in cls.PRICES:
+-            if key in model_name:
+-                return cls.PRICES[key][token_type]
+-        
+-        # Return default pricing if no match found
+-        return 0
++
++        # Substring matching returns whichever key happens to come first in dict
++        # order, not the most specific one, so require a single unambiguous hit.
++        hits = [key for key in cls.PRICES if key in model_name]
++        if len(hits) == 1:
++            return cls.PRICES[hits[0]][token_type]
++        if len(hits) > 1:
++            raise KeyError(
++                f"model {model_name!r} matches several price keys {sorted(hits)}. "
++                "Add an exact entry to ModelPricing.PRICES.")
++
++        # Falling back to 0 made an unpriced model report a cost of $0.00, which
++        # is indistinguishable from a genuinely free call.
++        raise KeyError(
++            f"no price for model {model_name!r}. Add it to ModelPricing.PRICES "
++            "with a verified rate before running a cost comparison.")
+ 
+ class TokenUsageTracker:
+     """Tracks token usage and calculates costs"""
+@@ -160,6 +226,20 @@ class TokenUsageTracker:
+             "history": self.usage_history
+         }
+ 
++
++_CASE_USAGE = ContextVar("aflow_case_usage", default=None)
++
++
++@contextmanager
++def record_case_usage():
++    """Keep token usage separate for concurrent benchmark examples."""
++    tracker = TokenUsageTracker()
++    token = _CASE_USAGE.set(tracker)
++    try:
++        yield tracker
++    finally:
++        _CASE_USAGE.reset(token)
++
+ class AsyncLLM:
+     def __init__(self, config, system_msg:str = None):
+         """
+@@ -191,12 +271,36 @@ class AsyncLLM:
+ 
+         message.append({"role": "user", "content": prompt})
+ 
+-        response = await self.aclient.chat.completions.create(
++        kwargs = dict(
+             model=self.config.model,
+             messages=message,
+             temperature=self.config.temperature,
+-            top_p = self.config.top_p,
++            top_p=self.config.top_p,
+         )
++        max_tokens = getattr(self.config, "max_tokens", None) or MAX_OUTPUT_TOKENS
++        if max_tokens:
++            kwargs["max_tokens"] = max_tokens
++        extra_body = getattr(self.config, "extra_body", None)
++        if extra_body:
++            kwargs["extra_body"] = extra_body
++
++        # Upstream made a single unguarded call. A 429 therefore propagated up to
++        # Operator._fill_node, which turned it into {"error": ...}, so a throttled
++        # run scored 0 on those cases and reported it as a real result rather than
++        # a failure. Retry on transient errors, and let anything else raise.
++        async def create_with_retries():
++            for attempt in range(LLM_MAX_ATTEMPTS):
++                try:
++                    return await self.aclient.chat.completions.create(**kwargs)
++                except Exception as e:
++                    if not _is_transient(e) or attempt == LLM_MAX_ATTEMPTS - 1:
++                        raise
++                    delay = LLM_BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 0.5)
++                    print(f"[llm] transient error ({type(e).__name__}), "
++                          f"retry {attempt + 1}/{LLM_MAX_ATTEMPTS - 1} in {delay:.1f}s")
++                    await asyncio.sleep(delay)
++
++        response = await cached_completion(create_with_retries, self.config.base_url, kwargs)
+ 
+         # Extract token usage from response
+         input_tokens = response.usage.prompt_tokens
+@@ -208,6 +312,9 @@ class AsyncLLM:
+             input_tokens,
+             output_tokens
+         )
++        case_tracker = _CASE_USAGE.get()
++        if case_tracker is not None:
++            case_tracker.add_usage(self.config.model, input_tokens, output_tokens)
+         
+         ret = response.choices[0].message.content
+         print(ret)
+@@ -277,4 +384,4 @@ def create_llm_instance(llm_config):
+         return AsyncLLM(llm_config)
+     
+     else:
+-        raise TypeError("llm_config must be an LLMConfig instance, a string, or a dictionary")
+\ No newline at end of file
++        raise TypeError("llm_config must be an LLMConfig instance, a string, or a dictionary")
+diff --git a/scripts/evaluator.py b/scripts/evaluator.py
+index 8a7ace5..e7bbdcd 100644
+--- a/scripts/evaluator.py
++++ b/scripts/evaluator.py
+@@ -1,65 +1,84 @@
+-# -*- coding: utf-8 -*-
+-# @Date    : 8/23/2024 10:00 AM
+-# @Author  : all
+-# @Desc    : Evaluation for different datasets
+-
+-from typing import Dict, Literal, Tuple
+-
+-from benchmarks.benchmark import BaseBenchmark
+-from benchmarks.drop import DROPBenchmark
+-from benchmarks.gsm8k import GSM8KBenchmark
+-from benchmarks.hotpotqa import HotpotQABenchmark
+-from benchmarks.humaneval import HumanEvalBenchmark
+-from benchmarks.math import MATHBenchmark
+-from benchmarks.mbpp import MBPPBenchmark
+-from benchmarks.livecodebench import LiveCodeBench
+-
+-# If you want to customize tasks, add task types here and provide evaluation functions, just like the ones given above
+-DatasetType = Literal["HumanEval", "MBPP", "GSM8K", "MATH", "HotpotQA", "DROP", "LiveCodeBench"]
+-
+-
+-class Evaluator:
+-    """
+-    Complete the evaluation for different datasets here
+-    """
+-
+-    def __init__(self, eval_path: str):
+-        self.eval_path = eval_path
+-        self.dataset_configs: Dict[DatasetType, BaseBenchmark] = {
+-            "GSM8K": GSM8KBenchmark,
+-            "MATH": MATHBenchmark,
+-            "HumanEval": HumanEvalBenchmark,
+-            "HotpotQA": HotpotQABenchmark,
+-            "MBPP": MBPPBenchmark,
+-            "DROP": DROPBenchmark,
+-            "LiveCodeBench": LiveCodeBench,
+-        }
+-
+-    async def graph_evaluate(
+-        self, dataset: DatasetType, graph, params: dict, path: str, is_test: bool = False
+-    ) -> Tuple[float, float, float]:
+-        if dataset not in self.dataset_configs:
+-            raise ValueError(f"Unsupported dataset: {dataset}")
+-
+-        data_path = self._get_data_path(dataset, is_test)
+-        benchmark_class = self.dataset_configs[dataset]
+-        benchmark = benchmark_class(name=dataset, file_path=data_path, log_path=path)
+-
+-        # Use params to configure the graph and benchmark
+-        configured_graph = await self._configure_graph(dataset, graph, params)
+-        if is_test:
+-            va_list = None  # For test data, generally use None to test all
+-        else:
+-            va_list = None  # Use None to test all Validation data, or set va_list (e.g., [1, 2, 3]) to use partial data
+-        return await benchmark.run_evaluation(configured_graph, va_list)
+-
+-    async def _configure_graph(self, dataset, graph, params: dict):
+-        # Here you can configure the graph based on params
+-        # For example: set LLM configuration, dataset configuration, etc.
+-        dataset_config = params.get("dataset", {})
+-        llm_config = params.get("llm_config", {})
+-        return graph(name=dataset, llm_config=llm_config, dataset=dataset_config)
+-
+-    def _get_data_path(self, dataset: DatasetType, test: bool) -> str:
+-        base_path = f"data/datasets/{dataset.lower()}"
+-        return f"{base_path}_test.jsonl" if test else f"{base_path}_validate.jsonl"
++# -*- coding: utf-8 -*-
++# @Date    : 8/23/2024 10:00 AM
++# @Author  : all
++# @Desc    : Evaluation for different datasets
++
++from typing import Dict, Literal, Tuple
++
++from benchmarks.benchmark import BaseBenchmark
++from benchmarks.bbh import BBHBenchmark
++from benchmarks.drop import DROPBenchmark
++from benchmarks.finqa import FinQABenchmark
++from benchmarks.musr_object import MuSRObjectBenchmark
++from benchmarks.gsm8k import GSM8KBenchmark
++from benchmarks.hotpotqa import HotpotQABenchmark
++from benchmarks.humaneval import HumanEvalBenchmark
++from benchmarks.math import MATHBenchmark
++from benchmarks.mbpp import MBPPBenchmark
++from benchmarks.livecodebench import LiveCodeBench
++from benchmarks.naturalplan_meeting import NaturalPlanMeetingBenchmark
++from benchmarks.naturalplan_trip import NaturalPlanTripBenchmark
++from benchmarks.rulearena_nba import RuleArenaNBABenchmark
++from benchmarks.medcalc import MedCalcBenchmark
++
++# If you want to customize tasks, add task types here and provide evaluation functions, just like the ones given above
++DatasetType = Literal["HumanEval", "MBPP", "GSM8K", "MATH", "HotpotQA", "DROP", "LiveCodeBench", "SportsUnderstanding", "FinQA", "MuSRObjectPlacements", "MuSRMurderMysteries", "MuSRTeamAllocation",
++                      "NaturalPlanMeeting", "NaturalPlanTrip", "RuleArenaNBA", "MedCalcTest"]
++
++
++class Evaluator:
++    """
++    Complete the evaluation for different datasets here
++    """
++
++    def __init__(self, eval_path: str):
++        self.eval_path = eval_path
++        self.dataset_configs: Dict[DatasetType, BaseBenchmark] = {
++            "GSM8K": GSM8KBenchmark,
++            "MATH": MATHBenchmark,
++            "HumanEval": HumanEvalBenchmark,
++            "HotpotQA": HotpotQABenchmark,
++            "MBPP": MBPPBenchmark,
++            "DROP": DROPBenchmark,
++            "LiveCodeBench": LiveCodeBench,
++            "SportsUnderstanding": BBHBenchmark,
++            "FinQA": FinQABenchmark,
++            "MuSRObjectPlacements": MuSRObjectBenchmark,
++            # MuSR murder and team share the object scorer: all three are an
++            # exact match on the choice index.
++            "MuSRMurderMysteries": MuSRObjectBenchmark,
++            "MuSRTeamAllocation": MuSRObjectBenchmark,
++            "NaturalPlanMeeting": NaturalPlanMeetingBenchmark,
++            "NaturalPlanTrip": NaturalPlanTripBenchmark,
++            "RuleArenaNBA": RuleArenaNBABenchmark,
++            "MedCalcTest": MedCalcBenchmark,
++        }
++
++    async def graph_evaluate(
++        self, dataset: DatasetType, graph, params: dict, path: str, is_test: bool = False
++    ) -> Tuple[float, float, float]:
++        if dataset not in self.dataset_configs:
++            raise ValueError(f"Unsupported dataset: {dataset}")
++
++        data_path = self._get_data_path(dataset, is_test)
++        benchmark_class = self.dataset_configs[dataset]
++        benchmark = benchmark_class(name=dataset, file_path=data_path, log_path=path)
++
++        # Use params to configure the graph and benchmark
++        configured_graph = await self._configure_graph(dataset, graph, params)
++        if is_test:
++            va_list = None  # For test data, generally use None to test all
++        else:
++            va_list = None  # Use None to test all Validation data, or set va_list (e.g., [1, 2, 3]) to use partial data
++        return await benchmark.run_evaluation(configured_graph, va_list)
++
++    async def _configure_graph(self, dataset, graph, params: dict):
++        # Here you can configure the graph based on params
++        # For example: set LLM configuration, dataset configuration, etc.
++        dataset_config = params.get("dataset", {})
++        llm_config = params.get("llm_config", {})
++        return graph(name=dataset, llm_config=llm_config, dataset=dataset_config)
++
++    def _get_data_path(self, dataset: DatasetType, test: bool) -> str:
++        base_path = f"data/datasets/{dataset.lower()}"
++        return f"{base_path}_test.jsonl" if test else f"{base_path}_validate.jsonl"
+diff --git a/scripts/operators.py b/scripts/operators.py
+index adbe46c..4c707d1 100644
+--- a/scripts/operators.py
++++ b/scripts/operators.py
+@@ -245,7 +245,10 @@ class Programmer(Operator):
+         feedback = ""
+         for i in range(3):
+             code_response = await self.code_generate(problem, analysis, feedback, mode="code_fill")
+-            code = code_response.get("code")
++            # CodeFormatter.validate_response returns {"response": <code>} and
++            # Operator._fill_node passes that dict straight through, so the upstream
++            # lookup of "code" was always None and this operator never ran.
++            code = code_response.get("response") or code_response.get("code")
+             if not code:
+                 return {"code": code, "output": "No code generated"}
+             status, output = await self.exec_code(code)
+diff --git a/scripts/optimizer.py b/scripts/optimizer.py
+index 36a6cfc..d442709 100644
+--- a/scripts/optimizer.py
++++ b/scripts/optimizer.py
+@@ -4,6 +4,8 @@
+ # @Desc    : optimizer for graph (updated with AsyncLLM integration)
+ 
+ import asyncio
++import json
++import os
+ import time
+ from typing import List, Literal, Dict
+ 
+@@ -77,6 +79,8 @@ class Optimizer:
+                 score = loop.run_until_complete(self.test())
+             return None
+ 
++        failed_proposals = []
++
+         for opt_round in range(self.max_rounds):
+             loop = asyncio.new_event_loop()
+             asyncio.set_event_loop(loop)
+@@ -94,6 +98,13 @@ class Optimizer:
+                     if retry_count == max_retries:
+                         logger.info("Max retries reached. Moving to next round.")
+                         score = None
++                        # A failed proposal still spent optimizer tokens. results.json
++                        # only records scored rounds, so without this the spend is
++                        # invisible in any total derived from it.
++                        failed_proposals.append({
++                            "attempted_round": self.round + 1,
++                            "error": f"{type(e).__name__}: {e}"[:500],
++                        })
+ 
+                     wait_time = 5 * retry_count
+                     time.sleep(wait_time)
+@@ -104,6 +115,7 @@ class Optimizer:
+ 
+             self.round += 1
+             logger.info(f"Score for round {self.round}: {score}")
++            self._write_search_usage(failed_proposals)
+ 
+             converged, convergence_round, final_round = self.convergence_utils.check_convergence(top_k=3)
+ 
+@@ -117,6 +129,29 @@ class Optimizer:
+ 
+             time.sleep(5)
+ 
++        self._write_search_usage(failed_proposals)
++
++    def _write_search_usage(self, failed_proposals):
++        """Record optimizer-side spend, including proposals that never scored.
++
++        get_usage_summary() covers every call the optimizer LLM made, so failed
++        proposals are counted here even though they leave no results.json row.
++        """
++        usage = self.optimize_llm.get_usage_summary()
++        path = os.path.join(self.root_path, "workflows", "search_usage.json")
++        os.makedirs(os.path.dirname(path), exist_ok=True)
++        with open(path, "w", encoding="utf-8") as f:
++            json.dump({
++                "rounds_attempted": self.round,
++                "failed_proposals": len(failed_proposals),
++                "failures": failed_proposals,
++                "optimizer_model": self.optimize_llm_config.model,
++                "optimizer_calls": usage["call_count"],
++                "optimizer_input_tokens": usage["total_input_tokens"],
++                "optimizer_output_tokens": usage["total_output_tokens"],
++                "optimizer_cost": usage["total_cost"],
++            }, f, indent=1)
++
+     async def _optimize_graph(self):
+         validation_n = self.validation_rounds  # validation datasets's execution number
+         graph_path = f"{self.root_path}/workflows"
+diff --git a/scripts/optimizer_utils/graph_utils.py b/scripts/optimizer_utils/graph_utils.py
+index ae7ccb1..99ee8b2 100644
+--- a/scripts/optimizer_utils/graph_utils.py
++++ b/scripts/optimizer_utils/graph_utils.py
+@@ -113,7 +113,11 @@ class GraphUtils:
+         return None
+ 
+     def write_graph_files(self, directory: str, response: dict, round_number: int, dataset: str):
+-        graph = WORKFLOW_TEMPLATE.format(graph=response["graph"], round=round_number, dataset=dataset)
++        # root_path is "<optimized_path>/<dataset>"; the import prefix is the
++        # optimized_path part, expressed as a module path.
++        workspace_root = os.path.dirname(self.root_path).replace("\\", "/").strip("/").replace("/", ".")
++        graph = WORKFLOW_TEMPLATE.format(graph=response["graph"], round=round_number,
++                                         dataset=dataset, workspace_root=workspace_root)
+ 
+         with open(os.path.join(directory, "graph.py"), "w", encoding="utf-8") as file:
+             file.write(graph)
+diff --git a/scripts/prompts/optimize_prompt.py b/scripts/prompts/optimize_prompt.py
+index 7e93111..e1cc785 100644
+--- a/scripts/prompts/optimize_prompt.py
++++ b/scripts/prompts/optimize_prompt.py
+@@ -1,60 +1,71 @@
+-WORKFLOW_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems. 
+-Referring to the given graph and prompt, which forms a basic example of a {type} solution approach, 
+-please reconstruct and optimize them. You can add, modify, or delete nodes, parameters, or prompts. Include your 
+-single modification in XML tags in your reply. Ensure they are complete and correct to avoid runtime failures. When 
+-optimizing, you can incorporate critical thinking methods like review, revise, ensemble (generating multiple answers through different/similar prompts, then voting/integrating/checking the majority to obtain a final answer), selfAsk, etc. Consider 
+-Python's loops (for, while, list comprehensions), conditional statements (if-elif-else, ternary operators), 
+-or machine learning techniques (e.g., linear regression, decision trees, neural networks, clustering). The graph 
+-complexity should not exceed 10. Use logical and control flow (IF-ELSE, loops) for a more enhanced graphical 
+-representation.Ensure that all the prompts required by the current graph from prompt_custom are included.Exclude any other prompts.
+-Output the modified graph and all the necessary Prompts in prompt_custom (if needed).
+-The prompt you need to generate is only the one used in `prompt_custom.XXX` within Custom. Other methods already have built-in prompts and are prohibited from being generated. Only generate those needed for use in `prompt_custom`; please remove any unused prompts in prompt_custom.
+-the generated prompt must not contain any placeholders.
+-Considering information loss, complex graphs may yield better results, but insufficient information transmission can omit the solution. It's crucial to include necessary context during the process."""
+-
+-
+-WORKFLOW_INPUT = """
+-Here is a graph and the corresponding prompt (prompt only related to the custom method) that performed excellently in a previous iteration (maximum score is 1). You must make further optimizations and improvements based on this graph. The modified graph must differ from the provided example, and the specific differences should be noted within the <modification>xxx</modification> section.\n
+-<sample>
+-    <experience>{experience}</experience>
+-    <modification>(such as:add /delete /modify/ ...)</modification>
+-    <score>{score}</score>
+-    <graph>{graph}</graph>
+-    <prompt>{prompt}</prompt>(only prompt_custom)
+-    <operator_description>{operator_description}</operator_description>
+-</sample>
+-Below are the logs of some results with the aforementioned Graph that performed well but encountered errors, which can be used as references for optimization:
+-{log}
+-
+-First, provide optimization ideas. **Only one detail point can be modified at a time**, and no more than 5 lines of code may be changed per modification—extensive modifications are strictly prohibited to maintain project focus!
+-When introducing new functionalities in the graph, please make sure to import the necessary libraries or modules yourself, except for operator, prompt_custom, create_llm_instance, and CostManage, which have already been automatically imported.
+-**Under no circumstances should Graph output None for any field.**
+-Use custom methods to restrict your output format, rather than using code (outside of the code, the system will extract answers based on certain rules and score them).
+-It is very important to format the Graph output answers, you can refer to the standard answer format in the log.
+-You do not need to manually import prompt_custom or operator to use them; they are already included in the execution environment.
+-"""
+-
+-WORKFLOW_CUSTOM_USE = """\nHere's an example of using the `custom` method in graph:
+-```
+-# You can write your own prompt in <prompt>prompt_custom</prompt> and then use it in the Custom method in the graph
+-response = await self.custom(input=problem, instruction=prompt_custom.XXX_PROMPT)
+-# You can also concatenate previously generated string results in the input to provide more comprehensive contextual information.
+-# response = await self.custom(input=problem+f"xxx:{xxx}, xxx:{xxx}", instruction=prompt_custom.XXX_PROMPT)
+-# The output from the Custom method can be placed anywhere you need it, as shown in the example below
+-solution = await self.generate(problem=f"question:{problem}, xxx:{response['response']}")
+-```
+-Note: In custom, the input and instruction are directly concatenated(instruction+input), and placeholders are not supported. Please ensure to add comments and handle the concatenation externally.\n
+-
+-**Introducing multiple operators at appropriate points can enhance performance. If you find that some provided operators are not yet used in the graph, try incorporating them.**
+-"""
+-
+-WORKFLOW_TEMPLATE = """from typing import Literal
+-import workspace.{dataset}.workflows.template.operator as operator
+-import workspace.{dataset}.workflows.round_{round}.prompt as prompt_custom
+-from scripts.async_llm import create_llm_instance
+-
+-
+-from scripts.evaluator import DatasetType
+-
+-{graph}
+-"""
++WORKFLOW_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems. 
++Referring to the given graph and prompt, which forms a basic example of a {type} solution approach, 
++please reconstruct and optimize them. You can add, modify, or delete nodes, parameters, or prompts. Include your 
++single modification in XML tags in your reply. Ensure they are complete and correct to avoid runtime failures. When 
++optimizing, you can incorporate critical thinking methods like review, revise, ensemble (generating multiple answers through different/similar prompts, then voting/integrating/checking the majority to obtain a final answer), selfAsk, etc. Consider 
++Python's loops (for, while, list comprehensions), conditional statements (if-elif-else, ternary operators), 
++or machine learning techniques (e.g., linear regression, decision trees, neural networks, clustering). The graph 
++complexity should not exceed 10. Use logical and control flow (IF-ELSE, loops) for a more enhanced graphical 
++representation.Ensure that all the prompts required by the current graph from prompt_custom are included.Exclude any other prompts.
++Output the modified graph and all the necessary Prompts in prompt_custom (if needed).
++The prompt you need to generate is only the one used in `prompt_custom.XXX` within Custom. Other methods already have built-in prompts and are prohibited from being generated. Only generate those needed for use in `prompt_custom`; please remove any unused prompts in prompt_custom.
++the generated prompt must not contain any placeholders.
++Considering information loss, complex graphs may yield better results, but insufficient information transmission can omit the solution. It's crucial to include necessary context during the process."""
++
++
++WORKFLOW_INPUT = """
++Here is a graph and the corresponding prompt (prompt only related to the custom method) that performed excellently in a previous iteration (maximum score is 1). You must make further optimizations and improvements based on this graph. The modified graph must differ from the provided example, and the specific differences should be noted within the <modification>xxx</modification> section.\n
++<sample>
++    <experience>{experience}</experience>
++    <modification>(such as:add /delete /modify/ ...)</modification>
++    <score>{score}</score>
++    <graph>{graph}</graph>
++    <prompt>{prompt}</prompt>(only prompt_custom)
++    <operator_description>{operator_description}</operator_description>
++</sample>
++Below are the logs of some results with the aforementioned Graph that performed well but encountered errors, which can be used as references for optimization:
++{log}
++
++First, provide optimization ideas. **Only one detail point can be modified at a time**, and no more than 5 lines of code may be changed per modification—extensive modifications are strictly prohibited to maintain project focus!
++When introducing new functionalities in the graph, please make sure to import the necessary libraries or modules yourself, except for operator, prompt_custom, create_llm_instance, and CostManage, which have already been automatically imported.
++**Under no circumstances should Graph output None for any field.**
++Use custom methods to restrict your output format, rather than using code (outside of the code, the system will extract answers based on certain rules and score them).
++It is very important to format the Graph output answers, you can refer to the standard answer format in the log.
++You do not need to manually import prompt_custom or operator to use them; they are already included in the execution environment.
++"""
++
++WORKFLOW_CUSTOM_USE = """\nHere's an example of using the `custom` method in graph:
++```
++# You can write your own prompt in <prompt>prompt_custom</prompt> and then use it in the Custom method in the graph
++response = await self.custom(input=problem, instruction=prompt_custom.XXX_PROMPT)
++# You can also concatenate previously generated string results in the input to provide more comprehensive contextual information.
++# response = await self.custom(input=problem+f"xxx:{xxx}, xxx:{xxx}", instruction=prompt_custom.XXX_PROMPT)
++# The output from the Custom method can be placed anywhere you need it, as shown in the example below
++solution = await self.generate(problem=f"question:{problem}, xxx:{response['response']}")
++```
++Note: In custom, the input and instruction are directly concatenated(instruction+input), and placeholders are not supported. Please ensure to add comments and handle the concatenation externally.\n
++
++**Introducing multiple operators at appropriate points can enhance performance. If you find that some provided operators are not yet used in the graph, try incorporating them.**
++"""
++
++# {workspace_root} is the optimized_path the run was launched with, as a module
++# path. Upstream hardcoded "workspace", so every generated round imported from
++# the shared tree no matter which workspace it belonged to, and two concurrent
++# runs silently read each other's prompts.
++# The optimizer often writes asyncio.gather to run operators in parallel, which
++# is a reasonable thing for it to write, but the header never imported asyncio,
++# so every case of such a candidate died with a NameError and the candidate
++# scored 0. That cost 6 of the first 109 candidates across four searches, and
++# because every case then reported zero cost it was also what triggered the
++# results.json truncation that killed two of them outright.
++WORKFLOW_TEMPLATE = """import asyncio
++from typing import Literal
++import {workspace_root}.{dataset}.workflows.template.operator as operator
++import {workspace_root}.{dataset}.workflows.round_{round}.prompt as prompt_custom
++from scripts.async_llm import create_llm_instance
++
++
++from scripts.evaluator import DatasetType
++
++{graph}
++"""
+diff --git a/scripts/utils/common.py b/scripts/utils/common.py
+index c98ee9d..d38545e 100644
+--- a/scripts/utils/common.py
++++ b/scripts/utils/common.py
+@@ -1,4 +1,5 @@
+ import json
++import os
+ from pathlib import Path
+ from typing import Any
+ from pydantic_core import to_jsonable_python
+@@ -20,5 +21,11 @@ def write_json_file(json_file: str, data: list, encoding: str = None, indent: in
+     if not folder_path.exists():
+         folder_path.mkdir(parents=True, exist_ok=True)
+ 
+-    with open(json_file, "w", encoding=encoding) as fout:
++    # Written to a temporary file and renamed, so a failure partway leaves the
++    # previous file intact. Opening the target with "w" truncates it before the
++    # write, so anything that raised during json.dump destroyed the results and
++    # the next read of it killed the run.
++    temporary = Path(json_file).with_suffix(".writing")
++    with open(temporary, "w", encoding=encoding) as fout:
+         json.dump(data, fout, ensure_ascii=False, indent=indent, default=to_jsonable_python)
++    os.replace(temporary, json_file)
+diff --git a/workspace/GSM8K/workflows/template/operator.py b/workspace/GSM8K/workflows/template/operator.py
+index ba90155..7f62347 100755
+--- a/workspace/GSM8K/workflows/template/operator.py
++++ b/workspace/GSM8K/workflows/template/operator.py
+@@ -101,7 +101,10 @@ class Programmer(Operator):
+         feedback = ""
+         for i in range(3):
+             code_response = await self.code_generate(problem, analysis, feedback, mode="code_fill")
+-            code = code_response.get("code")
++            # CodeFormatter.validate_response returns {"response": <code>} and
++            # Operator._fill_node passes that dict through, so the upstream lookup
++            # of "code" was always None and this operator never ran.
++            code = code_response.get("response") or code_response.get("code")
+             if not code:
+                 return {"code": code, "output": "No code generated"}
+             status, output = await self.exec_code(code)
+diff --git a/workspace/MATH/workflows/template/operator.py b/workspace/MATH/workflows/template/operator.py
+index 086e381..085029f 100755
+--- a/workspace/MATH/workflows/template/operator.py
++++ b/workspace/MATH/workflows/template/operator.py
+@@ -101,7 +101,10 @@ class Programmer(Operator):
+         feedback = ""
+         for i in range(3):
+             code_response = await self.code_generate(problem, analysis, feedback, mode="code_fill")
+-            code = code_response.get("code")
++            # CodeFormatter.validate_response returns {"response": <code>} and
++            # Operator._fill_node passes that dict through, so the upstream lookup
++            # of "code" was always None and this operator never ran.
++            code = code_response.get("response") or code_response.get("code")
+             if not code:
+                 return {"code": code, "output": "No code generated"}
+             status, output = await self.exec_code(code)

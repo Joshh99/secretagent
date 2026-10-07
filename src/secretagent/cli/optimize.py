@@ -113,6 +113,11 @@ def nsga2(
     space: str = typer.Option(None, help="Space function (module.func) returning (dims, compound_overrides)"),
     space_file: str = typer.Option(None, help="YAML file defining the modular search space"),
     cwd: str = typer.Option(".", help="Working directory for subprocesses"),
+    exhaustive: bool = typer.Option(
+        False, "--exhaustive",
+        help="Evaluate every config instead of searching. Cheaper and complete "
+             "when the space is small; the archived runs used ~50 evaluations on "
+             "a 30-config space and still covered only 21 of them."),
     pop_size: int = typer.Option(12, help="NSGA-II population size"),
     n_gen: int = typer.Option(5, help="Number of generations"),
     timeout: int = typer.Option(600, help="Timeout per config (seconds)"),
@@ -222,6 +227,7 @@ def nsga2(
         seed=seed,
         label_fn=label_fn,
         compound_overrides=compound,
+        force_exhaustive=exhaustive,
     )
     elapsed = time.time() - t0
 

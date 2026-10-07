@@ -5,6 +5,7 @@ docs/medcalc_orchestrator_handoff.md
 docs/medcalc_orchestrator_report.md
 orchestrate_cache/
 results_plot.png
+benchmarks/COMMON/aflow-rebuttal/modo-runs/
 benchmarks/**/results/*DEFAULT
 benchmarks/**/training/
 benchmarks/**/ptools_evolved.py

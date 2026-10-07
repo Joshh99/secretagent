@@ -465,11 +465,17 @@ def run_nsga2(
     seed: int = 42,
     label_fn=None,
     compound_overrides: dict | None = None,
+    force_exhaustive: bool = False,
 ) -> tuple[list[tuple[list[int], float, float]], list[tuple[list[int], float, float]], list[dict]]:
     """Search for the Pareto frontier over a categorical config space.
 
     Automatically uses exhaustive enumeration when the space has
     <= EXHAUSTIVE_THRESHOLD configs, NSGA-II otherwise.
+
+    force_exhaustive evaluates every config regardless of size. Worth using
+    whenever the space is only a few times the threshold: the searches archived
+    for this paper spent 50 evaluations on a 30-config space and still reached
+    only 21 of them, so enumerating would have been both cheaper and complete.
 
     Args:
         compound_overrides: optional dict mapping dim key to

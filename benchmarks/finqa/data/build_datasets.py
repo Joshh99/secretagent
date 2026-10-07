@@ -17,6 +17,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -126,6 +127,13 @@ def main() -> None:
         default=None,
         help="Limit examples per split (for quick tests)",
     )
+    parser.add_argument(
+        "--splits",
+        nargs="+",
+        choices=["train", "valid", "test"],
+        default=["train", "valid", "test"],
+        help="Splits to build. Every one named here must have its raw file present.",
+    )
     args = parser.parse_args()
 
     data_dir = Path(__file__).resolve().parent
@@ -139,13 +147,24 @@ def main() -> None:
         ("dev.json", "valid", "valid"),
         ("test.json", "test", "test"),
     ]
+    mapping = [m for m in mapping if m[2] in args.splits]
+
+    # A missing raw split used to be skipped with a printed note, which let a
+    # partial build look like a successful one. Anything asked for must exist.
+    missing = [str(raw_dir / raw_name) for raw_name, _, _ in mapping
+               if not (raw_dir / raw_name).exists()]
+    if missing:
+        print("Missing required raw splits:", file=sys.stderr)
+        for m in missing:
+            print(f"  {m}", file=sys.stderr)
+        print("Run download.py, or restrict --splits to what is present.", file=sys.stderr)
+        sys.exit(1)
 
     for raw_name, split_key, out_split in mapping:
         path = raw_dir / raw_name
-        if not path.exists():
-            print(f"Skip missing {path}")
-            continue
         rows = json.loads(path.read_text(encoding="utf-8"))
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        print(f"{raw_name}: {len(rows)} rows sha256={digest}")
         cases = raw_to_cases(rows, split_key, args.max_per_split)
         write_dataset("finqa", out_split, cases, data_dir / f"{out_split}.json")
 

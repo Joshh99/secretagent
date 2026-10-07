@@ -7,14 +7,18 @@ import sys
 import textwrap
 import time
 import errno
+import os
+from pathlib import Path
 from typing import Any, Callable
 
 from secretagent import config
 from secretagent.cache_util import cached
+from secretagent import call_cache
 from litellm import completion, completion_cost, token_counter
-from litellm import ServiceUnavailableError, InternalServerError, RateLimitError
+from litellm import APIConnectionError, ServiceUnavailableError, InternalServerError, RateLimitError
 
-_RETRYABLE_LLM_ERRORS = (ServiceUnavailableError, InternalServerError, RateLimitError)
+_RETRYABLE_LLM_ERRORS = (APIConnectionError, ServiceUnavailableError,
+                         InternalServerError, RateLimitError)
 _RETRYABLE_OS_ERRNOS = {
     errno.EAGAIN,
     errno.EWOULDBLOCK,
@@ -216,7 +220,27 @@ def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
 
   See cache_util.py for why this weird process is necessary.
   """
-  result = cached(_llm_impl)(prompt, model)
+  trace_mode = os.environ.get('SECRETAGENT_CALL_CACHE_MODE', 'off')
+  if trace_mode not in ('off', 'record', 'replay'):
+    raise ValueError(f'unknown SECRETAGENT_CALL_CACHE_MODE: {trace_mode}')
+  settings = None
+  if trace_mode != 'off':
+    root = os.environ.get('SECRETAGENT_CALL_CACHE_ROOT')
+    if not root:
+      raise ValueError('SECRETAGENT_CALL_CACHE_ROOT is required for record/replay')
+    os.environ['SECRETAGENT_CALL_CACHE_DIR'] = str(
+        Path(root) / str(config.get('evaluate.expt_name', 'unlabeled')))
+    settings = {
+        'stream': config.get('llm.stream', False),
+        'max_tokens': config.get('llm.max_tokens', None),
+        'temperature': config.get('llm.temperature', None),
+        'reasoning_effort': config.get('llm.reasoning_effort', None),
+        'timeout': config.get('llm.timeout', 180),
+    }
+  if trace_mode == 'replay':
+    result = call_cache.replay(prompt, model, settings)
+  else:
+    result = cached(_llm_impl)(prompt, model)
   if result is None:
     # cachier on Windows occasionally returns None instead of the cached
     # tuple; bypass the cache once. Don't swallow silently — log so we
@@ -225,6 +249,8 @@ def llm(prompt: str, model: str) -> tuple[str, dict[str, Any]]:
         f'[warn] cached(_llm_impl) returned None for model={model}; '
         f'bypassing cache once.\n')
     result = _llm_impl(prompt, model)
+  if trace_mode == 'record':
+    call_cache.record(prompt, model, settings, result)
   model_output, stats = result
   if config.get('echo.llm_output'):
     echo_boxed(model_output, 'llm_output')
