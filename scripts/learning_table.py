@@ -6,6 +6,8 @@
 
 import os
 import glob
+import re
+import sys
 
 import pandas as pd
 
@@ -25,6 +27,16 @@ BASE = os.path.join(os.path.dirname(__file__), "..", "benchmarks", "COMMON")
 RESULTS_DIR = os.path.join(BASE, "results")
 CODEDISTILL_DIR = os.path.join(BASE, "codedistill-workflow-results")
 LEARNER_DIR = os.path.join(BASE, "learner-results")
+OPTIMIZER_DIR = os.path.join(BASE, "optimize-results")
+OPTIMIZER_TASKS = {
+    ("musr", "murder"): "musr_murder",
+    ("musr", "object"): "musr_object",
+    ("musr", "team"): "musr_team",
+    ("natural_plan", "meeting"): "natplan_meeting",
+    ("natural_plan", "trip"): "natplan_trip",
+    ("rulearena", "nba"): "rulearena_nba",
+    ("medcalc", "overall"): "medcalc",
+}
 
 
 def read_csv(csv_path):
@@ -132,32 +144,71 @@ def find_orchestrator_learned_csv(task, subtask):
 
 
 def find_optimizer_csv(task, subtask):
-    """Find best NSGA-II test-pass results CSV for a task/subtask.
+    """Find the test CSV of the validation-best valid frontier configuration.
 
-    Scans benchmarks/COMMON/results/<task>/<subtask>/*.test_pass_* for the
-    Pareto-frontier configurations exported from the optimizer pipeline,
-    and returns the CSV path of the configuration with the highest
-    mean(correct) on test (Pareto top-1 by accuracy)."""
+    Ties use lower validation cost, then original summary row order. Test
+    scores never participate in selection, including when a test is missing.
+    """
+    task_name = OPTIMIZER_TASKS.get((task, subtask))
+    if task_name is None:
+        return None
+
+    def warn(message):
+        print(f"Warning: NSGA-II {task}/{subtask}: {message}", file=sys.stderr)
+
+    summary_path = os.path.join(OPTIMIZER_DIR, task_name, "nsga2_summary.csv")
+    # REPRODUCE.md documents that Murder's old sweep selected on test data.
+    # Keep that artifact intact and require the corrected sweep and held-out
+    # test pair before this cell can be reported again.
+    if task_name == "musr_murder":
+        summary_path = os.path.join(OPTIMIZER_DIR, task_name, "nsga2_summary.validation.csv")
+        if not os.path.isfile(summary_path):
+            warn("validation-split rerun unavailable; legacy test-selected sweep is excluded")
+            return None
+    if not os.path.isfile(summary_path):
+        return None
+
+    try:
+        summary = pd.read_csv(summary_path)
+        eligible = summary[
+            summary["frontier"].astype(str).str.strip().str.lower().eq("true")
+            & summary["valid"].astype(str).str.strip().str.lower().eq("true")
+        ].copy()
+        eligible["correct"] = pd.to_numeric(eligible["correct"], errors="coerce")
+        eligible["cost"] = pd.to_numeric(eligible["cost"], errors="coerce")
+        eligible = eligible.dropna(subset=["correct", "cost", "method", "model"])
+        eligible = eligible[
+            eligible["correct"].between(0, 1)
+            & eligible["cost"].between(0, float("inf"), inclusive="left")
+        ]
+        eligible["_file_order"] = eligible.index
+        eligible = eligible.sort_values(
+            ["correct", "cost", "_file_order"], ascending=[False, True, True])
+        if eligible.empty:
+            warn("no eligible validation frontier configuration")
+            return None
+        chosen = eligible.iloc[0]
+    except (OSError, ValueError, KeyError, pd.errors.ParserError) as exc:
+        warn(f"cannot select from validation summary: {exc}")
+        return None
+
+    def normalized(value):
+        return re.sub(r"[^a-z0-9]", "", str(value).lower())
+
+    target = normalized(f"{chosen['method']}_{chosen['model']}")
     subtask_dir = os.path.join(RESULTS_DIR, task, subtask)
-    if not os.path.isdir(subtask_dir):
-        return None
     matches = sorted(glob.glob(os.path.join(subtask_dir, "*.test_pass_*")))
-    if not matches:
-        return None
-    best_csv = None
-    best_acc = -1.0
-    for d in matches:
+    for d in reversed(matches):
+        if task_name == "musr_murder" and "valsplit_heldout50" not in os.path.basename(d):
+            continue
+        suffix = os.path.basename(d).split(".test_pass_", 1)[1]
+        if normalized(suffix) != target:
+            continue
         csv_path = os.path.join(d, "results.csv")
-        if not os.path.isfile(csv_path):
-            continue
-        try:
-            acc = read_csv(csv_path)["correct"].mean()
-        except Exception:
-            continue
-        if acc > best_acc:
-            best_acc = acc
-            best_csv = csv_path
-    return best_csv
+        if os.path.isfile(csv_path):
+            return csv_path
+    warn(f"no existing test pass for validation choice {chosen['method']}/{chosen['model']}")
+    return None
 
 
 def format_cell(series):
@@ -236,7 +287,7 @@ def build_dataframes(include_opus=False, suppress_tasks=None, suppress_rows=None
              {"workflow": "orchest", "model": "-", "toolkit": "learned"},
              col_names, find_orchestrator_learned_csv, tasks)
 
-    # Optimizer row: NSGA-II Pareto top-1 by test accuracy.
+    # Optimizer row: NSGA-II frontier top-1 by validation accuracy.
     _add_row(correct_rows, cost_rows,
              {"workflow": "nsga", "model": "auto", "toolkit": "auto"},
              col_names, find_optimizer_csv, tasks)
