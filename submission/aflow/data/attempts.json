@@ -1,0 +1,6720 @@
+[
+ {
+  "id": "musr_murder_seed1_try1",
+  "task": "musr_murder",
+  "seed": 1,
+  "try": 1,
+  "tag": "tables23_restart2",
+  "note": "reused pilot",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.48,
+    "avg_cost": 0.0005192734
+   },
+   {
+    "round": 2,
+    "score": 0.5,
+    "avg_cost": 0.0028270193999999998
+   },
+   {
+    "round": 3,
+    "score": 0.66,
+    "avg_cost": 0.002241513
+   },
+   {
+    "round": 4,
+    "score": 0.58,
+    "avg_cost": 0.0062872394
+   },
+   {
+    "round": 5,
+    "score": 0.64,
+    "avg_cost": 0.0037445618000000003
+   },
+   {
+    "round": 6,
+    "score": 0.6,
+    "avg_cost": 0.0035107204
+   },
+   {
+    "round": 7,
+    "score": 0.68,
+    "avg_cost": 0.0034416883999999997
+   },
+   {
+    "round": 8,
+    "score": 0.7,
+    "avg_cost": 0.005851330200000001
+   },
+   {
+    "round": 9,
+    "score": 0.7,
+    "avg_cost": 0.007987671799999999
+   },
+   {
+    "round": 10,
+    "score": 0.66,
+    "avg_cost": 0.0100434062
+   },
+   {
+    "round": 11,
+    "score": 0.8,
+    "avg_cost": 0.008880098000000001
+   },
+   {
+    "round": 12,
+    "score": 0.72,
+    "avg_cost": 0.012316681399999998
+   },
+   {
+    "round": 13,
+    "score": 0.8,
+    "avg_cost": 0.015147858
+   },
+   {
+    "round": 14,
+    "score": 0.82,
+    "avg_cost": 0.010948644399999999
+   },
+   {
+    "round": 15,
+    "score": 0.78,
+    "avg_cost": 0.019883799
+   },
+   {
+    "round": 16,
+    "score": 0.8,
+    "avg_cost": 0.0120288238
+   },
+   {
+    "round": 17,
+    "score": 0.74,
+    "avg_cost": 0.0176649576
+   },
+   {
+    "round": 18,
+    "score": 0.74,
+    "avg_cost": 0.010480028
+   },
+   {
+    "round": 19,
+    "score": 0.76,
+    "avg_cost": 0.0170472854
+   },
+   {
+    "round": 20,
+    "score": 0.62,
+    "avg_cost": 0.012889226
+   },
+   {
+    "round": 21,
+    "score": 0.58,
+    "avg_cost": 0.015007233399999997
+   },
+   {
+    "round": 22,
+    "score": 0.74,
+    "avg_cost": 0.012502827799999998
+   },
+   {
+    "round": 23,
+    "score": 0.74,
+    "avg_cost": 0.0157204614
+   },
+   {
+    "round": 24,
+    "score": 0.76,
+    "avg_cost": 0.008179423400000002
+   },
+   {
+    "round": 25,
+    "score": 0.8,
+    "avg_cost": 0.016647090399999998
+   },
+   {
+    "round": 26,
+    "score": 0.76,
+    "avg_cost": 0.014911849999999999
+   },
+   {
+    "round": 27,
+    "score": 0.5,
+    "avg_cost": 0.0170677318
+   },
+   {
+    "round": 28,
+    "score": 0.8,
+    "avg_cost": 0.0159460278
+   },
+   {
+    "round": 29,
+    "score": 0.64,
+    "avg_cost": 0.0125281992
+   },
+   {
+    "round": 30,
+    "score": 0.52,
+    "avg_cost": 0.012478354
+   },
+   {
+    "round": 31,
+    "score": 0.8,
+    "avg_cost": 0.014148597
+   },
+   {
+    "round": 32,
+    "score": 0.62,
+    "avg_cost": 0.013894094000000001
+   },
+   {
+    "round": 33,
+    "score": 0.48,
+    "avg_cost": 0.0109300792
+   },
+   {
+    "round": 34,
+    "score": 0.74,
+    "avg_cost": 0.012079917199999998
+   },
+   {
+    "round": 35,
+    "score": 0.74,
+    "avg_cost": 0.020635463000000007
+   },
+   {
+    "round": 36,
+    "score": 0.78,
+    "avg_cost": 0.010847922
+   },
+   {
+    "round": 37,
+    "score": 0.74,
+    "avg_cost": 0.0183015048
+   },
+   {
+    "round": 38,
+    "score": 0.56,
+    "avg_cost": 0.013231569
+   },
+   {
+    "round": 39,
+    "score": 0.74,
+    "avg_cost": 0.012393871600000002
+   },
+   {
+    "round": 40,
+    "score": 0.7,
+    "avg_cost": 0.0177562366
+   },
+   {
+    "round": 41,
+    "score": 0.46,
+    "avg_cost": 0.0156589816
+   },
+   {
+    "round": 42,
+    "score": 0.68,
+    "avg_cost": 0.017081313600000002
+   },
+   {
+    "round": 43,
+    "score": 0.68,
+    "avg_cost": 0.0103144842
+   },
+   {
+    "round": 44,
+    "score": 0.74,
+    "avg_cost": 0.0150162526
+   },
+   {
+    "round": 45,
+    "score": 0.74,
+    "avg_cost": 0.012654497
+   },
+   {
+    "round": 46,
+    "score": 0.82,
+    "avg_cost": 0.0192860164
+   },
+   {
+    "round": 47,
+    "score": 0.82,
+    "avg_cost": 0.015271207
+   },
+   {
+    "round": 48,
+    "score": 0.68,
+    "avg_cost": 0.022733949
+   },
+   {
+    "round": 49,
+    "score": 0.72,
+    "avg_cost": 0.0134985902
+   },
+   {
+    "round": 50,
+    "score": 0.7,
+    "avg_cost": 0.013613761600000003
+   },
+   {
+    "round": 51,
+    "score": 0.82,
+    "avg_cost": 0.0204159874
+   },
+   {
+    "round": 52,
+    "score": 0.66,
+    "avg_cost": 0.013785246400000001
+   },
+   {
+    "round": 53,
+    "score": 0.84,
+    "avg_cost": 0.0257545058
+   },
+   {
+    "round": 54,
+    "score": 0.78,
+    "avg_cost": 0.0124911002
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "tables23_restart2",
+   "aflow_dataset": "MuSRMurderMysteries",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "f089d8caa342028d6c265d240afe99aa3c68464531bd15d3c739dd5a7c63ed1b",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 53,
+  "billed_usd": {
+   "search": 31.875157,
+   "tests": 4.712724,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 55,
+   "input": 124457,
+   "output_incl_thinking": 381227
+  }
+ },
+ {
+  "id": "musr_murder_seed2_try1",
+  "task": "musr_murder",
+  "seed": 2,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.36,
+    "avg_cost": 0.0005336734
+   },
+   {
+    "round": 2,
+    "score": 0.46,
+    "avg_cost": 0.0017865612
+   },
+   {
+    "round": 3,
+    "score": 0.58,
+    "avg_cost": 0.0047024384
+   },
+   {
+    "round": 4,
+    "score": 0.84,
+    "avg_cost": 0.0078327664
+   },
+   {
+    "round": 5,
+    "score": 0.78,
+    "avg_cost": 0.0098303726
+   },
+   {
+    "round": 6,
+    "score": 0.84,
+    "avg_cost": 0.010355191
+   },
+   {
+    "round": 7,
+    "score": 0.56,
+    "avg_cost": 0.0102135448
+   },
+   {
+    "round": 8,
+    "score": 0.8,
+    "avg_cost": 0.0091310128
+   },
+   {
+    "round": 9,
+    "score": 0.78,
+    "avg_cost": 0.011789373400000002
+   },
+   {
+    "round": 10,
+    "score": 0.68,
+    "avg_cost": 0.0094025686
+   },
+   {
+    "round": 11,
+    "score": 0.7,
+    "avg_cost": 0.0089335038
+   },
+   {
+    "round": 12,
+    "score": 0.76,
+    "avg_cost": 0.0099001318
+   },
+   {
+    "round": 13,
+    "score": 0.42,
+    "avg_cost": 0.0128250582
+   },
+   {
+    "round": 14,
+    "score": 0.56,
+    "avg_cost": 0.014420265600000003
+   },
+   {
+    "round": 15,
+    "score": 0.8,
+    "avg_cost": 0.009348406000000002
+   },
+   {
+    "round": 16,
+    "score": 0.66,
+    "avg_cost": 0.0098622058
+   },
+   {
+    "round": 17,
+    "score": 0.74,
+    "avg_cost": 0.010914135200000001
+   },
+   {
+    "round": 18,
+    "score": 0.14,
+    "avg_cost": 0.00949236
+   },
+   {
+    "round": 19,
+    "score": 0.76,
+    "avg_cost": 0.012662606000000003
+   },
+   {
+    "round": 20,
+    "score": 0.0,
+    "avg_cost": 0.009352892800000002
+   },
+   {
+    "round": 21,
+    "score": 0.64,
+    "avg_cost": 0.0087764254
+   },
+   {
+    "round": 22,
+    "score": 0.64,
+    "avg_cost": 0.012355103799999998
+   },
+   {
+    "round": 23,
+    "score": 0.7,
+    "avg_cost": 0.0094915138
+   },
+   {
+    "round": 24,
+    "score": 0.82,
+    "avg_cost": 0.0097186258
+   },
+   {
+    "round": 25,
+    "score": 0.76,
+    "avg_cost": 0.009842732799999998
+   },
+   {
+    "round": 26,
+    "score": 0.88,
+    "avg_cost": 0.0083732042
+   },
+   {
+    "round": 27,
+    "score": 0.7,
+    "avg_cost": 0.0096997602
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.010108419199999998
+   },
+   {
+    "round": 29,
+    "score": 0.02,
+    "avg_cost": 0.0073892868
+   },
+   {
+    "round": 30,
+    "score": 0.82,
+    "avg_cost": 0.011327746799999998
+   },
+   {
+    "round": 31,
+    "score": 0.58,
+    "avg_cost": 0.0095833906
+   },
+   {
+    "round": 32,
+    "score": 0.68,
+    "avg_cost": 0.009535158799999999
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.0096025956
+   },
+   {
+    "round": 34,
+    "score": 0.88,
+    "avg_cost": 0.0094510304
+   },
+   {
+    "round": 35,
+    "score": 0.82,
+    "avg_cost": 0.011643635999999997
+   },
+   {
+    "round": 36,
+    "score": 0.68,
+    "avg_cost": 0.012486499000000002
+   },
+   {
+    "round": 37,
+    "score": 0.58,
+    "avg_cost": 0.012977472399999999
+   },
+   {
+    "round": 38,
+    "score": 0.8,
+    "avg_cost": 0.009735872599999999
+   },
+   {
+    "round": 39,
+    "score": 0.78,
+    "avg_cost": 0.008278487
+   },
+   {
+    "round": 40,
+    "score": 0.78,
+    "avg_cost": 0.009905565400000002
+   },
+   {
+    "round": 41,
+    "score": 0.62,
+    "avg_cost": 0.010095401399999999
+   },
+   {
+    "round": 42,
+    "score": 0.7,
+    "avg_cost": 0.00921017
+   },
+   {
+    "round": 43,
+    "score": 0.9,
+    "avg_cost": 0.018460288800000002
+   },
+   {
+    "round": 44,
+    "score": 0.48,
+    "avg_cost": 0.0096019992
+   },
+   {
+    "round": 45,
+    "score": 0.58,
+    "avg_cost": 0.010650892
+   },
+   {
+    "round": 46,
+    "score": 0.66,
+    "avg_cost": 0.010345072799999999
+   },
+   {
+    "round": 47,
+    "score": 0.32,
+    "avg_cost": 0.008955255399999999
+   },
+   {
+    "round": 48,
+    "score": 0.82,
+    "avg_cost": 0.010515653600000001
+   },
+   {
+    "round": 49,
+    "score": 0.54,
+    "avg_cost": 0.0128472244
+   },
+   {
+    "round": 50,
+    "score": 0.8,
+    "avg_cost": 0.011138996400000004
+   },
+   {
+    "round": 51,
+    "score": 0.8,
+    "avg_cost": 0.0102478016
+   },
+   {
+    "round": 52,
+    "score": 0.46,
+    "avg_cost": 0.0098822864
+   },
+   {
+    "round": 53,
+    "score": 0.88,
+    "avg_cost": 0.0261874764
+   },
+   {
+    "round": 54,
+    "score": 0.88,
+    "avg_cost": 0.0105888246
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRMurderMysteries",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "f089d8caa342028d6c265d240afe99aa3c68464531bd15d3c739dd5a7c63ed1b",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 43,
+  "billed_usd": {
+   "search": 23.214033,
+   "tests": 3.363923,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 145453,
+   "output_incl_thinking": 460449
+  }
+ },
+ {
+  "id": "musr_murder_seed3_try1",
+  "task": "musr_murder",
+  "seed": 3,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.48,
+    "avg_cost": 0.0005196134000000001
+   },
+   {
+    "round": 2,
+    "score": 0.44,
+    "avg_cost": 0.0028843595999999997
+   },
+   {
+    "round": 3,
+    "score": 0.52,
+    "avg_cost": 0.004154176800000001
+   },
+   {
+    "round": 4,
+    "score": 0.44,
+    "avg_cost": 0.008463655
+   },
+   {
+    "round": 5,
+    "score": 0.04,
+    "avg_cost": 0.0028711374
+   },
+   {
+    "round": 6,
+    "score": 0.76,
+    "avg_cost": 0.027489356800000007
+   },
+   {
+    "round": 7,
+    "score": 0.66,
+    "avg_cost": 0.0026785579999999997
+   },
+   {
+    "round": 8,
+    "score": 0.68,
+    "avg_cost": 0.046524352600000006
+   },
+   {
+    "round": 9,
+    "score": 0.88,
+    "avg_cost": 0.04102004440000001
+   },
+   {
+    "round": 10,
+    "score": 0.78,
+    "avg_cost": 0.06815992119999999
+   },
+   {
+    "round": 11,
+    "score": 0.78,
+    "avg_cost": 0.0393077016
+   },
+   {
+    "round": 12,
+    "score": 0.86,
+    "avg_cost": 0.040361438400000005
+   },
+   {
+    "round": 13,
+    "score": 0.74,
+    "avg_cost": 0.0575348764
+   },
+   {
+    "round": 14,
+    "score": 0.8,
+    "avg_cost": 0.0427153838
+   },
+   {
+    "round": 15,
+    "score": 0.88,
+    "avg_cost": 0.0419763828
+   },
+   {
+    "round": 16,
+    "score": 0.72,
+    "avg_cost": 0.0396937664
+   },
+   {
+    "round": 17,
+    "score": 0.88,
+    "avg_cost": 0.0453443146
+   },
+   {
+    "round": 18,
+    "score": 0.84,
+    "avg_cost": 0.052926502
+   },
+   {
+    "round": 19,
+    "score": 0.86,
+    "avg_cost": 0.0359762438
+   },
+   {
+    "round": 20,
+    "score": 0.84,
+    "avg_cost": 0.040060059
+   },
+   {
+    "round": 21,
+    "score": 0.84,
+    "avg_cost": 0.043689126999999994
+   },
+   {
+    "round": 22,
+    "score": 0.82,
+    "avg_cost": 0.049954495
+   },
+   {
+    "round": 23,
+    "score": 0.54,
+    "avg_cost": 0.033917705200000016
+   },
+   {
+    "round": 24,
+    "score": 0.8,
+    "avg_cost": 0.042913679
+   },
+   {
+    "round": 25,
+    "score": 0.86,
+    "avg_cost": 0.046093207399999996
+   },
+   {
+    "round": 26,
+    "score": 0.42,
+    "avg_cost": 0.0684276894
+   },
+   {
+    "round": 27,
+    "score": 0.6,
+    "avg_cost": 0.045713244199999996
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.0397908306
+   },
+   {
+    "round": 29,
+    "score": 0.7,
+    "avg_cost": 0.044808593400000006
+   },
+   {
+    "round": 30,
+    "score": 0.8,
+    "avg_cost": 0.0403174734
+   },
+   {
+    "round": 31,
+    "score": 0.84,
+    "avg_cost": 0.054190517800000004
+   },
+   {
+    "round": 32,
+    "score": 0.84,
+    "avg_cost": 0.05557458880000001
+   },
+   {
+    "round": 33,
+    "score": 0.9,
+    "avg_cost": 0.0445130396
+   },
+   {
+    "round": 34,
+    "score": 0.8,
+    "avg_cost": 0.0488538666
+   },
+   {
+    "round": 35,
+    "score": 0.8,
+    "avg_cost": 0.0404969438
+   },
+   {
+    "round": 36,
+    "score": 0.78,
+    "avg_cost": 0.0457403882
+   },
+   {
+    "round": 37,
+    "score": 0.84,
+    "avg_cost": 0.045770572
+   },
+   {
+    "round": 38,
+    "score": 0.82,
+    "avg_cost": 0.04596905
+   },
+   {
+    "round": 39,
+    "score": 0.86,
+    "avg_cost": 0.0402739852
+   },
+   {
+    "round": 40,
+    "score": 0.82,
+    "avg_cost": 0.053976576400000004
+   },
+   {
+    "round": 41,
+    "score": 0.8,
+    "avg_cost": 0.0412056928
+   },
+   {
+    "round": 42,
+    "score": 0.82,
+    "avg_cost": 0.046995039200000005
+   },
+   {
+    "round": 43,
+    "score": 0.82,
+    "avg_cost": 0.046478867199999996
+   },
+   {
+    "round": 44,
+    "score": 0.8,
+    "avg_cost": 0.04565688180000001
+   },
+   {
+    "round": 45,
+    "score": 0.78,
+    "avg_cost": 0.0279358784
+   },
+   {
+    "round": 46,
+    "score": 0.88,
+    "avg_cost": 0.0451749434
+   },
+   {
+    "round": 47,
+    "score": 0.86,
+    "avg_cost": 0.040555506399999997
+   },
+   {
+    "round": 48,
+    "score": 0.86,
+    "avg_cost": 0.04625719960000001
+   },
+   {
+    "round": 49,
+    "score": 0.84,
+    "avg_cost": 0.0509164966
+   },
+   {
+    "round": 50,
+    "score": 0.82,
+    "avg_cost": 0.039430049
+   },
+   {
+    "round": 51,
+    "score": 0.86,
+    "avg_cost": 0.05552575320000001
+   },
+   {
+    "round": 52,
+    "score": 0.74,
+    "avg_cost": 0.0342695864
+   },
+   {
+    "round": 53,
+    "score": 0.82,
+    "avg_cost": 0.04187876200000001
+   },
+   {
+    "round": 54,
+    "score": 0.54,
+    "avg_cost": 0.03800907620000001
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRMurderMysteries",
+   "search_seed": 3,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "f089d8caa342028d6c265d240afe99aa3c68464531bd15d3c739dd5a7c63ed1b",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 33,
+  "billed_usd": {
+   "search": 100.922039,
+   "tests": 17.168588,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 54,
+   "input": 141543,
+   "output_incl_thinking": 468029
+  }
+ },
+ {
+  "id": "musr_object_seed1_try1",
+  "task": "musr_object",
+  "seed": 1,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.42,
+    "avg_cost": 0.000708369
+   },
+   {
+    "round": 2,
+    "score": 0.54,
+    "avg_cost": 0.0023890212000000004
+   },
+   {
+    "round": 3,
+    "score": 0.5,
+    "avg_cost": 0.003766449
+   },
+   {
+    "round": 4,
+    "score": 0.9,
+    "avg_cost": 0.0044010084
+   },
+   {
+    "round": 5,
+    "score": 0.88,
+    "avg_cost": 0.006784207999999999
+   },
+   {
+    "round": 6,
+    "score": 0.76,
+    "avg_cost": 0.0046145426
+   },
+   {
+    "round": 7,
+    "score": 0.46,
+    "avg_cost": 0.0044844224
+   },
+   {
+    "round": 8,
+    "score": 0.78,
+    "avg_cost": 0.0041515944
+   },
+   {
+    "round": 9,
+    "score": 0.82,
+    "avg_cost": 0.0042597004
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.004155745599999999
+   },
+   {
+    "round": 11,
+    "score": 0.82,
+    "avg_cost": 0.004946748999999999
+   },
+   {
+    "round": 12,
+    "score": 0.8,
+    "avg_cost": 0.006972116
+   },
+   {
+    "round": 13,
+    "score": 0.76,
+    "avg_cost": 0.005569040000000001
+   },
+   {
+    "round": 14,
+    "score": 0.8,
+    "avg_cost": 0.004884384800000001
+   },
+   {
+    "round": 15,
+    "score": 0.84,
+    "avg_cost": 0.0063127082
+   },
+   {
+    "round": 16,
+    "score": 0.82,
+    "avg_cost": 0.005603113199999999
+   },
+   {
+    "round": 17,
+    "score": 0.9,
+    "avg_cost": 0.009212919200000001
+   },
+   {
+    "round": 18,
+    "score": 0.66,
+    "avg_cost": 0.004197697
+   },
+   {
+    "round": 19,
+    "score": 0.8,
+    "avg_cost": 0.0028860938000000004
+   },
+   {
+    "round": 20,
+    "score": 0.84,
+    "avg_cost": 0.0079268102
+   },
+   {
+    "round": 21,
+    "score": 0.82,
+    "avg_cost": 0.007543787200000001
+   },
+   {
+    "round": 22,
+    "score": 0.82,
+    "avg_cost": 0.013184392800000002
+   },
+   {
+    "round": 23,
+    "score": 0.82,
+    "avg_cost": 0.0092382516
+   },
+   {
+    "round": 24,
+    "score": 0.8,
+    "avg_cost": 0.0097448074
+   },
+   {
+    "round": 25,
+    "score": 0.8,
+    "avg_cost": 0.006779723999999999
+   },
+   {
+    "round": 26,
+    "score": 0.86,
+    "avg_cost": 0.004237576
+   },
+   {
+    "round": 27,
+    "score": 0.72,
+    "avg_cost": 0.0045602226
+   },
+   {
+    "round": 28,
+    "score": 0.72,
+    "avg_cost": 0.004168058
+   },
+   {
+    "round": 29,
+    "score": 0.84,
+    "avg_cost": 0.006350309000000001
+   },
+   {
+    "round": 30,
+    "score": 0.84,
+    "avg_cost": 0.0043702072
+   },
+   {
+    "round": 31,
+    "score": 0.56,
+    "avg_cost": 0.006946374199999999
+   },
+   {
+    "round": 32,
+    "score": 0.84,
+    "avg_cost": 0.005679709800000001
+   },
+   {
+    "round": 33,
+    "score": 0.82,
+    "avg_cost": 0.010158374800000002
+   },
+   {
+    "round": 34,
+    "score": 0.88,
+    "avg_cost": 0.0074813736
+   },
+   {
+    "round": 35,
+    "score": 0.78,
+    "avg_cost": 0.0089026628
+   },
+   {
+    "round": 36,
+    "score": 0.86,
+    "avg_cost": 0.006738457000000001
+   },
+   {
+    "round": 37,
+    "score": 0.86,
+    "avg_cost": 0.010129505200000001
+   },
+   {
+    "round": 38,
+    "score": 0.8,
+    "avg_cost": 0.0045036508
+   },
+   {
+    "round": 39,
+    "score": 0.84,
+    "avg_cost": 0.007782895599999999
+   },
+   {
+    "round": 40,
+    "score": 0.8,
+    "avg_cost": 0.007291150599999998
+   },
+   {
+    "round": 41,
+    "score": 0.86,
+    "avg_cost": 0.006345966
+   },
+   {
+    "round": 42,
+    "score": 0.74,
+    "avg_cost": 0.0042196374
+   },
+   {
+    "round": 43,
+    "score": 0.7,
+    "avg_cost": 0.006699244399999999
+   },
+   {
+    "round": 44,
+    "score": 0.58,
+    "avg_cost": 0.0038147614
+   },
+   {
+    "round": 45,
+    "score": 0.74,
+    "avg_cost": 0.0044160676
+   },
+   {
+    "round": 46,
+    "score": 0.66,
+    "avg_cost": 0.008007948
+   },
+   {
+    "round": 47,
+    "score": 0.72,
+    "avg_cost": 0.008879774200000001
+   },
+   {
+    "round": 48,
+    "score": 0.7,
+    "avg_cost": 0.008406732
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 49,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 50,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 51,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 52,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 53,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 54,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 11.79545,
+   "tests": 1.20581,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 49,
+   "input": 143809,
+   "output_incl_thinking": 409491
+  }
+ },
+ {
+  "id": "musr_object_seed1_try2",
+  "task": "musr_object",
+  "seed": 1,
+  "try": 2,
+  "tag": "aamas_b_r2",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.5,
+    "avg_cost": 0.0006855290000000002
+   },
+   {
+    "round": 2,
+    "score": 0.56,
+    "avg_cost": 0.0039267320000000005
+   },
+   {
+    "round": 3,
+    "score": 0.8,
+    "avg_cost": 0.0017788224
+   },
+   {
+    "round": 4,
+    "score": 0.84,
+    "avg_cost": 0.0057285354
+   },
+   {
+    "round": 5,
+    "score": 0.82,
+    "avg_cost": 0.0046218382
+   },
+   {
+    "round": 6,
+    "score": 0.84,
+    "avg_cost": 0.009492404000000001
+   },
+   {
+    "round": 7,
+    "score": 0.8,
+    "avg_cost": 0.0076344614
+   },
+   {
+    "round": 8,
+    "score": 0.86,
+    "avg_cost": 0.007312716800000001
+   },
+   {
+    "round": 9,
+    "score": 0.84,
+    "avg_cost": 0.011922595000000001
+   },
+   {
+    "round": 10,
+    "score": 0.4,
+    "avg_cost": 0.008776795799999999
+   },
+   {
+    "round": 11,
+    "score": 0.82,
+    "avg_cost": 0.013234384200000003
+   },
+   {
+    "round": 13,
+    "score": 0.82,
+    "avg_cost": 0.0051442402
+   },
+   {
+    "round": 14,
+    "score": 0.86,
+    "avg_cost": 0.012142201400000002
+   },
+   {
+    "round": 16,
+    "score": 0.84,
+    "avg_cost": 0.009515825200000001
+   },
+   {
+    "round": 18,
+    "score": 0.78,
+    "avg_cost": 0.007347334800000001
+   },
+   {
+    "round": 19,
+    "score": 0.84,
+    "avg_cost": 0.012763221000000002
+   },
+   {
+    "round": 20,
+    "score": 0.82,
+    "avg_cost": 0.0078476628
+   },
+   {
+    "round": 21,
+    "score": 0.7,
+    "avg_cost": 0.0044544450000000005
+   },
+   {
+    "round": 24,
+    "score": 0.8,
+    "avg_cost": 0.011926498800000001
+   },
+   {
+    "round": 27,
+    "score": 0.84,
+    "avg_cost": 0.00878117
+   },
+   {
+    "round": 28,
+    "score": 0.8,
+    "avg_cost": 0.0073638046
+   },
+   {
+    "round": 29,
+    "score": 0.64,
+    "avg_cost": 0.008023172
+   },
+   {
+    "round": 30,
+    "score": 0.82,
+    "avg_cost": 0.007546865000000001
+   },
+   {
+    "round": 31,
+    "score": 0.86,
+    "avg_cost": 0.009060017
+   },
+   {
+    "round": 32,
+    "score": 0.82,
+    "avg_cost": 0.008348842000000002
+   },
+   {
+    "round": 33,
+    "score": 0.86,
+    "avg_cost": 0.012892928599999999
+   },
+   {
+    "round": 34,
+    "score": 0.86,
+    "avg_cost": 0.0131279886
+   },
+   {
+    "round": 35,
+    "score": 0.86,
+    "avg_cost": 0.012207626599999999
+   },
+   {
+    "round": 36,
+    "score": 0.8,
+    "avg_cost": 0.0068464666
+   },
+   {
+    "round": 37,
+    "score": 0.86,
+    "avg_cost": 0.0130212566
+   },
+   {
+    "round": 38,
+    "score": 0.86,
+    "avg_cost": 0.010678783999999998
+   },
+   {
+    "round": 39,
+    "score": 0.84,
+    "avg_cost": 0.0179098458
+   },
+   {
+    "round": 40,
+    "score": 0.84,
+    "avg_cost": 0.005993597399999998
+   },
+   {
+    "round": 41,
+    "score": 0.84,
+    "avg_cost": 0.0130450014
+   },
+   {
+    "round": 42,
+    "score": 0.84,
+    "avg_cost": 0.0137068408
+   },
+   {
+    "round": 43,
+    "score": 0.04,
+    "avg_cost": 0.0022916204
+   }
+  ],
+  "damaged_validation_rounds": {
+   "43": 48
+  },
+  "failed_proposals": [
+   {
+    "round": 12,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 15,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 17,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 22,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 23,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 25,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 26,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 44,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 45,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 46,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 47,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 48,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 49,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 50,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 51,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 52,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 53,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 54,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b_r2",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 12.575006,
+   "tests": 0,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 42,
+   "input": 122232,
+   "output_incl_thinking": 389800
+  }
+ },
+ {
+  "id": "musr_object_seed1_try3",
+  "task": "musr_object",
+  "seed": 1,
+  "try": 3,
+  "tag": "aamas_b_r3",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.54,
+    "avg_cost": 0.0006519489999999999
+   },
+   {
+    "round": 2,
+    "score": 0.46,
+    "avg_cost": 0.003681052
+   },
+   {
+    "round": 3,
+    "score": 0.78,
+    "avg_cost": 0.0023056802
+   },
+   {
+    "round": 4,
+    "score": 0.8,
+    "avg_cost": 0.0040246914
+   },
+   {
+    "round": 5,
+    "score": 0.82,
+    "avg_cost": 0.005659466999999999
+   },
+   {
+    "round": 6,
+    "score": 0.8,
+    "avg_cost": 0.007278341800000001
+   },
+   {
+    "round": 7,
+    "score": 0.82,
+    "avg_cost": 0.011685293400000001
+   },
+   {
+    "round": 8,
+    "score": 0.74,
+    "avg_cost": 0.0062804490000000004
+   },
+   {
+    "round": 9,
+    "score": 0.82,
+    "avg_cost": 0.016599302
+   },
+   {
+    "round": 10,
+    "score": 0.8,
+    "avg_cost": 0.0162684362
+   },
+   {
+    "round": 11,
+    "score": 0.84,
+    "avg_cost": 0.0257521456
+   },
+   {
+    "round": 12,
+    "score": 0.8,
+    "avg_cost": 0.0065079734
+   },
+   {
+    "round": 13,
+    "score": 0.76,
+    "avg_cost": 0.0129700442
+   },
+   {
+    "round": 14,
+    "score": 0.78,
+    "avg_cost": 0.0346229596
+   },
+   {
+    "round": 15,
+    "score": 0.78,
+    "avg_cost": 0.025721765599999998
+   },
+   {
+    "round": 17,
+    "score": 0.82,
+    "avg_cost": 0.0146444108
+   },
+   {
+    "round": 18,
+    "score": 0.82,
+    "avg_cost": 0.006494723400000001
+   },
+   {
+    "round": 19,
+    "score": 0.74,
+    "avg_cost": 0.0167388076
+   },
+   {
+    "round": 21,
+    "score": 0.86,
+    "avg_cost": 0.023530485199999996
+   },
+   {
+    "round": 22,
+    "score": 0.8,
+    "avg_cost": 0.0061504842
+   },
+   {
+    "round": 23,
+    "score": 0.86,
+    "avg_cost": 0.0171085874
+   },
+   {
+    "round": 24,
+    "score": 0.88,
+    "avg_cost": 0.0119047012
+   },
+   {
+    "round": 25,
+    "score": 0.82,
+    "avg_cost": 0.019182282
+   },
+   {
+    "round": 26,
+    "score": 0.8,
+    "avg_cost": 0.0199215866
+   },
+   {
+    "round": 27,
+    "score": 0.84,
+    "avg_cost": 0.016269592000000003
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.013011721600000001
+   },
+   {
+    "round": 29,
+    "score": 0.8,
+    "avg_cost": 0.021918430200000002
+   },
+   {
+    "round": 30,
+    "score": 0.82,
+    "avg_cost": 0.0121757366
+   },
+   {
+    "round": 31,
+    "score": 0.82,
+    "avg_cost": 0.030021020200000005
+   },
+   {
+    "round": 32,
+    "score": 0.8,
+    "avg_cost": 0.0145211732
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.0234903986
+   },
+   {
+    "round": 34,
+    "score": 0.44,
+    "avg_cost": 0.013426992
+   },
+   {
+    "round": 35,
+    "score": 0.84,
+    "avg_cost": 0.0170968802
+   },
+   {
+    "round": 36,
+    "score": 0.82,
+    "avg_cost": 0.011816634999999999
+   },
+   {
+    "round": 37,
+    "score": 0.84,
+    "avg_cost": 0.028414971600000002
+   },
+   {
+    "round": 38,
+    "score": 0.78,
+    "avg_cost": 0.011567099600000002
+   },
+   {
+    "round": 39,
+    "score": 0.78,
+    "avg_cost": 0.011684869600000002
+   },
+   {
+    "round": 40,
+    "score": 0.76,
+    "avg_cost": 0.019695762999999998
+   },
+   {
+    "round": 41,
+    "score": 0.8,
+    "avg_cost": 0.0066338887999999995
+   },
+   {
+    "round": 42,
+    "score": 0.74,
+    "avg_cost": 0.015333995599999999
+   },
+   {
+    "round": 43,
+    "score": 0.8,
+    "avg_cost": 0.020714412800000002
+   },
+   {
+    "round": 44,
+    "score": 0.44,
+    "avg_cost": 0.010019374400000001
+   },
+   {
+    "round": 45,
+    "score": 0.76,
+    "avg_cost": 0.02859517
+   },
+   {
+    "round": 46,
+    "score": 0.88,
+    "avg_cost": 0.025488185800000004
+   },
+   {
+    "round": 47,
+    "score": 0.84,
+    "avg_cost": 0.026663479599999994
+   },
+   {
+    "round": 48,
+    "score": 0.82,
+    "avg_cost": 0.028551726
+   },
+   {
+    "round": 49,
+    "score": 0.84,
+    "avg_cost": 0.0094985848
+   },
+   {
+    "round": 50,
+    "score": 0.82,
+    "avg_cost": 0.011851895400000001
+   },
+   {
+    "round": 51,
+    "score": 0.82,
+    "avg_cost": 0.023012162
+   },
+   {
+    "round": 52,
+    "score": 0.82,
+    "avg_cost": 0.010857114200000002
+   },
+   {
+    "round": 53,
+    "score": 0.84,
+    "avg_cost": 0.026981236400000004
+   },
+   {
+    "round": 54,
+    "score": 0.72,
+    "avg_cost": 0.0099755756
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 16,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 20,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b_r3",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 24,
+  "billed_usd": {
+   "search": 35.266528,
+   "tests": 3.109774,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 56,
+   "input": 158031,
+   "output_incl_thinking": 485835
+  }
+ },
+ {
+  "id": "musr_object_seed2_try1",
+  "task": "musr_object",
+  "seed": 2,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.52,
+    "avg_cost": 0.000678809
+   },
+   {
+    "round": 2,
+    "score": 0.56,
+    "avg_cost": 0.0038300252
+   },
+   {
+    "round": 3,
+    "score": 0.5,
+    "avg_cost": 0.0050618238
+   },
+   {
+    "round": 4,
+    "score": 0.86,
+    "avg_cost": 0.0016206223999999997
+   },
+   {
+    "round": 5,
+    "score": 0.88,
+    "avg_cost": 0.0048802356
+   },
+   {
+    "round": 6,
+    "score": 0.88,
+    "avg_cost": 0.0080478674
+   },
+   {
+    "round": 7,
+    "score": 0.86,
+    "avg_cost": 0.0067924208
+   },
+   {
+    "round": 8,
+    "score": 0.78,
+    "avg_cost": 0.007174710200000001
+   },
+   {
+    "round": 9,
+    "score": 0.84,
+    "avg_cost": 0.0025685316000000004
+   },
+   {
+    "round": 10,
+    "score": 0.84,
+    "avg_cost": 0.012604389800000003
+   },
+   {
+    "round": 11,
+    "score": 0.84,
+    "avg_cost": 0.0019995538
+   },
+   {
+    "round": 12,
+    "score": 0.84,
+    "avg_cost": 0.0094798742
+   },
+   {
+    "round": 13,
+    "score": 0.82,
+    "avg_cost": 0.011606644000000001
+   },
+   {
+    "round": 14,
+    "score": 0.88,
+    "avg_cost": 0.011233023999999998
+   },
+   {
+    "round": 15,
+    "score": 0.74,
+    "avg_cost": 0.0021356212000000004
+   },
+   {
+    "round": 16,
+    "score": 0.78,
+    "avg_cost": 0.011771927400000002
+   },
+   {
+    "round": 17,
+    "score": 0.72,
+    "avg_cost": 0.0020621458
+   },
+   {
+    "round": 18,
+    "score": 0.9,
+    "avg_cost": 0.0101645752
+   },
+   {
+    "round": 19,
+    "score": 0.86,
+    "avg_cost": 0.013605405800000001
+   },
+   {
+    "round": 20,
+    "score": 0.86,
+    "avg_cost": 0.013478861600000001
+   },
+   {
+    "round": 21,
+    "score": 0.76,
+    "avg_cost": 0.009482309399999998
+   },
+   {
+    "round": 22,
+    "score": 0.86,
+    "avg_cost": 0.0067290150000000005
+   },
+   {
+    "round": 24,
+    "score": 0.86,
+    "avg_cost": 0.011262004999999999
+   },
+   {
+    "round": 25,
+    "score": 0.84,
+    "avg_cost": 0.0061388628
+   },
+   {
+    "round": 27,
+    "score": 0.84,
+    "avg_cost": 0.008226464000000001
+   },
+   {
+    "round": 29,
+    "score": 0.8,
+    "avg_cost": 0.004468506200000001
+   },
+   {
+    "round": 30,
+    "score": 0.82,
+    "avg_cost": 0.0068868444
+   },
+   {
+    "round": 31,
+    "score": 0.82,
+    "avg_cost": 0.0159046708
+   },
+   {
+    "round": 32,
+    "score": 0.84,
+    "avg_cost": 0.008194236799999999
+   },
+   {
+    "round": 33,
+    "score": 0.88,
+    "avg_cost": 0.0065498658
+   },
+   {
+    "round": 34,
+    "score": 0.78,
+    "avg_cost": 0.01363063
+   },
+   {
+    "round": 36,
+    "score": 0.8,
+    "avg_cost": 0.0059366302
+   },
+   {
+    "round": 38,
+    "score": 0.88,
+    "avg_cost": 0.0044834096
+   },
+   {
+    "round": 39,
+    "score": 0.82,
+    "avg_cost": 0.0084824838
+   },
+   {
+    "round": 40,
+    "score": 0.84,
+    "avg_cost": 0.011516668800000001
+   },
+   {
+    "round": 41,
+    "score": 0.7,
+    "avg_cost": 0.007523299999999999
+   },
+   {
+    "round": 42,
+    "score": 0.86,
+    "avg_cost": 0.0182199746
+   },
+   {
+    "round": 43,
+    "score": 0.84,
+    "avg_cost": 0.0053521222
+   },
+   {
+    "round": 44,
+    "score": 0.18,
+    "avg_cost": 0.0035332654000000004
+   },
+   {
+    "round": 50,
+    "score": 0.88,
+    "avg_cost": 0.0052146938000000006
+   },
+   {
+    "round": 51,
+    "score": 0.78,
+    "avg_cost": 0.0089824774
+   },
+   {
+    "round": 52,
+    "score": 0.84,
+    "avg_cost": 0.0093313372
+   },
+   {
+    "round": 53,
+    "score": 0.82,
+    "avg_cost": 0.0148950334
+   },
+   {
+    "round": 54,
+    "score": 0.86,
+    "avg_cost": 0.0135732678
+   }
+  ],
+  "damaged_validation_rounds": {
+   "44": 40
+  },
+  "failed_proposals": [
+   {
+    "round": 23,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 26,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 28,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 35,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 37,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 45,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 46,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 47,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 48,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 49,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 14.629714,
+   "tests": 0,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 55,
+   "input": 164978,
+   "output_incl_thinking": 556101
+  }
+ },
+ {
+  "id": "musr_object_seed2_try2",
+  "task": "musr_object",
+  "seed": 2,
+  "try": 2,
+  "tag": "aamas_b_r2",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.5,
+    "avg_cost": 0.000676649
+   },
+   {
+    "round": 2,
+    "score": 0.5,
+    "avg_cost": 0.0038482228000000004
+   },
+   {
+    "round": 3,
+    "score": 0.8,
+    "avg_cost": 0.0020570583999999998
+   },
+   {
+    "round": 4,
+    "score": 0.82,
+    "avg_cost": 0.0064705754
+   },
+   {
+    "round": 5,
+    "score": 0.84,
+    "avg_cost": 0.011000986800000001
+   },
+   {
+    "round": 6,
+    "score": 0.84,
+    "avg_cost": 0.0106525022
+   },
+   {
+    "round": 7,
+    "score": 0.84,
+    "avg_cost": 0.016964139
+   },
+   {
+    "round": 8,
+    "score": 0.8,
+    "avg_cost": 0.014981921800000002
+   },
+   {
+    "round": 9,
+    "score": 0.8,
+    "avg_cost": 0.024034703
+   },
+   {
+    "round": 10,
+    "score": 0.6,
+    "avg_cost": 0.014376350400000001
+   },
+   {
+    "round": 11,
+    "score": 0.74,
+    "avg_cost": 0.011302392399999998
+   },
+   {
+    "round": 12,
+    "score": 0.84,
+    "avg_cost": 0.018121987800000003
+   },
+   {
+    "round": 13,
+    "score": 0.76,
+    "avg_cost": 0.015604761200000001
+   },
+   {
+    "round": 14,
+    "score": 0.76,
+    "avg_cost": 0.008950748000000001
+   },
+   {
+    "round": 15,
+    "score": 0.86,
+    "avg_cost": 0.015962957399999998
+   },
+   {
+    "round": 16,
+    "score": 0.82,
+    "avg_cost": 0.0223233654
+   },
+   {
+    "round": 17,
+    "score": 0.84,
+    "avg_cost": 0.0144470248
+   },
+   {
+    "round": 18,
+    "score": 0.86,
+    "avg_cost": 0.012573361399999998
+   },
+   {
+    "round": 19,
+    "score": 0.82,
+    "avg_cost": 0.012128470000000002
+   },
+   {
+    "round": 20,
+    "score": 0.72,
+    "avg_cost": 0.0108360422
+   },
+   {
+    "round": 21,
+    "score": 0.78,
+    "avg_cost": 0.021382096200000006
+   },
+   {
+    "round": 22,
+    "score": 0.84,
+    "avg_cost": 0.0185895638
+   },
+   {
+    "round": 23,
+    "score": 0.76,
+    "avg_cost": 0.0153801346
+   },
+   {
+    "round": 24,
+    "score": 0.86,
+    "avg_cost": 0.0185398294
+   },
+   {
+    "round": 25,
+    "score": 0.86,
+    "avg_cost": 0.015746789599999998
+   },
+   {
+    "round": 26,
+    "score": 0.48,
+    "avg_cost": 0.012520619799999999
+   }
+  ],
+  "damaged_validation_rounds": {
+   "26": 19
+  },
+  "failed_proposals": [
+   {
+    "round": 27,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 28,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 29,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 30,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 31,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 32,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 33,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 34,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 35,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 36,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 37,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 38,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 39,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 40,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 41,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 42,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 43,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 44,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 45,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 46,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 47,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 48,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 49,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 50,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 51,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 52,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 53,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 54,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b_r2",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 14.831598,
+   "tests": 0,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 25,
+   "input": 74520,
+   "output_incl_thinking": 205647
+  }
+ },
+ {
+  "id": "musr_object_seed2_try3",
+  "task": "musr_object",
+  "seed": 2,
+  "try": 3,
+  "tag": "aamas_b_r3",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.52,
+    "avg_cost": 0.000671089
+   },
+   {
+    "round": 2,
+    "score": 0.5,
+    "avg_cost": 0.0022263246
+   },
+   {
+    "round": 3,
+    "score": 0.78,
+    "avg_cost": 0.0021115256
+   },
+   {
+    "round": 4,
+    "score": 0.78,
+    "avg_cost": 0.006525653200000001
+   },
+   {
+    "round": 5,
+    "score": 0.78,
+    "avg_cost": 0.011153072199999996
+   },
+   {
+    "round": 6,
+    "score": 0.82,
+    "avg_cost": 0.007581784400000001
+   },
+   {
+    "round": 7,
+    "score": 0.84,
+    "avg_cost": 0.012094575799999998
+   },
+   {
+    "round": 8,
+    "score": 0.8,
+    "avg_cost": 0.0062515408
+   },
+   {
+    "round": 9,
+    "score": 0.84,
+    "avg_cost": 0.0090645822
+   },
+   {
+    "round": 10,
+    "score": 0.8,
+    "avg_cost": 0.016025734200000002
+   },
+   {
+    "round": 11,
+    "score": 0.82,
+    "avg_cost": 0.012196905999999999
+   },
+   {
+    "round": 12,
+    "score": 0.76,
+    "avg_cost": 0.006798291999999999
+   },
+   {
+    "round": 13,
+    "score": 0.82,
+    "avg_cost": 0.006966331599999999
+   },
+   {
+    "round": 14,
+    "score": 0.84,
+    "avg_cost": 0.013938889400000001
+   },
+   {
+    "round": 15,
+    "score": 0.74,
+    "avg_cost": 0.011038854399999999
+   },
+   {
+    "round": 16,
+    "score": 0.82,
+    "avg_cost": 0.011595462799999998
+   },
+   {
+    "round": 17,
+    "score": 0.84,
+    "avg_cost": 0.021464808200000005
+   },
+   {
+    "round": 18,
+    "score": 0.78,
+    "avg_cost": 0.0229970054
+   },
+   {
+    "round": 19,
+    "score": 0.82,
+    "avg_cost": 0.009481611000000001
+   },
+   {
+    "round": 20,
+    "score": 0.78,
+    "avg_cost": 0.013835936200000003
+   },
+   {
+    "round": 21,
+    "score": 0.8,
+    "avg_cost": 0.012644138800000003
+   },
+   {
+    "round": 22,
+    "score": 0.76,
+    "avg_cost": 0.013935379400000001
+   },
+   {
+    "round": 23,
+    "score": 0.84,
+    "avg_cost": 0.0127782134
+   },
+   {
+    "round": 24,
+    "score": 0.68,
+    "avg_cost": 0.012686128600000002
+   },
+   {
+    "round": 25,
+    "score": 0.82,
+    "avg_cost": 0.0183492972
+   },
+   {
+    "round": 26,
+    "score": 0.82,
+    "avg_cost": 0.0089807228
+   },
+   {
+    "round": 27,
+    "score": 0.78,
+    "avg_cost": 0.012358583999999999
+   },
+   {
+    "round": 28,
+    "score": 0.86,
+    "avg_cost": 0.006266064800000001
+   },
+   {
+    "round": 29,
+    "score": 0.8,
+    "avg_cost": 0.0065252639999999985
+   },
+   {
+    "round": 32,
+    "score": 0.76,
+    "avg_cost": 0.0079275582
+   },
+   {
+    "round": 33,
+    "score": 0.82,
+    "avg_cost": 0.0094197128
+   },
+   {
+    "round": 34,
+    "score": 0.82,
+    "avg_cost": 0.010690440600000002
+   },
+   {
+    "round": 35,
+    "score": 0.84,
+    "avg_cost": 0.0125990678
+   },
+   {
+    "round": 36,
+    "score": 0.78,
+    "avg_cost": 0.014616239
+   },
+   {
+    "round": 37,
+    "score": 0.76,
+    "avg_cost": 0.0100230286
+   },
+   {
+    "round": 38,
+    "score": 0.7,
+    "avg_cost": 0.0053361068000000005
+   },
+   {
+    "round": 39,
+    "score": 0.76,
+    "avg_cost": 0.0073833122000000004
+   },
+   {
+    "round": 40,
+    "score": 0.82,
+    "avg_cost": 0.011692207599999997
+   },
+   {
+    "round": 41,
+    "score": 0.8,
+    "avg_cost": 0.012323572000000003
+   },
+   {
+    "round": 42,
+    "score": 0.84,
+    "avg_cost": 0.014154884400000001
+   },
+   {
+    "round": 43,
+    "score": 0.78,
+    "avg_cost": 0.016620322400000002
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.013063819999999999
+   },
+   {
+    "round": 46,
+    "score": 0.5,
+    "avg_cost": 0.013140925
+   },
+   {
+    "round": 47,
+    "score": 0.86,
+    "avg_cost": 0.013958466799999998
+   },
+   {
+    "round": 48,
+    "score": 0.76,
+    "avg_cost": 0.0092764666
+   },
+   {
+    "round": 49,
+    "score": 0.82,
+    "avg_cost": 0.0064672746
+   },
+   {
+    "round": 50,
+    "score": 0.78,
+    "avg_cost": 0.005263404800000001
+   },
+   {
+    "round": 51,
+    "score": 0.84,
+    "avg_cost": 0.015619957
+   },
+   {
+    "round": 52,
+    "score": 0.8,
+    "avg_cost": 0.014070047799999999
+   },
+   {
+    "round": 53,
+    "score": 0.68,
+    "avg_cost": 0.0064399964
+   },
+   {
+    "round": 54,
+    "score": 0.82,
+    "avg_cost": 0.006126339
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 30,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 31,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 45,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b_r3",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 28,
+  "billed_usd": {
+   "search": 22.451726,
+   "tests": 1.281959,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 57,
+   "input": 172576,
+   "output_incl_thinking": 530709
+  }
+ },
+ {
+  "id": "musr_object_seed3_try1",
+  "task": "musr_object",
+  "seed": 3,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.58,
+    "avg_cost": 0.0006761689999999999
+   },
+   {
+    "round": 2,
+    "score": 0.5,
+    "avg_cost": 0.003779989
+   },
+   {
+    "round": 3,
+    "score": 0.8,
+    "avg_cost": 0.002056937
+   },
+   {
+    "round": 4,
+    "score": 0.86,
+    "avg_cost": 0.0037359041999999996
+   },
+   {
+    "round": 5,
+    "score": 0.8,
+    "avg_cost": 0.0051891080000000004
+   },
+   {
+    "round": 6,
+    "score": 0.86,
+    "avg_cost": 0.006636843600000001
+   },
+   {
+    "round": 7,
+    "score": 0.84,
+    "avg_cost": 0.0106273134
+   },
+   {
+    "round": 8,
+    "score": 0.82,
+    "avg_cost": 0.0045868767999999996
+   },
+   {
+    "round": 9,
+    "score": 0.86,
+    "avg_cost": 0.006239573600000001
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.0040210626
+   },
+   {
+    "round": 11,
+    "score": 0.82,
+    "avg_cost": 0.009588992000000001
+   },
+   {
+    "round": 12,
+    "score": 0.84,
+    "avg_cost": 0.005102809600000001
+   },
+   {
+    "round": 13,
+    "score": 0.78,
+    "avg_cost": 0.0088527854
+   },
+   {
+    "round": 14,
+    "score": 0.82,
+    "avg_cost": 0.010203139199999997
+   },
+   {
+    "round": 15,
+    "score": 0.82,
+    "avg_cost": 0.014830133399999999
+   },
+   {
+    "round": 16,
+    "score": 0.78,
+    "avg_cost": 0.0075610189999999996
+   },
+   {
+    "round": 17,
+    "score": 0.82,
+    "avg_cost": 0.0062785014
+   },
+   {
+    "round": 18,
+    "score": 0.78,
+    "avg_cost": 0.0043037304
+   },
+   {
+    "round": 19,
+    "score": 0.84,
+    "avg_cost": 0.005212495600000001
+   },
+   {
+    "round": 20,
+    "score": 0.84,
+    "avg_cost": 0.010427804399999997
+   },
+   {
+    "round": 21,
+    "score": 0.78,
+    "avg_cost": 0.005803931200000001
+   },
+   {
+    "round": 22,
+    "score": 0.82,
+    "avg_cost": 0.00819292
+   },
+   {
+    "round": 23,
+    "score": 0.78,
+    "avg_cost": 0.0065481027999999995
+   },
+   {
+    "round": 24,
+    "score": 0.78,
+    "avg_cost": 0.006807790400000001
+   },
+   {
+    "round": 25,
+    "score": 0.82,
+    "avg_cost": 0.0084737942
+   },
+   {
+    "round": 26,
+    "score": 0.8,
+    "avg_cost": 0.0084389698
+   },
+   {
+    "round": 27,
+    "score": 0.8,
+    "avg_cost": 0.008080850799999999
+   },
+   {
+    "round": 28,
+    "score": 0.72,
+    "avg_cost": 0.0076629205999999995
+   },
+   {
+    "round": 29,
+    "score": 0.84,
+    "avg_cost": 0.014756778800000002
+   },
+   {
+    "round": 30,
+    "score": 0.84,
+    "avg_cost": 0.0171597368
+   },
+   {
+    "round": 31,
+    "score": 0.9,
+    "avg_cost": 0.0100906948
+   },
+   {
+    "round": 32,
+    "score": 0.84,
+    "avg_cost": 0.010752620000000001
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.0078401554
+   },
+   {
+    "round": 34,
+    "score": 0.84,
+    "avg_cost": 0.016824717
+   },
+   {
+    "round": 35,
+    "score": 0.84,
+    "avg_cost": 0.0069283059999999995
+   },
+   {
+    "round": 36,
+    "score": 0.72,
+    "avg_cost": 0.0041675736
+   },
+   {
+    "round": 37,
+    "score": 0.84,
+    "avg_cost": 0.010796538
+   },
+   {
+    "round": 38,
+    "score": 0.86,
+    "avg_cost": 0.011906540399999999
+   },
+   {
+    "round": 39,
+    "score": 0.84,
+    "avg_cost": 0.0038628626
+   },
+   {
+    "round": 40,
+    "score": 0.7,
+    "avg_cost": 0.004414266
+   },
+   {
+    "round": 41,
+    "score": 0.84,
+    "avg_cost": 0.0121547376
+   },
+   {
+    "round": 42,
+    "score": 0.86,
+    "avg_cost": 0.0099573382
+   },
+   {
+    "round": 43,
+    "score": 0.8,
+    "avg_cost": 0.010742813
+   },
+   {
+    "round": 44,
+    "score": 0.84,
+    "avg_cost": 0.009076636200000002
+   },
+   {
+    "round": 45,
+    "score": 0.82,
+    "avg_cost": 0.0070454466
+   },
+   {
+    "round": 46,
+    "score": 0.86,
+    "avg_cost": 0.009765937600000002
+   },
+   {
+    "round": 47,
+    "score": 0.88,
+    "avg_cost": 0.0129639014
+   },
+   {
+    "round": 48,
+    "score": 0.86,
+    "avg_cost": 0.021665477800000003
+   },
+   {
+    "round": 49,
+    "score": 0.8,
+    "avg_cost": 0.012475350399999998
+   },
+   {
+    "round": 50,
+    "score": 0.82,
+    "avg_cost": 0.009895464199999999
+   },
+   {
+    "round": 51,
+    "score": 0.84,
+    "avg_cost": 0.0151440838
+   },
+   {
+    "round": 52,
+    "score": 0.82,
+    "avg_cost": 0.0118641954
+   },
+   {
+    "round": 53,
+    "score": 0.84,
+    "avg_cost": 0.014057417999999999
+   },
+   {
+    "round": 54,
+    "score": 0.82,
+    "avg_cost": 0.0170454142
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRObjectPlacements",
+   "search_seed": 3,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": "5953b0be351de68a58880f1f6805d4869228be5f278fa55f0a3d188cbe847382",
+   "seed_prompt_sha256": "deadebf0f542829bd932ee21260f532d4bffb6e76f7dffe8c764d15fcc8a49c7",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 31,
+  "billed_usd": {
+   "search": 21.700586,
+   "tests": 1.605947,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 56,
+   "input": 170414,
+   "output_incl_thinking": 480787
+  }
+ },
+ {
+  "id": "musr_team_seed1_try1",
+  "task": "musr_team",
+  "seed": 1,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.62,
+    "avg_cost": 0.0007763996000000001
+   },
+   {
+    "round": 2,
+    "score": 0.48,
+    "avg_cost": 0.010020302799999999
+   },
+   {
+    "round": 3,
+    "score": 0.64,
+    "avg_cost": 0.0023037548
+   },
+   {
+    "round": 4,
+    "score": 0.66,
+    "avg_cost": 0.0043391128
+   },
+   {
+    "round": 5,
+    "score": 0.68,
+    "avg_cost": 0.0061567440000000005
+   },
+   {
+    "round": 6,
+    "score": 0.7,
+    "avg_cost": 0.008144203999999999
+   },
+   {
+    "round": 7,
+    "score": 0.74,
+    "avg_cost": 0.009335128
+   },
+   {
+    "round": 8,
+    "score": 0.68,
+    "avg_cost": 0.0158162258
+   },
+   {
+    "round": 9,
+    "score": 0.68,
+    "avg_cost": 0.0119737088
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.0170023458
+   },
+   {
+    "round": 11,
+    "score": 0.8,
+    "avg_cost": 0.03776769719999999
+   },
+   {
+    "round": 12,
+    "score": 0.78,
+    "avg_cost": 0.0430671362
+   },
+   {
+    "round": 13,
+    "score": 0.56,
+    "avg_cost": 0.0094675438
+   },
+   {
+    "round": 14,
+    "score": 0.74,
+    "avg_cost": 0.044109052800000007
+   },
+   {
+    "round": 15,
+    "score": 0.72,
+    "avg_cost": 0.0193373096
+   },
+   {
+    "round": 16,
+    "score": 0.78,
+    "avg_cost": 0.038560772400000005
+   },
+   {
+    "round": 17,
+    "score": 0.76,
+    "avg_cost": 0.037840102199999996
+   },
+   {
+    "round": 18,
+    "score": 0.7,
+    "avg_cost": 0.038872981400000006
+   },
+   {
+    "round": 19,
+    "score": 0.76,
+    "avg_cost": 0.0434837304
+   },
+   {
+    "round": 20,
+    "score": 0.74,
+    "avg_cost": 0.058884503000000005
+   },
+   {
+    "round": 21,
+    "score": 0.78,
+    "avg_cost": 0.06695167299999999
+   },
+   {
+    "round": 22,
+    "score": 0.76,
+    "avg_cost": 0.07758120699999999
+   },
+   {
+    "round": 23,
+    "score": 0.72,
+    "avg_cost": 0.0649668732
+   },
+   {
+    "round": 24,
+    "score": 0.7,
+    "avg_cost": 0.0322728986
+   },
+   {
+    "round": 25,
+    "score": 0.68,
+    "avg_cost": 0.044219306599999994
+   },
+   {
+    "round": 26,
+    "score": 0.7,
+    "avg_cost": 0.0565274478
+   },
+   {
+    "round": 27,
+    "score": 0.8,
+    "avg_cost": 0.0776478756
+   },
+   {
+    "round": 28,
+    "score": 0.66,
+    "avg_cost": 0.038243670199999996
+   },
+   {
+    "round": 29,
+    "score": 0.78,
+    "avg_cost": 0.039462610200000005
+   },
+   {
+    "round": 30,
+    "score": 0.64,
+    "avg_cost": 0.024469198799999998
+   },
+   {
+    "round": 31,
+    "score": 0.68,
+    "avg_cost": 0.0417583834
+   },
+   {
+    "round": 32,
+    "score": 0.74,
+    "avg_cost": 0.08681092
+   },
+   {
+    "round": 33,
+    "score": 0.72,
+    "avg_cost": 0.06146292100000001
+   },
+   {
+    "round": 34,
+    "score": 0.68,
+    "avg_cost": 0.08496187640000001
+   },
+   {
+    "round": 35,
+    "score": 0.76,
+    "avg_cost": 0.0443898088
+   },
+   {
+    "round": 36,
+    "score": 0.7,
+    "avg_cost": 0.0851113858
+   },
+   {
+    "round": 37,
+    "score": 0.76,
+    "avg_cost": 0.0605494542
+   },
+   {
+    "round": 38,
+    "score": 0.74,
+    "avg_cost": 0.052299664800000006
+   },
+   {
+    "round": 39,
+    "score": 0.72,
+    "avg_cost": 0.044197482600000004
+   },
+   {
+    "round": 40,
+    "score": 0.16,
+    "avg_cost": 0.011834419
+   },
+   {
+    "round": 46,
+    "score": 0.72,
+    "avg_cost": 0.07956308
+   },
+   {
+    "round": 47,
+    "score": 0.82,
+    "avg_cost": 0.046378852800000016
+   },
+   {
+    "round": 48,
+    "score": 0.78,
+    "avg_cost": 0.028867699
+   },
+   {
+    "round": 49,
+    "score": 0.74,
+    "avg_cost": 0.039392366
+   },
+   {
+    "round": 50,
+    "score": 0.82,
+    "avg_cost": 0.04142511080000001
+   },
+   {
+    "round": 51,
+    "score": 0.72,
+    "avg_cost": 0.0462307948
+   },
+   {
+    "round": 52,
+    "score": 0.74,
+    "avg_cost": 0.054133799200000006
+   },
+   {
+    "round": 53,
+    "score": 0.76,
+    "avg_cost": 0.057344213799999995
+   },
+   {
+    "round": 54,
+    "score": 0.74,
+    "avg_cost": 0.038628618
+   }
+  ],
+  "damaged_validation_rounds": {
+   "40": 39
+  },
+  "failed_proposals": [
+   {
+    "round": 41,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 42,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 43,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 44,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 45,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRTeamAllocation",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "5d48fab1fc94e9d0b3581ec3076b92106dc875efc402a39e396f2ba3c72bcc04",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 93.475453,
+   "tests": 0,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 49,
+   "input": 127942,
+   "output_incl_thinking": 377787
+  }
+ },
+ {
+  "id": "musr_team_seed1_try2",
+  "task": "musr_team",
+  "seed": 1,
+  "try": 2,
+  "tag": "aamas_b_r2",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.6,
+    "avg_cost": 0.0007787596000000001
+   },
+   {
+    "round": 2,
+    "score": 0.46,
+    "avg_cost": 0.008080725
+   },
+   {
+    "round": 3,
+    "score": 0.78,
+    "avg_cost": 0.0020065516
+   },
+   {
+    "round": 4,
+    "score": 0.8,
+    "avg_cost": 0.0059279524
+   },
+   {
+    "round": 5,
+    "score": 0.78,
+    "avg_cost": 0.004790839
+   },
+   {
+    "round": 6,
+    "score": 0.62,
+    "avg_cost": 0.007871315599999998
+   },
+   {
+    "round": 7,
+    "score": 0.8,
+    "avg_cost": 0.009198981
+   },
+   {
+    "round": 8,
+    "score": 0.26,
+    "avg_cost": 0.0070478872
+   },
+   {
+    "round": 9,
+    "score": 0.76,
+    "avg_cost": 0.017417613400000004
+   },
+   {
+    "round": 10,
+    "score": 0.78,
+    "avg_cost": 0.008007050600000001
+   },
+   {
+    "round": 11,
+    "score": 0.72,
+    "avg_cost": 0.0119527192
+   },
+   {
+    "round": 12,
+    "score": 0.72,
+    "avg_cost": 0.011176155
+   },
+   {
+    "round": 13,
+    "score": 0.76,
+    "avg_cost": 0.0024580899999999996
+   },
+   {
+    "round": 14,
+    "score": 0.82,
+    "avg_cost": 0.0054847212
+   },
+   {
+    "round": 15,
+    "score": 0.78,
+    "avg_cost": 0.0047290372
+   },
+   {
+    "round": 16,
+    "score": 0.8,
+    "avg_cost": 0.0095604278
+   },
+   {
+    "round": 17,
+    "score": 0.76,
+    "avg_cost": 0.0163878506
+   },
+   {
+    "round": 18,
+    "score": 0.76,
+    "avg_cost": 0.0064722058
+   },
+   {
+    "round": 19,
+    "score": 0.74,
+    "avg_cost": 0.0107985892
+   },
+   {
+    "round": 20,
+    "score": 0.76,
+    "avg_cost": 0.006511253999999999
+   },
+   {
+    "round": 21,
+    "score": 0.84,
+    "avg_cost": 0.0065605078
+   },
+   {
+    "round": 22,
+    "score": 0.76,
+    "avg_cost": 0.011493839800000002
+   },
+   {
+    "round": 23,
+    "score": 0.8,
+    "avg_cost": 0.0103963798
+   },
+   {
+    "round": 24,
+    "score": 0.74,
+    "avg_cost": 0.0083122872
+   },
+   {
+    "round": 25,
+    "score": 0.78,
+    "avg_cost": 0.005980607
+   },
+   {
+    "round": 26,
+    "score": 0.74,
+    "avg_cost": 0.014628409800000002
+   },
+   {
+    "round": 27,
+    "score": 0.82,
+    "avg_cost": 0.0082954924
+   },
+   {
+    "round": 28,
+    "score": 0.8,
+    "avg_cost": 0.010094923400000002
+   },
+   {
+    "round": 29,
+    "score": 0.8,
+    "avg_cost": 0.007648873400000001
+   },
+   {
+    "round": 30,
+    "score": 0.84,
+    "avg_cost": 0.008991483599999999
+   },
+   {
+    "round": 31,
+    "score": 0.78,
+    "avg_cost": 0.011222018
+   },
+   {
+    "round": 32,
+    "score": 0.86,
+    "avg_cost": 0.008758961400000001
+   },
+   {
+    "round": 33,
+    "score": 0.82,
+    "avg_cost": 0.0077334628
+   },
+   {
+    "round": 34,
+    "score": 0.76,
+    "avg_cost": 0.015582014
+   },
+   {
+    "round": 35,
+    "score": 0.8,
+    "avg_cost": 0.0084155138
+   },
+   {
+    "round": 36,
+    "score": 0.82,
+    "avg_cost": 0.0127449158
+   },
+   {
+    "round": 37,
+    "score": 0.82,
+    "avg_cost": 0.011569911799999999
+   },
+   {
+    "round": 38,
+    "score": 0.76,
+    "avg_cost": 0.0107777534
+   },
+   {
+    "round": 39,
+    "score": 0.8,
+    "avg_cost": 0.005561536800000001
+   },
+   {
+    "round": 40,
+    "score": 0.8,
+    "avg_cost": 0.0090716384
+   },
+   {
+    "round": 41,
+    "score": 0.8,
+    "avg_cost": 0.010066918000000001
+   },
+   {
+    "round": 42,
+    "score": 0.78,
+    "avg_cost": 0.007194412200000001
+   },
+   {
+    "round": 43,
+    "score": 0.76,
+    "avg_cost": 0.010038908
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.009657440400000002
+   },
+   {
+    "round": 45,
+    "score": 0.88,
+    "avg_cost": 0.010635649200000001
+   },
+   {
+    "round": 46,
+    "score": 0.82,
+    "avg_cost": 0.0161102626
+   },
+   {
+    "round": 47,
+    "score": 0.78,
+    "avg_cost": 0.0102818202
+   },
+   {
+    "round": 48,
+    "score": 0.74,
+    "avg_cost": 0.010811027800000001
+   },
+   {
+    "round": 49,
+    "score": 0.74,
+    "avg_cost": 0.012900039399999999
+   },
+   {
+    "round": 50,
+    "score": 0.86,
+    "avg_cost": 0.011930331
+   },
+   {
+    "round": 51,
+    "score": 0.82,
+    "avg_cost": 0.012160993599999998
+   },
+   {
+    "round": 52,
+    "score": 0.76,
+    "avg_cost": 0.012360866600000003
+   },
+   {
+    "round": 53,
+    "score": 0.82,
+    "avg_cost": 0.016538823
+   },
+   {
+    "round": 54,
+    "score": 0.84,
+    "avg_cost": 0.0116481506
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b_r2",
+   "aflow_dataset": "MuSRTeamAllocation",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "5d48fab1fc94e9d0b3581ec3076b92106dc875efc402a39e396f2ba3c72bcc04",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 45,
+  "billed_usd": {
+   "search": 22.852812,
+   "tests": 2.949802,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 142611,
+   "output_incl_thinking": 425262
+  }
+ },
+ {
+  "id": "musr_team_seed2_try1",
+  "task": "musr_team",
+  "seed": 2,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.66,
+    "avg_cost": 0.0009704195999999998
+   },
+   {
+    "round": 2,
+    "score": 0.4,
+    "avg_cost": 0.009385609
+   },
+   {
+    "round": 3,
+    "score": 0.82,
+    "avg_cost": 0.0025519378000000005
+   },
+   {
+    "round": 4,
+    "score": 0.74,
+    "avg_cost": 0.007907676
+   },
+   {
+    "round": 5,
+    "score": 0.8,
+    "avg_cost": 0.0035295378
+   },
+   {
+    "round": 6,
+    "score": 0.7,
+    "avg_cost": 0.0025155398
+   },
+   {
+    "round": 7,
+    "score": 0.7,
+    "avg_cost": 0.0056960776
+   },
+   {
+    "round": 8,
+    "score": 0.74,
+    "avg_cost": 0.0021168756
+   },
+   {
+    "round": 9,
+    "score": 0.84,
+    "avg_cost": 0.010349811600000001
+   },
+   {
+    "round": 10,
+    "score": 0.76,
+    "avg_cost": 0.0198708828
+   },
+   {
+    "round": 11,
+    "score": 0.82,
+    "avg_cost": 0.008923068
+   },
+   {
+    "round": 12,
+    "score": 0.82,
+    "avg_cost": 0.014168748599999998
+   },
+   {
+    "round": 13,
+    "score": 0.84,
+    "avg_cost": 0.0028045827999999993
+   },
+   {
+    "round": 14,
+    "score": 0.78,
+    "avg_cost": 0.009766428800000001
+   },
+   {
+    "round": 15,
+    "score": 0.8,
+    "avg_cost": 0.0028518845999999996
+   },
+   {
+    "round": 16,
+    "score": 0.5,
+    "avg_cost": 0.010769214199999998
+   },
+   {
+    "round": 17,
+    "score": 0.78,
+    "avg_cost": 0.010265443400000001
+   },
+   {
+    "round": 18,
+    "score": 0.76,
+    "avg_cost": 0.0102413844
+   },
+   {
+    "round": 19,
+    "score": 0.28,
+    "avg_cost": 0.007157764799999999
+   },
+   {
+    "round": 20,
+    "score": 0.76,
+    "avg_cost": 0.0136482218
+   },
+   {
+    "round": 21,
+    "score": 0.72,
+    "avg_cost": 0.0142236608
+   },
+   {
+    "round": 22,
+    "score": 0.74,
+    "avg_cost": 0.0032092918000000002
+   },
+   {
+    "round": 23,
+    "score": 0.8,
+    "avg_cost": 0.010861491800000001
+   },
+   {
+    "round": 24,
+    "score": 0.76,
+    "avg_cost": 0.0027299678000000005
+   },
+   {
+    "round": 25,
+    "score": 0.78,
+    "avg_cost": 0.010739477800000001
+   },
+   {
+    "round": 26,
+    "score": 0.78,
+    "avg_cost": 0.016301619599999997
+   },
+   {
+    "round": 27,
+    "score": 0.72,
+    "avg_cost": 0.0028495058000000003
+   },
+   {
+    "round": 37,
+    "score": 0.84,
+    "avg_cost": 0.0028555775999999995
+   },
+   {
+    "round": 38,
+    "score": 0.78,
+    "avg_cost": 0.0028903804
+   },
+   {
+    "round": 39,
+    "score": 0.76,
+    "avg_cost": 0.0030634332000000005
+   },
+   {
+    "round": 40,
+    "score": 0.58,
+    "avg_cost": 0.006858201399999999
+   },
+   {
+    "round": 41,
+    "score": 0.74,
+    "avg_cost": 0.003119531
+   },
+   {
+    "round": 42,
+    "score": 0.8,
+    "avg_cost": 0.012692741399999999
+   },
+   {
+    "round": 43,
+    "score": 0.76,
+    "avg_cost": 0.0034339504000000004
+   },
+   {
+    "round": 44,
+    "score": 0.72,
+    "avg_cost": 0.004688362800000001
+   },
+   {
+    "round": 45,
+    "score": 0.8,
+    "avg_cost": 0.002819787
+   },
+   {
+    "round": 46,
+    "score": 0.74,
+    "avg_cost": 0.0036317122000000005
+   },
+   {
+    "round": 47,
+    "score": 0.82,
+    "avg_cost": 0.0027513772000000002
+   },
+   {
+    "round": 48,
+    "score": 0.78,
+    "avg_cost": 0.014514152199999998
+   },
+   {
+    "round": 49,
+    "score": 0.64,
+    "avg_cost": 0.0033002045999999995
+   },
+   {
+    "round": 50,
+    "score": 0.76,
+    "avg_cost": 0.0015710676000000004
+   },
+   {
+    "round": 51,
+    "score": 0.74,
+    "avg_cost": 0.0093070254
+   },
+   {
+    "round": 52,
+    "score": 0.74,
+    "avg_cost": 0.013008585400000001
+   },
+   {
+    "round": 53,
+    "score": 0.78,
+    "avg_cost": 0.0106140336
+   },
+   {
+    "round": 54,
+    "score": 0.76,
+    "avg_cost": 0.0025301909999999998
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 28,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 29,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 30,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 31,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 32,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 33,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 34,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 35,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   },
+   {
+    "round": 36,
+    "kind": "network",
+    "error_type": "APIConnectionError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRTeamAllocation",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "5d48fab1fc94e9d0b3581ec3076b92106dc875efc402a39e396f2ba3c72bcc04",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": false,
+  "selected_round": null,
+  "billed_usd": {
+   "search": 15.113002,
+   "tests": 0.694111,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 50,
+   "input": 141230,
+   "output_incl_thinking": 519569
+  }
+ },
+ {
+  "id": "musr_team_seed2_try2",
+  "task": "musr_team",
+  "seed": 2,
+  "try": 2,
+  "tag": "aamas_b_r2",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.66,
+    "avg_cost": 0.0008998996000000001
+   },
+   {
+    "round": 2,
+    "score": 0.36,
+    "avg_cost": 0.009412258599999999
+   },
+   {
+    "round": 3,
+    "score": 0.8,
+    "avg_cost": 0.0021569592
+   },
+   {
+    "round": 4,
+    "score": 0.78,
+    "avg_cost": 0.007954441200000002
+   },
+   {
+    "round": 5,
+    "score": 0.76,
+    "avg_cost": 0.0031510339999999996
+   },
+   {
+    "round": 6,
+    "score": 0.76,
+    "avg_cost": 0.012748479200000001
+   },
+   {
+    "round": 7,
+    "score": 0.8,
+    "avg_cost": 0.005418759800000001
+   },
+   {
+    "round": 8,
+    "score": 0.78,
+    "avg_cost": 0.0026339158
+   },
+   {
+    "round": 9,
+    "score": 0.78,
+    "avg_cost": 0.009203041
+   },
+   {
+    "round": 10,
+    "score": 0.76,
+    "avg_cost": 0.0089848364
+   },
+   {
+    "round": 11,
+    "score": 0.8,
+    "avg_cost": 0.0031238389999999993
+   },
+   {
+    "round": 12,
+    "score": 0.82,
+    "avg_cost": 0.007375149000000001
+   },
+   {
+    "round": 13,
+    "score": 0.68,
+    "avg_cost": 0.0032177181999999997
+   },
+   {
+    "round": 14,
+    "score": 0.86,
+    "avg_cost": 0.011071359999999999
+   },
+   {
+    "round": 15,
+    "score": 0.8,
+    "avg_cost": 0.0078062132
+   },
+   {
+    "round": 16,
+    "score": 0.78,
+    "avg_cost": 0.0111225978
+   },
+   {
+    "round": 17,
+    "score": 0.76,
+    "avg_cost": 0.0070200444
+   },
+   {
+    "round": 18,
+    "score": 0.8,
+    "avg_cost": 0.007181931600000001
+   },
+   {
+    "round": 19,
+    "score": 0.74,
+    "avg_cost": 0.010063973799999999
+   },
+   {
+    "round": 20,
+    "score": 0.76,
+    "avg_cost": 0.0087113946
+   },
+   {
+    "round": 21,
+    "score": 0.76,
+    "avg_cost": 0.0111359398
+   },
+   {
+    "round": 22,
+    "score": 0.82,
+    "avg_cost": 0.0162364978
+   },
+   {
+    "round": 23,
+    "score": 0.82,
+    "avg_cost": 0.011705266999999998
+   },
+   {
+    "round": 24,
+    "score": 0.78,
+    "avg_cost": 0.012854842
+   },
+   {
+    "round": 25,
+    "score": 0.76,
+    "avg_cost": 0.0131463036
+   },
+   {
+    "round": 26,
+    "score": 0.76,
+    "avg_cost": 0.010834295799999998
+   },
+   {
+    "round": 27,
+    "score": 0.76,
+    "avg_cost": 0.020914130200000002
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.012815133799999998
+   },
+   {
+    "round": 29,
+    "score": 0.76,
+    "avg_cost": 0.011406078199999998
+   },
+   {
+    "round": 30,
+    "score": 0.84,
+    "avg_cost": 0.013982736000000003
+   },
+   {
+    "round": 31,
+    "score": 0.78,
+    "avg_cost": 0.0086020032
+   },
+   {
+    "round": 32,
+    "score": 0.72,
+    "avg_cost": 0.0190726584
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.008807592600000002
+   },
+   {
+    "round": 34,
+    "score": 0.84,
+    "avg_cost": 0.014431815400000002
+   },
+   {
+    "round": 35,
+    "score": 0.68,
+    "avg_cost": 0.014891337999999999
+   },
+   {
+    "round": 36,
+    "score": 0.76,
+    "avg_cost": 0.0076080622
+   },
+   {
+    "round": 37,
+    "score": 0.78,
+    "avg_cost": 0.013747709799999997
+   },
+   {
+    "round": 38,
+    "score": 0.8,
+    "avg_cost": 0.0086562842
+   },
+   {
+    "round": 39,
+    "score": 0.74,
+    "avg_cost": 0.015134886399999999
+   },
+   {
+    "round": 40,
+    "score": 0.76,
+    "avg_cost": 0.0172448544
+   },
+   {
+    "round": 41,
+    "score": 0.78,
+    "avg_cost": 0.0147462004
+   },
+   {
+    "round": 42,
+    "score": 0.8,
+    "avg_cost": 0.0151413834
+   },
+   {
+    "round": 43,
+    "score": 0.8,
+    "avg_cost": 0.0156606762
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.0152516492
+   },
+   {
+    "round": 45,
+    "score": 0.78,
+    "avg_cost": 0.0081559388
+   },
+   {
+    "round": 46,
+    "score": 0.72,
+    "avg_cost": 0.0141427812
+   },
+   {
+    "round": 47,
+    "score": 0.76,
+    "avg_cost": 0.015582033000000002
+   },
+   {
+    "round": 48,
+    "score": 0.78,
+    "avg_cost": 0.0086762118
+   },
+   {
+    "round": 49,
+    "score": 0.76,
+    "avg_cost": 0.015575930399999998
+   },
+   {
+    "round": 50,
+    "score": 0.78,
+    "avg_cost": 0.012154778400000002
+   },
+   {
+    "round": 51,
+    "score": 0.8,
+    "avg_cost": 0.012308681799999999
+   },
+   {
+    "round": 52,
+    "score": 0.8,
+    "avg_cost": 0.0221447518
+   },
+   {
+    "round": 53,
+    "score": 0.78,
+    "avg_cost": 0.014217744000000001
+   },
+   {
+    "round": 54,
+    "score": 0.78,
+    "avg_cost": 0.014240282200000001
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b_r2",
+   "aflow_dataset": "MuSRTeamAllocation",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "5d48fab1fc94e9d0b3581ec3076b92106dc875efc402a39e396f2ba3c72bcc04",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 14,
+  "billed_usd": {
+   "search": 26.607948,
+   "tests": 1.890199,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 66,
+   "input": 191326,
+   "output_incl_thinking": 561698
+  }
+ },
+ {
+  "id": "musr_team_seed3_try1",
+  "task": "musr_team",
+  "seed": 3,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.62,
+    "avg_cost": 0.0009300596000000001
+   },
+   {
+    "round": 2,
+    "score": 0.48,
+    "avg_cost": 0.008537253400000002
+   },
+   {
+    "round": 3,
+    "score": 0.84,
+    "avg_cost": 0.0018032036000000002
+   },
+   {
+    "round": 4,
+    "score": 0.8,
+    "avg_cost": 0.0054564648000000006
+   },
+   {
+    "round": 5,
+    "score": 0.76,
+    "avg_cost": 0.0024017634
+   },
+   {
+    "round": 6,
+    "score": 0.78,
+    "avg_cost": 0.0091431724
+   },
+   {
+    "round": 7,
+    "score": 0.76,
+    "avg_cost": 0.0029252353999999997
+   },
+   {
+    "round": 8,
+    "score": 0.76,
+    "avg_cost": 0.0032573050000000007
+   },
+   {
+    "round": 9,
+    "score": 0.72,
+    "avg_cost": 0.0025984115999999995
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.003127518
+   },
+   {
+    "round": 11,
+    "score": 0.76,
+    "avg_cost": 0.009126464
+   },
+   {
+    "round": 12,
+    "score": 0.72,
+    "avg_cost": 0.0026746438000000007
+   },
+   {
+    "round": 13,
+    "score": 0.8,
+    "avg_cost": 0.0099771608
+   },
+   {
+    "round": 14,
+    "score": 0.76,
+    "avg_cost": 0.016438041400000002
+   },
+   {
+    "round": 15,
+    "score": 0.82,
+    "avg_cost": 0.0021826236
+   },
+   {
+    "round": 16,
+    "score": 0.76,
+    "avg_cost": 0.006068627399999999
+   },
+   {
+    "round": 17,
+    "score": 0.78,
+    "avg_cost": 0.0066055099999999985
+   },
+   {
+    "round": 18,
+    "score": 0.78,
+    "avg_cost": 0.0027924629999999994
+   },
+   {
+    "round": 19,
+    "score": 0.78,
+    "avg_cost": 0.0033201970000000004
+   },
+   {
+    "round": 20,
+    "score": 0.76,
+    "avg_cost": 0.0017975506000000002
+   },
+   {
+    "round": 21,
+    "score": 0.76,
+    "avg_cost": 0.0023978018
+   },
+   {
+    "round": 22,
+    "score": 0.76,
+    "avg_cost": 0.0017909084
+   },
+   {
+    "round": 23,
+    "score": 0.8,
+    "avg_cost": 0.0085669066
+   },
+   {
+    "round": 24,
+    "score": 0.76,
+    "avg_cost": 0.003834072
+   },
+   {
+    "round": 25,
+    "score": 0.72,
+    "avg_cost": 0.0024903614
+   },
+   {
+    "round": 26,
+    "score": 0.8,
+    "avg_cost": 0.0030705932000000004
+   },
+   {
+    "round": 27,
+    "score": 0.78,
+    "avg_cost": 0.0092261206
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.0026745225999999993
+   },
+   {
+    "round": 29,
+    "score": 0.78,
+    "avg_cost": 0.0033040194
+   },
+   {
+    "round": 30,
+    "score": 0.68,
+    "avg_cost": 0.0031648991999999997
+   },
+   {
+    "round": 31,
+    "score": 0.74,
+    "avg_cost": 0.013019104799999999
+   },
+   {
+    "round": 32,
+    "score": 0.74,
+    "avg_cost": 0.0111664708
+   },
+   {
+    "round": 33,
+    "score": 0.82,
+    "avg_cost": 0.005076397199999999
+   },
+   {
+    "round": 34,
+    "score": 0.8,
+    "avg_cost": 0.0084155672
+   },
+   {
+    "round": 35,
+    "score": 0.76,
+    "avg_cost": 0.0070504022
+   },
+   {
+    "round": 36,
+    "score": 0.76,
+    "avg_cost": 0.0031446418
+   },
+   {
+    "round": 37,
+    "score": 0.78,
+    "avg_cost": 0.009105972
+   },
+   {
+    "round": 38,
+    "score": 0.76,
+    "avg_cost": 0.009298626
+   },
+   {
+    "round": 39,
+    "score": 0.72,
+    "avg_cost": 0.0029997646
+   },
+   {
+    "round": 40,
+    "score": 0.74,
+    "avg_cost": 0.0030582732000000003
+   },
+   {
+    "round": 41,
+    "score": 0.76,
+    "avg_cost": 0.0020468748
+   },
+   {
+    "round": 42,
+    "score": 0.74,
+    "avg_cost": 0.0036069172000000004
+   },
+   {
+    "round": 43,
+    "score": 0.8,
+    "avg_cost": 0.003105804
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.0029486070000000002
+   },
+   {
+    "round": 45,
+    "score": 0.84,
+    "avg_cost": 0.0024140166000000004
+   },
+   {
+    "round": 46,
+    "score": 0.72,
+    "avg_cost": 0.0062429924
+   },
+   {
+    "round": 47,
+    "score": 0.8,
+    "avg_cost": 0.006995192600000002
+   },
+   {
+    "round": 48,
+    "score": 0.76,
+    "avg_cost": 0.0021490916
+   },
+   {
+    "round": 49,
+    "score": 0.82,
+    "avg_cost": 0.0020238636
+   },
+   {
+    "round": 50,
+    "score": 0.72,
+    "avg_cost": 0.0018008518
+   },
+   {
+    "round": 51,
+    "score": 0.7,
+    "avg_cost": 0.003250729
+   },
+   {
+    "round": 52,
+    "score": 0.76,
+    "avg_cost": 0.0029171327999999996
+   },
+   {
+    "round": 53,
+    "score": 0.66,
+    "avg_cost": 0.0024742390000000005
+   },
+   {
+    "round": 54,
+    "score": 0.7,
+    "avg_cost": 0.0035590466
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MuSRTeamAllocation",
+   "search_seed": 3,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "5d48fab1fc94e9d0b3581ec3076b92106dc875efc402a39e396f2ba3c72bcc04",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 3,
+  "billed_usd": {
+   "search": 12.163465,
+   "tests": 0.396957,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 151974,
+   "output_incl_thinking": 658489
+  }
+ },
+ {
+  "id": "naturalplan_meeting_seed1_try1",
+  "task": "naturalplan_meeting",
+  "seed": 1,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.38,
+    "avg_cost": 0.0007057816
+   },
+   {
+    "round": 2,
+    "score": 0.44,
+    "avg_cost": 0.0029680839999999993
+   },
+   {
+    "round": 3,
+    "score": 0.74,
+    "avg_cost": 0.009334604600000001
+   },
+   {
+    "round": 4,
+    "score": 0.6,
+    "avg_cost": 0.0356795746
+   },
+   {
+    "round": 5,
+    "score": 0.68,
+    "avg_cost": 0.009553915999999999
+   },
+   {
+    "round": 6,
+    "score": 0.72,
+    "avg_cost": 0.0038225894
+   },
+   {
+    "round": 7,
+    "score": 0.48,
+    "avg_cost": 0.011769221199999999
+   },
+   {
+    "round": 8,
+    "score": 0.52,
+    "avg_cost": 0.008729068999999999
+   },
+   {
+    "round": 9,
+    "score": 0.86,
+    "avg_cost": 0.0033754956000000003
+   },
+   {
+    "round": 10,
+    "score": 0.86,
+    "avg_cost": 0.0114108088
+   },
+   {
+    "round": 12,
+    "score": 0.86,
+    "avg_cost": 0.0188411224
+   },
+   {
+    "round": 13,
+    "score": 0.78,
+    "avg_cost": 0.0188391134
+   },
+   {
+    "round": 14,
+    "score": 0.84,
+    "avg_cost": 0.007749491599999999
+   },
+   {
+    "round": 15,
+    "score": 0.68,
+    "avg_cost": 0.02726395959999999
+   },
+   {
+    "round": 16,
+    "score": 0.9,
+    "avg_cost": 0.0041901608
+   },
+   {
+    "round": 17,
+    "score": 0.66,
+    "avg_cost": 0.014526642599999999
+   },
+   {
+    "round": 18,
+    "score": 0.72,
+    "avg_cost": 0.0045304314
+   },
+   {
+    "round": 20,
+    "score": 0.88,
+    "avg_cost": 0.010785495600000002
+   },
+   {
+    "round": 21,
+    "score": 0.88,
+    "avg_cost": 0.0054357978
+   },
+   {
+    "round": 22,
+    "score": 0.82,
+    "avg_cost": 0.0065563973999999995
+   },
+   {
+    "round": 23,
+    "score": 0.88,
+    "avg_cost": 0.0039126072
+   },
+   {
+    "round": 25,
+    "score": 0.8,
+    "avg_cost": 0.008347629
+   },
+   {
+    "round": 26,
+    "score": 0.92,
+    "avg_cost": 0.0128196048
+   },
+   {
+    "round": 27,
+    "score": 0.68,
+    "avg_cost": 0.005995845200000001
+   },
+   {
+    "round": 28,
+    "score": 0.9,
+    "avg_cost": 0.0230448514
+   },
+   {
+    "round": 29,
+    "score": 0.82,
+    "avg_cost": 0.0167781956
+   },
+   {
+    "round": 32,
+    "score": 0.7,
+    "avg_cost": 0.029899595200000004
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.006660815999999999
+   },
+   {
+    "round": 35,
+    "score": 0.9,
+    "avg_cost": 0.007603939200000001
+   },
+   {
+    "round": 36,
+    "score": 0.9,
+    "avg_cost": 0.0291174074
+   },
+   {
+    "round": 39,
+    "score": 0.9,
+    "avg_cost": 0.014174880400000001
+   },
+   {
+    "round": 44,
+    "score": 0.86,
+    "avg_cost": 0.016167008199999996
+   },
+   {
+    "round": 47,
+    "score": 0.84,
+    "avg_cost": 0.0047318154000000005
+   },
+   {
+    "round": 53,
+    "score": 0.88,
+    "avg_cost": 0.0282103788
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 11,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 19,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 24,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 30,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 31,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 34,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 37,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 38,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 40,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 41,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 42,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 43,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 45,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 46,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 48,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 49,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 50,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 51,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 52,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 54,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "NaturalPlanMeeting",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "4376348e9e964ef4273d82f58122dd2093a1dd1c23ac2624a66ad80ca467165c",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 26,
+  "billed_usd": {
+   "search": 20.208014,
+   "tests": 2.734893,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 166279,
+   "output_incl_thinking": 444091
+  }
+ },
+ {
+  "id": "naturalplan_meeting_seed2_try1",
+  "task": "naturalplan_meeting",
+  "seed": 2,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.36,
+    "avg_cost": 0.0007016016
+   },
+   {
+    "round": 2,
+    "score": 0.42,
+    "avg_cost": 0.0030389356
+   },
+   {
+    "round": 3,
+    "score": 0.38,
+    "avg_cost": 0.0047496756
+   },
+   {
+    "round": 5,
+    "score": 0.48,
+    "avg_cost": 0.034093918200000004
+   },
+   {
+    "round": 6,
+    "score": 0.42,
+    "avg_cost": 0.0586976024
+   },
+   {
+    "round": 9,
+    "score": 0.4,
+    "avg_cost": 0.0036822458
+   },
+   {
+    "round": 12,
+    "score": 0.34,
+    "avg_cost": 0.004914298800000001
+   },
+   {
+    "round": 13,
+    "score": 0.48,
+    "avg_cost": 0.0027639976
+   },
+   {
+    "round": 14,
+    "score": 0.5,
+    "avg_cost": 0.0328821808
+   },
+   {
+    "round": 15,
+    "score": 0.52,
+    "avg_cost": 0.033307507
+   },
+   {
+    "round": 16,
+    "score": 0.44,
+    "avg_cost": 0.058849661399999996
+   },
+   {
+    "round": 17,
+    "score": 0.44,
+    "avg_cost": 0.0296859154
+   },
+   {
+    "round": 18,
+    "score": 0.7,
+    "avg_cost": 0.024158841599999994
+   },
+   {
+    "round": 19,
+    "score": 0.92,
+    "avg_cost": 0.014824138200000002
+   },
+   {
+    "round": 20,
+    "score": 0.64,
+    "avg_cost": 0.025247139399999997
+   },
+   {
+    "round": 21,
+    "score": 0.64,
+    "avg_cost": 0.047134236200000006
+   },
+   {
+    "round": 22,
+    "score": 0.9,
+    "avg_cost": 0.021175514999999992
+   },
+   {
+    "round": 23,
+    "score": 0.72,
+    "avg_cost": 0.0156363098
+   },
+   {
+    "round": 24,
+    "score": 0.92,
+    "avg_cost": 0.041968470400000006
+   },
+   {
+    "round": 25,
+    "score": 0.94,
+    "avg_cost": 0.0460426672
+   },
+   {
+    "round": 26,
+    "score": 0.68,
+    "avg_cost": 0.0739315894
+   },
+   {
+    "round": 27,
+    "score": 0.62,
+    "avg_cost": 0.07830797839999999
+   },
+   {
+    "round": 28,
+    "score": 0.92,
+    "avg_cost": 0.06810051939999999
+   },
+   {
+    "round": 29,
+    "score": 0.88,
+    "avg_cost": 0.045905870599999996
+   },
+   {
+    "round": 30,
+    "score": 0.86,
+    "avg_cost": 0.057487400800000005
+   },
+   {
+    "round": 31,
+    "score": 0.84,
+    "avg_cost": 0.0449527506
+   },
+   {
+    "round": 32,
+    "score": 0.72,
+    "avg_cost": 0.042547270400000003
+   },
+   {
+    "round": 33,
+    "score": 0.54,
+    "avg_cost": 0.06840068140000001
+   },
+   {
+    "round": 34,
+    "score": 0.84,
+    "avg_cost": 0.0185223134
+   },
+   {
+    "round": 35,
+    "score": 0.6,
+    "avg_cost": 0.0467478016
+   },
+   {
+    "round": 36,
+    "score": 0.9,
+    "avg_cost": 0.015320725000000002
+   },
+   {
+    "round": 37,
+    "score": 0.86,
+    "avg_cost": 0.023130883799999998
+   },
+   {
+    "round": 38,
+    "score": 0.92,
+    "avg_cost": 0.0762012546
+   },
+   {
+    "round": 39,
+    "score": 0.9,
+    "avg_cost": 0.0161536376
+   },
+   {
+    "round": 40,
+    "score": 0.74,
+    "avg_cost": 0.05562240859999999
+   },
+   {
+    "round": 41,
+    "score": 0.84,
+    "avg_cost": 0.048280566
+   },
+   {
+    "round": 42,
+    "score": 0.88,
+    "avg_cost": 0.08626147260000001
+   },
+   {
+    "round": 43,
+    "score": 0.94,
+    "avg_cost": 0.022281494
+   },
+   {
+    "round": 45,
+    "score": 0.92,
+    "avg_cost": 0.026647695800000003
+   },
+   {
+    "round": 46,
+    "score": 0.92,
+    "avg_cost": 0.049377508
+   },
+   {
+    "round": 47,
+    "score": 0.74,
+    "avg_cost": 0.04894830320000001
+   },
+   {
+    "round": 48,
+    "score": 0.58,
+    "avg_cost": 0.0207166462
+   },
+   {
+    "round": 50,
+    "score": 0.88,
+    "avg_cost": 0.025074102799999998
+   },
+   {
+    "round": 51,
+    "score": 0.94,
+    "avg_cost": 0.0149792066
+   },
+   {
+    "round": 52,
+    "score": 0.86,
+    "avg_cost": 0.021196113
+   },
+   {
+    "round": 53,
+    "score": 0.72,
+    "avg_cost": 0.14963088540000005
+   },
+   {
+    "round": 54,
+    "score": 0.86,
+    "avg_cost": 0.0232017776
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 4,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 7,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 8,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 10,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 11,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 44,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   },
+   {
+    "round": 49,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   }
+  ],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "NaturalPlanMeeting",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "4376348e9e964ef4273d82f58122dd2093a1dd1c23ac2624a66ad80ca467165c",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 51,
+  "billed_usd": {
+   "search": 79.869913,
+   "tests": 3.241388,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 65,
+   "input": 206417,
+   "output_incl_thinking": 637514
+  }
+ },
+ {
+  "id": "naturalplan_meeting_seed3_try1",
+  "task": "naturalplan_meeting",
+  "seed": 3,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.42,
+    "avg_cost": 0.0007022415999999999
+   },
+   {
+    "round": 2,
+    "score": 0.44,
+    "avg_cost": 0.0030312664
+   },
+   {
+    "round": 3,
+    "score": 0.86,
+    "avg_cost": 0.003138595
+   },
+   {
+    "round": 4,
+    "score": 0.82,
+    "avg_cost": 0.011132759
+   },
+   {
+    "round": 5,
+    "score": 0.76,
+    "avg_cost": 0.0045190431999999996
+   },
+   {
+    "round": 6,
+    "score": 0.84,
+    "avg_cost": 0.0054929539999999995
+   },
+   {
+    "round": 7,
+    "score": 0.78,
+    "avg_cost": 0.014641664999999996
+   },
+   {
+    "round": 8,
+    "score": 0.78,
+    "avg_cost": 0.0039853926
+   },
+   {
+    "round": 9,
+    "score": 0.78,
+    "avg_cost": 0.0040562298
+   },
+   {
+    "round": 10,
+    "score": 0.62,
+    "avg_cost": 0.0087189176
+   },
+   {
+    "round": 11,
+    "score": 0.78,
+    "avg_cost": 0.008572179800000001
+   },
+   {
+    "round": 12,
+    "score": 0.86,
+    "avg_cost": 0.0095522782
+   },
+   {
+    "round": 13,
+    "score": 0.68,
+    "avg_cost": 0.0152143124
+   },
+   {
+    "round": 14,
+    "score": 0.6,
+    "avg_cost": 0.007417857400000001
+   },
+   {
+    "round": 15,
+    "score": 0.78,
+    "avg_cost": 0.0042288796
+   },
+   {
+    "round": 16,
+    "score": 0.8,
+    "avg_cost": 0.0120133214
+   },
+   {
+    "round": 17,
+    "score": 0.78,
+    "avg_cost": 0.015238639200000001
+   },
+   {
+    "round": 18,
+    "score": 0.56,
+    "avg_cost": 0.0035996406000000005
+   },
+   {
+    "round": 19,
+    "score": 0.86,
+    "avg_cost": 0.013588007800000001
+   },
+   {
+    "round": 20,
+    "score": 0.72,
+    "avg_cost": 0.0037388764
+   },
+   {
+    "round": 21,
+    "score": 0.54,
+    "avg_cost": 0.014225450399999999
+   },
+   {
+    "round": 22,
+    "score": 0.78,
+    "avg_cost": 0.014955575600000003
+   },
+   {
+    "round": 23,
+    "score": 0.78,
+    "avg_cost": 0.021646369400000004
+   },
+   {
+    "round": 24,
+    "score": 0.74,
+    "avg_cost": 0.0094597536
+   },
+   {
+    "round": 25,
+    "score": 0.8,
+    "avg_cost": 0.010147773
+   },
+   {
+    "round": 26,
+    "score": 0.9,
+    "avg_cost": 0.0142799304
+   },
+   {
+    "round": 27,
+    "score": 0.76,
+    "avg_cost": 0.0110071738
+   },
+   {
+    "round": 28,
+    "score": 0.86,
+    "avg_cost": 0.023817272200000007
+   },
+   {
+    "round": 29,
+    "score": 0.78,
+    "avg_cost": 0.013539846000000001
+   },
+   {
+    "round": 30,
+    "score": 0.44,
+    "avg_cost": 0.0651360498
+   },
+   {
+    "round": 31,
+    "score": 0.52,
+    "avg_cost": 0.0381204854
+   },
+   {
+    "round": 32,
+    "score": 0.7,
+    "avg_cost": 0.0168477424
+   },
+   {
+    "round": 33,
+    "score": 0.8,
+    "avg_cost": 0.0109103444
+   },
+   {
+    "round": 34,
+    "score": 0.76,
+    "avg_cost": 0.013547986000000001
+   },
+   {
+    "round": 35,
+    "score": 0.8,
+    "avg_cost": 0.014585967
+   },
+   {
+    "round": 36,
+    "score": 0.8,
+    "avg_cost": 0.0158449254
+   },
+   {
+    "round": 37,
+    "score": 0.56,
+    "avg_cost": 0.033436873
+   },
+   {
+    "round": 38,
+    "score": 0.78,
+    "avg_cost": 0.0175052486
+   },
+   {
+    "round": 39,
+    "score": 0.72,
+    "avg_cost": 0.007844497600000002
+   },
+   {
+    "round": 40,
+    "score": 0.88,
+    "avg_cost": 0.015592018800000001
+   },
+   {
+    "round": 41,
+    "score": 0.8,
+    "avg_cost": 0.015858853599999997
+   },
+   {
+    "round": 42,
+    "score": 0.82,
+    "avg_cost": 0.025123355600000005
+   },
+   {
+    "round": 43,
+    "score": 0.6,
+    "avg_cost": 0.0361955718
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.016134355599999997
+   },
+   {
+    "round": 45,
+    "score": 0.8,
+    "avg_cost": 0.0172513854
+   },
+   {
+    "round": 46,
+    "score": 0.84,
+    "avg_cost": 0.0178852712
+   },
+   {
+    "round": 47,
+    "score": 0.86,
+    "avg_cost": 0.0176425486
+   },
+   {
+    "round": 48,
+    "score": 0.76,
+    "avg_cost": 0.015924216400000003
+   },
+   {
+    "round": 49,
+    "score": 0.86,
+    "avg_cost": 0.0192256606
+   },
+   {
+    "round": 50,
+    "score": 0.84,
+    "avg_cost": 0.020518276000000002
+   },
+   {
+    "round": 51,
+    "score": 0.8,
+    "avg_cost": 0.0172955578
+   },
+   {
+    "round": 52,
+    "score": 0.82,
+    "avg_cost": 0.0197297066
+   },
+   {
+    "round": 53,
+    "score": 0.72,
+    "avg_cost": 0.022469019399999998
+   },
+   {
+    "round": 54,
+    "score": 0.8,
+    "avg_cost": 0.018133225599999997
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "NaturalPlanMeeting",
+   "search_seed": 3,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "4376348e9e964ef4273d82f58122dd2093a1dd1c23ac2624a66ad80ca467165c",
+   "operators": [
+    "AnswerGenerate",
+    "Custom",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 26,
+  "billed_usd": {
+   "search": 39.495995,
+   "tests": 2.134448,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 128775,
+   "output_incl_thinking": 580742
+  }
+ },
+ {
+  "id": "medcalc_seed1_try1",
+  "task": "medcalc",
+  "seed": 1,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.58,
+    "avg_cost": 0.0018037409999999998
+   },
+   {
+    "round": 2,
+    "score": 0.6,
+    "avg_cost": 0.009716517000000001
+   },
+   {
+    "round": 3,
+    "score": 0.76,
+    "avg_cost": 0.0022055542
+   },
+   {
+    "round": 4,
+    "score": 0.74,
+    "avg_cost": 0.0069385359999999995
+   },
+   {
+    "round": 5,
+    "score": 0.78,
+    "avg_cost": 0.0070871924
+   },
+   {
+    "round": 6,
+    "score": 0.78,
+    "avg_cost": 0.0042647488
+   },
+   {
+    "round": 7,
+    "score": 0.76,
+    "avg_cost": 0.0022222726
+   },
+   {
+    "round": 8,
+    "score": 0.76,
+    "avg_cost": 0.011512527399999998
+   },
+   {
+    "round": 9,
+    "score": 0.78,
+    "avg_cost": 0.0031220700000000002
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.009879505200000001
+   },
+   {
+    "round": 11,
+    "score": 0.78,
+    "avg_cost": 0.0031578358000000006
+   },
+   {
+    "round": 12,
+    "score": 0.68,
+    "avg_cost": 0.0044594676
+   },
+   {
+    "round": 13,
+    "score": 0.78,
+    "avg_cost": 0.004239744
+   },
+   {
+    "round": 14,
+    "score": 0.76,
+    "avg_cost": 0.0079919756
+   },
+   {
+    "round": 15,
+    "score": 0.62,
+    "avg_cost": 0.007052712799999999
+   },
+   {
+    "round": 16,
+    "score": 0.76,
+    "avg_cost": 0.0036485317999999994
+   },
+   {
+    "round": 17,
+    "score": 0.72,
+    "avg_cost": 0.0042623366000000005
+   },
+   {
+    "round": 18,
+    "score": 0.78,
+    "avg_cost": 0.0062686858
+   },
+   {
+    "round": 19,
+    "score": 0.82,
+    "avg_cost": 0.003974881
+   },
+   {
+    "round": 20,
+    "score": 0.78,
+    "avg_cost": 0.0040209772
+   },
+   {
+    "round": 21,
+    "score": 0.74,
+    "avg_cost": 0.0064759192
+   },
+   {
+    "round": 22,
+    "score": 0.78,
+    "avg_cost": 0.0038949518
+   },
+   {
+    "round": 23,
+    "score": 0.76,
+    "avg_cost": 0.0052318314
+   },
+   {
+    "round": 24,
+    "score": 0.74,
+    "avg_cost": 0.0052262916
+   },
+   {
+    "round": 25,
+    "score": 0.8,
+    "avg_cost": 0.004269256199999999
+   },
+   {
+    "round": 26,
+    "score": 0.68,
+    "avg_cost": 0.004357814800000001
+   },
+   {
+    "round": 27,
+    "score": 0.76,
+    "avg_cost": 0.004256523
+   },
+   {
+    "round": 28,
+    "score": 0.76,
+    "avg_cost": 0.0112541814
+   },
+   {
+    "round": 29,
+    "score": 0.7,
+    "avg_cost": 0.005620599399999999
+   },
+   {
+    "round": 30,
+    "score": 0.74,
+    "avg_cost": 0.0072696652
+   },
+   {
+    "round": 31,
+    "score": 0.82,
+    "avg_cost": 0.0080935462
+   },
+   {
+    "round": 32,
+    "score": 0.78,
+    "avg_cost": 0.005446836
+   },
+   {
+    "round": 33,
+    "score": 0.76,
+    "avg_cost": 0.007246976599999999
+   },
+   {
+    "round": 34,
+    "score": 0.72,
+    "avg_cost": 0.008147079800000002
+   },
+   {
+    "round": 35,
+    "score": 0.78,
+    "avg_cost": 0.004281880599999999
+   },
+   {
+    "round": 36,
+    "score": 0.74,
+    "avg_cost": 0.0078643598
+   },
+   {
+    "round": 37,
+    "score": 0.8,
+    "avg_cost": 0.0044619863999999995
+   },
+   {
+    "round": 38,
+    "score": 0.74,
+    "avg_cost": 0.005810086200000001
+   },
+   {
+    "round": 39,
+    "score": 0.78,
+    "avg_cost": 0.004726858400000001
+   },
+   {
+    "round": 40,
+    "score": 0.76,
+    "avg_cost": 0.0052448534
+   },
+   {
+    "round": 41,
+    "score": 0.72,
+    "avg_cost": 0.0078782826
+   },
+   {
+    "round": 42,
+    "score": 0.74,
+    "avg_cost": 0.0044005808000000006
+   },
+   {
+    "round": 43,
+    "score": 0.72,
+    "avg_cost": 0.0082594648
+   },
+   {
+    "round": 44,
+    "score": 0.78,
+    "avg_cost": 0.007958378000000002
+   },
+   {
+    "round": 45,
+    "score": 0.78,
+    "avg_cost": 0.0043442834
+   },
+   {
+    "round": 46,
+    "score": 0.74,
+    "avg_cost": 0.0051903056
+   },
+   {
+    "round": 47,
+    "score": 0.76,
+    "avg_cost": 0.005384716999999999
+   },
+   {
+    "round": 48,
+    "score": 0.78,
+    "avg_cost": 0.0045218172
+   },
+   {
+    "round": 49,
+    "score": 0.8,
+    "avg_cost": 0.0048956002
+   },
+   {
+    "round": 50,
+    "score": 0.8,
+    "avg_cost": 0.0059418462
+   },
+   {
+    "round": 51,
+    "score": 0.7,
+    "avg_cost": 0.0042986144
+   },
+   {
+    "round": 52,
+    "score": 0.74,
+    "avg_cost": 0.0050266054
+   },
+   {
+    "round": 53,
+    "score": 0.68,
+    "avg_cost": 0.0049346506
+   },
+   {
+    "round": 54,
+    "score": 0.74,
+    "avg_cost": 0.0043307568
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MedCalcTest",
+   "search_seed": 1,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "d90a6081a00e008e331a3096a96a092dad66e711ec291f11de589c872f728bc1",
+   "operators": [
+    "Custom",
+    "Programmer",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 19,
+  "billed_usd": {
+   "search": 13.230385,
+   "tests": 10.060025,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 59,
+   "input": 224184,
+   "output_incl_thinking": 724849
+  }
+ },
+ {
+  "id": "medcalc_seed2_try1",
+  "task": "medcalc",
+  "seed": 2,
+  "try": 1,
+  "tag": "aamas_b",
+  "note": "",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.52,
+    "avg_cost": 0.001731641
+   },
+   {
+    "round": 2,
+    "score": 0.54,
+    "avg_cost": 0.0059444862
+   },
+   {
+    "round": 3,
+    "score": 0.78,
+    "avg_cost": 0.004593034
+   },
+   {
+    "round": 4,
+    "score": 0.72,
+    "avg_cost": 0.005885574200000001
+   },
+   {
+    "round": 5,
+    "score": 0.76,
+    "avg_cost": 0.0086597716
+   },
+   {
+    "round": 6,
+    "score": 0.74,
+    "avg_cost": 0.0058694806
+   },
+   {
+    "round": 7,
+    "score": 0.7,
+    "avg_cost": 0.0062697862
+   },
+   {
+    "round": 8,
+    "score": 0.7,
+    "avg_cost": 0.0090351718
+   },
+   {
+    "round": 9,
+    "score": 0.76,
+    "avg_cost": 0.014229676200000001
+   },
+   {
+    "round": 10,
+    "score": 0.74,
+    "avg_cost": 0.004985261
+   },
+   {
+    "round": 11,
+    "score": 0.72,
+    "avg_cost": 0.0044673508
+   },
+   {
+    "round": 12,
+    "score": 0.74,
+    "avg_cost": 0.0197195982
+   },
+   {
+    "round": 13,
+    "score": 0.72,
+    "avg_cost": 0.010702422999999999
+   },
+   {
+    "round": 14,
+    "score": 0.78,
+    "avg_cost": 0.004589149999999999
+   },
+   {
+    "round": 15,
+    "score": 0.7,
+    "avg_cost": 0.006133093800000001
+   },
+   {
+    "round": 16,
+    "score": 0.7,
+    "avg_cost": 0.006403872600000002
+   },
+   {
+    "round": 17,
+    "score": 0.76,
+    "avg_cost": 0.0205292434
+   },
+   {
+    "round": 18,
+    "score": 0.7,
+    "avg_cost": 0.023071781400000005
+   },
+   {
+    "round": 19,
+    "score": 0.74,
+    "avg_cost": 0.0101543326
+   },
+   {
+    "round": 20,
+    "score": 0.8,
+    "avg_cost": 0.0052058346
+   },
+   {
+    "round": 21,
+    "score": 0.68,
+    "avg_cost": 0.006521674000000001
+   },
+   {
+    "round": 22,
+    "score": 0.72,
+    "avg_cost": 0.006454411399999999
+   },
+   {
+    "round": 23,
+    "score": 0.68,
+    "avg_cost": 0.0041285576
+   },
+   {
+    "round": 24,
+    "score": 0.74,
+    "avg_cost": 0.017739675
+   },
+   {
+    "round": 25,
+    "score": 0.68,
+    "avg_cost": 0.007860698199999998
+   },
+   {
+    "round": 26,
+    "score": 0.74,
+    "avg_cost": 0.006073972600000001
+   },
+   {
+    "round": 27,
+    "score": 0.74,
+    "avg_cost": 0.0073510022
+   },
+   {
+    "round": 28,
+    "score": 0.78,
+    "avg_cost": 0.0102138814
+   },
+   {
+    "round": 29,
+    "score": 0.7,
+    "avg_cost": 0.0051997882
+   },
+   {
+    "round": 30,
+    "score": 0.78,
+    "avg_cost": 0.0048972632
+   },
+   {
+    "round": 31,
+    "score": 0.72,
+    "avg_cost": 0.005959811199999999
+   },
+   {
+    "round": 32,
+    "score": 0.74,
+    "avg_cost": 0.0096852718
+   },
+   {
+    "round": 33,
+    "score": 0.7,
+    "avg_cost": 0.0046627198
+   },
+   {
+    "round": 34,
+    "score": 0.68,
+    "avg_cost": 0.0036271757999999997
+   },
+   {
+    "round": 35,
+    "score": 0.74,
+    "avg_cost": 0.011510189399999999
+   },
+   {
+    "round": 36,
+    "score": 0.78,
+    "avg_cost": 0.006589822800000001
+   },
+   {
+    "round": 37,
+    "score": 0.54,
+    "avg_cost": 0.0115351318
+   },
+   {
+    "round": 38,
+    "score": 0.76,
+    "avg_cost": 0.0051315404000000005
+   },
+   {
+    "round": 39,
+    "score": 0.78,
+    "avg_cost": 0.0115335184
+   },
+   {
+    "round": 40,
+    "score": 0.76,
+    "avg_cost": 0.008579854599999999
+   },
+   {
+    "round": 41,
+    "score": 0.78,
+    "avg_cost": 0.0051788367999999994
+   },
+   {
+    "round": 42,
+    "score": 0.72,
+    "avg_cost": 0.004752805200000001
+   },
+   {
+    "round": 43,
+    "score": 0.74,
+    "avg_cost": 0.009934449000000001
+   },
+   {
+    "round": 44,
+    "score": 0.74,
+    "avg_cost": 0.0070663524
+   },
+   {
+    "round": 45,
+    "score": 0.76,
+    "avg_cost": 0.011142351200000001
+   },
+   {
+    "round": 46,
+    "score": 0.74,
+    "avg_cost": 0.0068886222000000006
+   },
+   {
+    "round": 47,
+    "score": 0.74,
+    "avg_cost": 0.0046613964
+   },
+   {
+    "round": 48,
+    "score": 0.74,
+    "avg_cost": 0.015058991400000001
+   },
+   {
+    "round": 49,
+    "score": 0.7,
+    "avg_cost": 0.004864274200000001
+   },
+   {
+    "round": 50,
+    "score": 0.72,
+    "avg_cost": 0.0052499832000000015
+   },
+   {
+    "round": 51,
+    "score": 0.8,
+    "avg_cost": 0.005134177
+   },
+   {
+    "round": 52,
+    "score": 0.76,
+    "avg_cost": 0.008825036000000001
+   },
+   {
+    "round": 53,
+    "score": 0.76,
+    "avg_cost": 0.0045671918
+   },
+   {
+    "round": 54,
+    "score": 0.78,
+    "avg_cost": 0.0054105638000000005
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [],
+  "settings": {
+   "run_tag": "aamas_b",
+   "aflow_dataset": "MedCalcTest",
+   "search_seed": 2,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "d90a6081a00e008e331a3096a96a092dad66e711ec291f11de589c872f728bc1",
+   "operators": [
+    "Custom",
+    "Programmer",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 51,
+  "billed_usd": {
+   "search": 16.852991,
+   "tests": 21.916258,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 63,
+   "input": 465159,
+   "output_incl_thinking": 1125020
+  }
+ },
+ {
+  "id": "medcalc_seed3_try1",
+  "task": "medcalc",
+  "seed": 3,
+  "try": 1,
+  "tag": "tables23_restart2",
+  "note": "reused pilot",
+  "numbered_rounds": 54,
+  "validation": [
+   {
+    "round": 1,
+    "score": 0.56,
+    "avg_cost": 0.0017987410000000002
+   },
+   {
+    "round": 2,
+    "score": 0.66,
+    "avg_cost": 0.0061617036
+   },
+   {
+    "round": 3,
+    "score": 0.74,
+    "avg_cost": 0.0028088556000000005
+   },
+   {
+    "round": 4,
+    "score": 0.74,
+    "avg_cost": 0.008914560399999999
+   },
+   {
+    "round": 5,
+    "score": 0.76,
+    "avg_cost": 0.0143752418
+   },
+   {
+    "round": 6,
+    "score": 0.58,
+    "avg_cost": 0.009812622600000001
+   },
+   {
+    "round": 7,
+    "score": 0.74,
+    "avg_cost": 0.006420822400000001
+   },
+   {
+    "round": 8,
+    "score": 0.72,
+    "avg_cost": 0.020062524
+   },
+   {
+    "round": 9,
+    "score": 0.72,
+    "avg_cost": 0.0259481896
+   },
+   {
+    "round": 10,
+    "score": 0.78,
+    "avg_cost": 0.011916811199999999
+   },
+   {
+    "round": 11,
+    "score": 0.78,
+    "avg_cost": 0.0187194756
+   },
+   {
+    "round": 12,
+    "score": 0.72,
+    "avg_cost": 0.0216882328
+   },
+   {
+    "round": 13,
+    "score": 0.76,
+    "avg_cost": 0.021382964999999997
+   },
+   {
+    "round": 14,
+    "score": 0.68,
+    "avg_cost": 0.015705632799999997
+   },
+   {
+    "round": 15,
+    "score": 0.7,
+    "avg_cost": 0.011816257599999998
+   },
+   {
+    "round": 16,
+    "score": 0.74,
+    "avg_cost": 0.021272181799999998
+   },
+   {
+    "round": 17,
+    "score": 0.78,
+    "avg_cost": 0.013381187000000001
+   },
+   {
+    "round": 18,
+    "score": 0.76,
+    "avg_cost": 0.0150767806
+   },
+   {
+    "round": 19,
+    "score": 0.74,
+    "avg_cost": 0.020172329800000003
+   },
+   {
+    "round": 20,
+    "score": 0.68,
+    "avg_cost": 0.0071024087999999996
+   },
+   {
+    "round": 21,
+    "score": 0.76,
+    "avg_cost": 0.014514646600000004
+   },
+   {
+    "round": 22,
+    "score": 0.8,
+    "avg_cost": 0.0149470766
+   },
+   {
+    "round": 23,
+    "score": 0.72,
+    "avg_cost": 0.0181623998
+   },
+   {
+    "round": 24,
+    "score": 0.7,
+    "avg_cost": 0.012110209200000001
+   },
+   {
+    "round": 25,
+    "score": 0.72,
+    "avg_cost": 0.0145498788
+   },
+   {
+    "round": 26,
+    "score": 0.74,
+    "avg_cost": 0.0201525974
+   },
+   {
+    "round": 27,
+    "score": 0.74,
+    "avg_cost": 0.0215692368
+   },
+   {
+    "round": 28,
+    "score": 0.74,
+    "avg_cost": 0.019885705200000003
+   },
+   {
+    "round": 29,
+    "score": 0.64,
+    "avg_cost": 0.019824274599999997
+   },
+   {
+    "round": 30,
+    "score": 0.64,
+    "avg_cost": 0.0139779776
+   },
+   {
+    "round": 31,
+    "score": 0.7,
+    "avg_cost": 0.0175804064
+   },
+   {
+    "round": 32,
+    "score": 0.76,
+    "avg_cost": 0.013977784999999998
+   },
+   {
+    "round": 33,
+    "score": 0.74,
+    "avg_cost": 0.036862321399999995
+   },
+   {
+    "round": 34,
+    "score": 0.68,
+    "avg_cost": 0.014445476599999998
+   },
+   {
+    "round": 35,
+    "score": 0.72,
+    "avg_cost": 0.0145679332
+   },
+   {
+    "round": 36,
+    "score": 0.74,
+    "avg_cost": 0.013939283599999998
+   },
+   {
+    "round": 37,
+    "score": 0.72,
+    "avg_cost": 0.014718904800000002
+   },
+   {
+    "round": 38,
+    "score": 0.68,
+    "avg_cost": 0.021767589599999998
+   },
+   {
+    "round": 39,
+    "score": 0.66,
+    "avg_cost": 0.0225646978
+   },
+   {
+    "round": 40,
+    "score": 0.72,
+    "avg_cost": 0.010667059399999998
+   },
+   {
+    "round": 41,
+    "score": 0.78,
+    "avg_cost": 0.0145058026
+   },
+   {
+    "round": 42,
+    "score": 0.74,
+    "avg_cost": 0.0110981182
+   },
+   {
+    "round": 43,
+    "score": 0.76,
+    "avg_cost": 0.012472317799999999
+   },
+   {
+    "round": 44,
+    "score": 0.76,
+    "avg_cost": 0.014935515
+   },
+   {
+    "round": 45,
+    "score": 0.76,
+    "avg_cost": 0.01816063
+   },
+   {
+    "round": 46,
+    "score": 0.78,
+    "avg_cost": 0.011950547600000002
+   },
+   {
+    "round": 47,
+    "score": 0.74,
+    "avg_cost": 0.0091252824
+   },
+   {
+    "round": 48,
+    "score": 0.76,
+    "avg_cost": 0.015343844400000002
+   },
+   {
+    "round": 49,
+    "score": 0.76,
+    "avg_cost": 0.0181600602
+   },
+   {
+    "round": 51,
+    "score": 0.74,
+    "avg_cost": 0.012051684200000001
+   },
+   {
+    "round": 52,
+    "score": 0.72,
+    "avg_cost": 0.014411761
+   },
+   {
+    "round": 53,
+    "score": 0.68,
+    "avg_cost": 0.017639217999999998
+   },
+   {
+    "round": 54,
+    "score": 0.74,
+    "avg_cost": 0.0100894832
+   }
+  ],
+  "damaged_validation_rounds": {},
+  "failed_proposals": [
+   {
+    "round": 50,
+    "kind": "code",
+    "error_type": "SyntaxError"
+   }
+  ],
+  "settings": {
+   "run_tag": "tables23_restart2",
+   "aflow_dataset": "MedCalcTest",
+   "search_seed": 3,
+   "executor_model": "deepseek-v31-atlascloud",
+   "optimizer_model": "gemini-3.1-pro-preview",
+   "max_candidates": 54,
+   "concurrency": 10,
+   "validation_repeats": 1,
+   "early_stop": false,
+   "aflow_commit": "3f457218fc716093fe53f6df8a5d5e6379d66346",
+   "aflow_patch_sha256": "053cc3db271929995b9c845b523847b3d469cfe85c1090bcae5281b83e6730db",
+   "selection_sha256": "c2dd492abed19e0c62bc516d7f4e2dc5924d76601d820d30d41c87998ba232dd",
+   "test_pass_sha256": "565e4314a40e8f228e85949d5e40bade9eef70e3663b36226af5a310ea052137",
+   "musr_scorer_sha256": null,
+   "seed_prompt_sha256": "d90a6081a00e008e331a3096a96a092dad66e711ec291f11de589c872f728bc1",
+   "operators": [
+    "Custom",
+    "Programmer",
+    "ScEnsemble"
+   ]
+  },
+  "accepted": true,
+  "selected_round": 22,
+  "billed_usd": {
+   "search": 28.383733,
+   "tests": 22.5934,
+   "served_by": [
+    "AtlasCloud"
+   ]
+  },
+  "optimizer_tokens": {
+   "calls": 53,
+   "input": 392238,
+   "output_incl_thinking": 1125706
+  }
+ }
+]

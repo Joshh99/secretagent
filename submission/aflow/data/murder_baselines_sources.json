@@ -1,0 +1,42 @@
+[
+ {
+  "method": "human/human",
+  "source": "benchmarks/COMMON/results/musr/murder/20260425.113115.workflow/results.csv",
+  "sha256": "31f6e41815dfe07e324c3fa977d50150c56e82fdc6186248ec183b16b6141a22"
+ },
+ {
+  "method": "ReAct/human",
+  "source": "benchmarks/COMMON/results/musr/murder/20260501.173024.murder_react_engineered/results.csv",
+  "sha256": "1434d214f3d01a63e3fc4b1c50b75cf7fdfc5d4d008543b46427beaa0359b277"
+ },
+ {
+  "method": "ReAct/learned",
+  "source": "benchmarks/COMMON/learner-results/musr/murder/20260413.132403.murder_induced_d_test_seed42/results.csv",
+  "sha256": "2f6eac6e3398cf9f506d766c5bc5097471c1b22bcd5263ebf27e93d83a49ab4d"
+ },
+ {
+  "method": "codedist/human",
+  "source": "benchmarks/COMMON/codedistill-workflow-results/musr/test_results_full/20260502.043152.musr_murder_test_full_class2_gemini_cache/results.csv",
+  "sha256": "f130515b6ce2de8023c4a5bee1e9589bde732d4b991d752a59ab1a7322c9dfe4"
+ },
+ {
+  "method": "codedist/learned",
+  "source": "benchmarks/COMMON/codedistill-workflow-results/musr/test_results_full/20260503.115410.musr_murder_test_full_class3_gemini_cache/results.csv",
+  "sha256": "42c7d37b5ec02914db228db85ff7ef3066c4b65ba6c7ae1d54b400b64441b3b6"
+ },
+ {
+  "method": "orch-wfseed/human",
+  "source": "benchmarks/COMMON/orchestrator-results/existing_workflow/musr_murder/results/20260504.115248.test_deepseek_v3_1/results.csv",
+  "sha256": "20948a61891715d975eb7ef51a9301604b402bcfde1119597d489a033b1eb235"
+ },
+ {
+  "method": "orch-toolseed/human",
+  "source": "benchmarks/COMMON/orchestrator-results/seed_from_ptools/musr_murder/results/20260504.031321.test_deepseek_v3_1/results.csv",
+  "sha256": "adaed68ba3af7185d498323fda407442160d93e1e77ced94872511aa7b312846"
+ },
+ {
+  "method": "orch/learned",
+  "source": "benchmarks/COMMON/orchestrator-induced-ptools-results/musr/test_results_full/20260505.034352.musr_murder_test_full_orch_induced_seed_ptools/results.csv",
+  "sha256": "d1b1b64ddf05e79984724934e76397e3921dff6c5825aa6999d7e0dcc710d786"
+ }
+]

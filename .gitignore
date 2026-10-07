@@ -278,3 +278,4 @@ benchmarks/musr/learned/**/iterations/
 benchmarks/musr/learned/**/final_eval/
 benchmarks/musr/learned/**/plots/
 benchmarks/musr/learned/**/report.html
+submission/aflow/outputs/
